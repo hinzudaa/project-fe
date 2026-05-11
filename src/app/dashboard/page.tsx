@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { Heart, Shuffle, Mail, Flame, Trophy, Wand2, Users, Gamepad2, Star, Zap, Eye, Sparkles, CircleDot } from "lucide-react";
+import { Heart, Shuffle, Mail, Flame, Trophy, Wand2, Users, Gamepad2, Zap, Sparkles, Lock } from "lucide-react";
 
 const ACTIVITIES = [
   { user: "Oyunaa_96", action: "Таны профайлыг үзсэн", time: "2 мин өмнө", avatar: "О", color: "#c22d50" },
@@ -32,9 +32,9 @@ const LEADERBOARD = [
 ];
 
 const DAILY_CHALLENGES = [
-  { label: "1 Swipe хийх", reward: "+10 coin", done: true },
-  { label: "Forum-д бичлэг нийтлэх", reward: "+20 coin", done: false },
-  { label: "Roleplay эхлэх", reward: "+30 coin", done: false },
+  { label: "1 Swipe хийх", reward: "Streak хадгалах", done: true },
+  { label: "Forum-д бичлэг нийтлэх", reward: "Badge олгох", done: false },
+  { label: "Roleplay эхлэх", reward: "Нэмэлт unlock", done: false },
 ];
 
 const STATS = [
@@ -52,19 +52,18 @@ const QUICK_ACTIONS = [
   { href: "/dashboard/games", label: "Тоглоом", icon: Gamepad2, desc: "24 онлайн одоо", color: "#1f9e60" },
 ];
 
-const SHOP_ITEMS = [
-  { label: "Super-like ×3", cost: "50 coin", icon: Star },
-  { label: "Boost (30 мин)", cost: "100 coin", icon: Zap },
-  { label: "Blur тайлах", cost: "80 coin", icon: Eye },
+const EXCLUSIVE_UNLOCKS = [
+  { label: "Нуурын эрэг сценари", tag: "Roleplay", icon: Wand2, color: "#8b4fd4", locked: false },
+  { label: "VIP Forum хэсэг", tag: "Нийгэмлэг", icon: Lock, color: "#c22d50", locked: false },
+  { label: "AI companion горим", tag: "Premium", icon: Sparkles, color: "#c48830", locked: true },
 ];
 
 export default function DashboardPage() {
-  const [coins] = useState(340);
   const [streakDay] = useState(12);
 
   return (
     <div className="max-w-[1100px] mx-auto">
-      {/* Welcome + coins */}
+      {/* Welcome */}
       <div className="mb-6">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
@@ -73,23 +72,18 @@ export default function DashboardPage() {
             </h1>
             <p className="text-text-secondary text-sm">Өнөөдөр 12 хүн таны профайлыг үзсэн байна.</p>
           </div>
-          {/* Coin widget */}
           <div className="rounded-[14px] px-[18px] py-3 flex items-center gap-3 shrink-0"
-            style={{ background: "rgba(154,96,16,0.08)", border: "1px solid rgba(154,96,16,0.2)" }}>
-            <CircleDot size={20} strokeWidth={1.8} style={{ color: "#c48830" }} />
+            style={{ background: "rgba(158,24,56,0.08)", border: "1px solid rgba(158,24,56,0.2)" }}>
+            <div className="w-2.5 h-2.5 rounded-full animate-glow-pulse" style={{ background: "#c22d50" }} />
             <div>
-              <div className="text-xl font-black" style={{ color: "#c48830", fontFamily: "Playfair Display, serif" }}>{coins}</div>
-              <div className="text-[11px] text-text-muted">Coin үлдэгдэл</div>
+              <div className="text-sm font-bold text-text-primary">PRO гишүүн</div>
+              <div className="text-[11px] text-text-muted">Бүгд нээлттэй</div>
             </div>
-            <button className="rounded-full px-3 py-[5px] text-[11px] font-bold cursor-pointer transition-colors hover:bg-[rgba(154,96,16,0.2)]"
-              style={{ background: "rgba(154,96,16,0.12)", border: "1px solid rgba(154,96,16,0.25)", color: "#c48830" }}>
-              Дэлгүүр
-            </button>
           </div>
         </div>
       </div>
 
-      {/* Stats — 2-col mobile, 5-col desktop */}
+      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-[10px] mb-5">
         {STATS.map((s, i) => {
           const Icon = s.icon;
@@ -125,7 +119,7 @@ export default function DashboardPage() {
               <span className="bg-gradient-to-br from-[#c22d50] to-[#9e1838] bg-clip-text text-transparent">{streakDay} өдрийн streak</span>
             </div>
             <div className="text-xs text-text-secondary">
-              2 өдрийн дараа <strong style={{ color: "#c48830" }}>+200 coin</strong>
+              2 өдрийн дараа <strong style={{ color: "#c48830" }}>онцгой урамшуулал</strong>
             </div>
           </div>
         </div>
@@ -153,8 +147,8 @@ export default function DashboardPage() {
             Өнөөдрийн даалгавар
           </h3>
           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase"
-            style={{ background: "rgba(154,96,16,0.12)", color: "#c48830", border: "1px solid rgba(154,96,16,0.25)" }}>
-            +60 coin боломж
+            style={{ background: "rgba(158,24,56,0.1)", color: "#c22d50", border: "1px solid rgba(158,24,56,0.2)" }}>
+            1/3 дууссан
           </span>
         </div>
         <div className="flex gap-2.5 flex-wrap">
@@ -171,7 +165,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <div className="text-xs font-semibold" style={{ color: c.done ? "#1f9e60" : "var(--text-primary)" }}>{c.label}</div>
-                  <div className="text-[11px]" style={{ color: "#c48830" }}>{c.reward}</div>
+                  <div className="text-[11px] text-text-muted">{c.reward}</div>
                 </div>
               </div>
             </div>
@@ -288,34 +282,39 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Coin shop */}
+          {/* Exclusive unlocks */}
           <div className="rounded-[18px] px-[22px] py-5"
-            style={{ background: "linear-gradient(135deg, rgba(154,96,16,0.09), rgba(158,24,56,0.06))", border: "1px solid rgba(154,96,16,0.18)" }}>
+            style={{ background: "linear-gradient(135deg, rgba(90,31,138,0.1), rgba(158,24,56,0.07))", border: "1px solid rgba(90,31,138,0.2)" }}>
             <h3 className="text-[12px] font-bold tracking-[0.06em] uppercase mb-4 flex items-center gap-1.5"
-              style={{ color: "#c48830" }}>
-              <CircleDot size={12} strokeWidth={1.8} />
-              Coin дэлгүүр
+              style={{ color: "#8b4fd4" }}>
+              <Sparkles size={12} strokeWidth={1.8} />
+              Онцгой хандалт
             </h3>
             <div className="flex flex-col gap-2">
-              {SHOP_ITEMS.map((item, i) => {
+              {EXCLUSIVE_UNLOCKS.map((item, i) => {
                 const Icon = item.icon;
                 return (
                   <div key={i} className="flex items-center justify-between px-3 py-2.5 rounded-[10px]"
                     style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}>
                     <div className="flex items-center gap-2.5">
-                      <Icon size={14} strokeWidth={1.8} style={{ color: "#c48830" }} />
-                      <span className="text-[13px] text-text-secondary">{item.label}</span>
+                      <Icon size={14} strokeWidth={1.8} style={{ color: item.locked ? "var(--text-muted)" : item.color }} />
+                      <div>
+                        <div className="text-[13px]" style={{ color: item.locked ? "var(--text-muted)" : "var(--text-secondary)" }}>{item.label}</div>
+                        <div className="text-[10px] text-text-muted">{item.tag}</div>
+                      </div>
                     </div>
-                    <button className="rounded-full px-2.5 py-1 text-[11px] font-bold cursor-pointer hover:opacity-80 transition-opacity"
-                      style={{ background: "rgba(154,96,16,0.15)", border: "1px solid rgba(154,96,16,0.3)", color: "#c48830" }}>
-                      {item.cost}
-                    </button>
+                    {item.locked ? (
+                      <span className="text-[10px] text-text-muted border border-white/[0.06] rounded-full px-2 py-0.5">Premium</span>
+                    ) : (
+                      <div className="w-[6px] h-[6px] rounded-full" style={{ background: item.color }} />
+                    )}
                   </div>
                 );
               })}
             </div>
             <div className="text-[11px] text-text-muted mt-3.5 text-center">
-              Таны үлдэгдэл: <strong style={{ color: "#c48830" }}>{coins} coin</strong>
+              Premium-д шилжих:{" "}
+              <Link href="/pricing" className="no-underline" style={{ color: "#8b4fd4" }}>Дэлгэрэнгүй →</Link>
             </div>
           </div>
 
@@ -337,7 +336,7 @@ export default function DashboardPage() {
               </span>
             </div>
             <p className="text-xs text-text-secondary leading-[1.7] mb-4">
-              Зуны тусгай "Нуурын эрэг" roleplay сценари нэмэгдлээ. Хамгийн идэвхтэй тоглогч +500 coin авна!
+              Зуны тусгай "Нуурын эрэг" roleplay сценари нэмэгдлээ. Хамгийн идэвхтэй тоглогч онцгой badge авна!
             </p>
             <Link href="/dashboard/roleplay">
               <button className="w-full text-white border-none rounded-[12px] font-semibold text-sm cursor-pointer transition-all duration-200 hover:-translate-y-0.5 py-2.5"

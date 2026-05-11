@@ -7,24 +7,24 @@ const PLANS = [
     id: "standard", name: "Стандарт", price: 29900, period: "сар", badge: "Үндсэн", badgeColor: "#3cc878", color: "#3cc878",
     desc: "Roleplay + Forum + Swipe (өдөрт 30) + Тоглоом",
     features: ["Swipe (өдөрт 30 удаа)", "Forum унших & бичих", "Basic roleplay сценари", "Mini-game хандалт", "Chat (өдөрт 10 хүн)"],
-    missing: ["AI companion", "Unlimited swipe", "Boost & Super-like", "Exclusive content", "Coin bonus"]
+    missing: ["AI companion", "Unlimited swipe", "Boost & Super-like", "Exclusive content"]
   },
   {
     id: "premium", name: "Premium", price: 59900, period: "сар", badge: "Хамгийн алдартай", badgeColor: "#9b59ff", color: "#9b59ff", popular: true,
     desc: "Бүгд + Unlimited swipe + AI companion + Boost x3 + Exclusive content",
-    features: ["Хязгааргүй swipe", "AI Roleplay companion", "Boost x3 / сар", "Super-like x5 / өдөр", "Exclusive forum & content", "Хязгааргүй chat", "Нууц forum хэсэг", "Coin 500 / сар бонус"],
+    features: ["Хязгааргүй swipe", "AI Roleplay companion", "Boost x3 / сар", "Super-like x5 / өдөр", "Exclusive forum & content", "Хязгааргүй chat", "Нууц forum хэсэг", "VIP badge & тэргүүлэх эрх"],
     missing: []
   },
   {
     id: "quarterly", name: "Улирлын", price: 39900, period: "3 сар", badge: "Хэмнэлттэй", badgeColor: "#f0c040", color: "#f0c040",
     desc: "Стандарт багц — 3 сарын урьдчилан төлөлт (↓10K хэмнэлт)",
-    features: ["Стандартын бүх зүйл", "3 сарын урьдчилан төлөлт", "10,000₮ хэмнэлт", "Нэмэлт 100 coin / сар", "Priority дэмжлэг"],
+    features: ["Стандартын бүх зүйл", "3 сарын урьдчилан төлөлт", "10,000₮ хэмнэлт", "Priority дэмжлэг", "Онцгой streak badge"],
     missing: ["AI companion", "Unlimited swipe", "Boost & Super-like"]
   }
 ];
 
 const VIRAL = [
-  { num: "01", title: "Найзаа урих (referral)", desc: "Найз бүрт 1 долоо хоногийн үнэгүй нэмэлт хугацаа. Урьсан хүн Coin авна. Хязгааргүй referral chain боломжтой." },
+  { num: "01", title: "Найзаа урих (referral)", desc: "Найз бүрт 1 долоо хоногийн үнэгүй нэмэлт хугацаа. Урьсан хүн онцгой badge авна. Хязгааргүй referral chain боломжтой." },
   { num: "02", title: "Anonymous танилцуулга", desc: "Эхний 7 хоног blur profile харагдана — match болсны дараа л бүрэн харагдана. Сониуч байдлыг нэмнэ." },
   { num: "03", title: "Seasonal event", desc: "Хайрын баяр, Цагаан сар, Halloween-д тусгай game mode, roleplay scenario нэмнэ. Time-limited urgency." },
   { num: "04", title: "Daily challenge", desc: "Өдөр тутмын даалгавар биелүүлж streak хадгалаарай. 7 хоногийн streak = нэмэлт unlock content." },
@@ -177,7 +177,6 @@ export default function PricingPage() {
           <div className="grid gap-3 mb-12" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
             {[
               { icon: "🔥", title: "Daily streak", desc: "7 хоног дараалан орсон бол unlock content, тусгай badge авна. Streak тасрахгүйн тулд push notification." },
-              { icon: "🪙", title: "Coin систем", desc: "Активитид coin олно. Coin-оор тусгай filter, boost, super-like авна. Дутуу бол арилжааны сонголт гарна." },
               { icon: "🔓", title: "Unlock content", desc: "Зарим roleplay scenario, game mode, forum section нь 3 сар гишүүнчлэлд л нээгдэнэ. Урьдчилан харуулна." },
               { icon: "🔔", title: "Smart notification", desc: "Grok-оор \"таны match online боллоо\", \"шинэ roleplay партнер хайж байна\" гэх customized push." },
               { icon: "🏆", title: "Leaderboard", desc: "Roleplay writer, хамгийн идэвхтэй forum гишүүн. Сарын шилдэг профайл онцлон дарна." },
