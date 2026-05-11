@@ -74,7 +74,7 @@ export default function AuthBanner() {
             <div
               className="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-black text-white shrink-0 font-serif bg-[linear-gradient(135deg,#d4365a,#9a1c3e)]"
             >С</div>
-            <span className="text-sm font-bold font-serif">Солонго</span>
+            <span className="text-sm font-bold font-serif">Intimate</span>
           </div>
         </div>
 
@@ -95,7 +95,7 @@ export default function AuthBanner() {
           <div
             className="w-9 h-9 rounded-xl flex items-center justify-center text-lg font-black text-white shrink-0 font-serif bg-[linear-gradient(135deg,#d4365a,#9a1c3e)] shadow-[0_4px_20px_rgba(200,48,90,0.4)]"
           >С</div>
-          <span className="text-lg font-bold font-serif">Солонго</span>
+          <span className="text-lg font-bold font-serif">Intimate</span>
         </div>
 
         <div className={`mb-8 transition-all duration-350 ${animating ? "opacity-0 translate-y-3" : "opacity-100 translate-y-0"}`}>

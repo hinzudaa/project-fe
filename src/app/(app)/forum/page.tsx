@@ -15,7 +15,7 @@ const POSTS = [
   { id: 2, category: "ub", anon: true, author: "Нэргүй_хэрэглэгч", avatar: "?", authorColor: "#9b59ff", title: "Нийслэлд шинэ хүн танихын хэцүүлэг", body: "УБ-д 2 жил болсон ч гэсэн жинхэнэ найз олоогүй хэвээр байна. Хаанаас хайх вэ?", likes: 89, comments: 22, hot: false, time: "4 цаг өмнө", tags: ["УБ", "Найзлалт"] },
   { id: 3, category: "travel", anon: false, author: "Gantulga_traveler", avatar: "Г", authorColor: "#388add", title: "Хөвсгөлд 5 хоног аялах хамтрагч хайж байна — 2 суудал байна", body: "8 дугаар сарын 15-20-нд нуурын баг руу явна. 2 суудал чөлөөтэй байна.", likes: 67, comments: 31, hot: false, time: "1 өдрийн өмнө", tags: ["Аялал", "Хөвсгөл"] },
   { id: 4, category: "anon", anon: true, author: "Нэргүй_хэрэглэгч", avatar: "?", authorColor: "#f0c040", title: "[18+] Эхний удаагийн нервийг хэрхэн арилгах вэ?", body: "Маш их санаа зовлонтой байна. Зөвлөгөө өгч чадах хүн байна уу?", likes: 203, comments: 67, hot: true, time: "30 мин өмнө", tags: ["18+", "Зөвлөгөө"] },
-  { id: 5, category: "relationships", anon: false, author: "Oyunaa_96", avatar: "О", authorColor: "#3cc878", title: "Roleplay-оос жинхэнэ харилцаа болсон хүн байна уу?", body: "Солонго дээр roleplay хийж байгаад жинхэнэ дотуур болсон хүн байна уу?", likes: 156, comments: 44, hot: false, time: "3 цаг өмнө", tags: ["Roleplay", "Харилцаа"] },
+  { id: 5, category: "relationships", anon: false, author: "Oyunaa_96", avatar: "О", authorColor: "#3cc878", title: "Roleplay-оос жинхэнэ харилцаа болсон хүн байна уу?", body: "Intimate дээр roleplay хийж байгаад жинхэнэ дотуур болсон хүн байна уу?", likes: 156, comments: 44, hot: false, time: "3 цаг өмнө", tags: ["Roleplay", "Харилцаа"] },
 ];
 
 export default function ForumPage() {

@@ -14,7 +14,7 @@ export default function Header() {
         <div
           className="w-8 h-8 rounded-[9px] flex items-center justify-center text-[15px] font-black text-white shrink-0 font-serif bg-[linear-gradient(135deg,#c8254a,#780f20)] shadow-[0_4px_20px_rgba(158,24,56,0.45)]"
         >С</div>
-        <span className="text-[17px] font-bold tracking-[-0.02em] text-text-primary font-serif">Солонго</span>
+        <span className="text-[17px] font-bold tracking-[-0.02em] text-text-primary font-serif">Intimate</span>
       </Link>
 
       <div className="flex items-center gap-2">

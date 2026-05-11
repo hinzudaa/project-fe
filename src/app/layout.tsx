@@ -3,7 +3,7 @@ import "./globals.css";
 import Header from "./_components/Header";
 
 export const metadata: Metadata = {
-  title: "Солонго | Монголын Premium Нийгэмлэг",
+  title: "Intimate | Монголын Premium Нийгэмлэг",
   description: "Монголын хамгийн онцгой насанд хүрэгчдийн нийгэмлэг",
 };
 
