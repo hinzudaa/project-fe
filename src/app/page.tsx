@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Heart, Wand2, Users, Gamepad2, Lock, ArrowRight, Flame, ChevronDown } from "lucide-react";
+import PricingPage from "./pricing/page";
 
 const PLANS = [
   {
@@ -98,7 +99,7 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="pt-4 flex flex-col items-center justify-center relative">
-        <div className="text-center max-w-[900px] mx-auto px-6 py-24">
+        <div className="text-center max-w-[900px] mx-auto px-6 pt-24">
 
           <div className="mb-10 animate-fade-up">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
@@ -147,11 +148,6 @@ export default function LandingPage() {
               </button>
             </Link>
           </div>
-
-          <p className="text-xs flex items-center justify-center gap-1.5 animate-fade-up" style={{ color: "var(--text-muted)" }}>
-            <Lock size={11} />
-            18+ · Монгол иргэдэд зориулсан · Нууцлал хамгаалагдсан
-          </p>
         </div>
       </section>
 
@@ -245,86 +241,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section className="max-w-[1060px] mx-auto px-6 mb-32">
-        <div className="text-center mb-14">
-          <p className="text-[11px] font-bold tracking-[0.12em] uppercase mb-4" style={{ color: "#8b4fd4" }}>Нэвтрэх эрх</p>
-          <h2 className="font-serif font-black tracking-[-0.025em]" style={{ fontSize: "clamp(28px,4vw,44px)" }}>
-            Subscription{" "}
-            <span style={{
-              background: "linear-gradient(135deg, #a855f7, #e040fb)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text"
-            }}>Багц</span>
-          </h2>
-          <p className="text-base mt-3 mb-5" style={{ color: "var(--text-secondary)" }}>QPay / SocialPay-аар төлнө. Хэдийд ч цуцлах боломжтой.</p>
-          <div className="flex gap-2 justify-center flex-wrap">
-            <span className="inline-flex items-center gap-1 px-[10px] py-1 rounded-full text-[11px] font-bold tracking-[0.05em] uppercase"
-              style={{ background: "rgba(50,190,110,0.12)", color: "#30be78", border: "1px solid rgba(50,190,110,0.25)" }}>✓ QPay дэмжинэ</span>
-            <span className="inline-flex items-center gap-1 px-[10px] py-1 rounded-full text-[11px] font-bold tracking-[0.05em] uppercase"
-              style={{ background: "rgba(50,120,220,0.12)", color: "#3080e0", border: "1px solid rgba(50,120,220,0.25)" }}>✓ SocialPay</span>
-            <span className="inline-flex items-center gap-1 px-[10px] py-1 rounded-full text-[11px] font-bold tracking-[0.05em] uppercase"
-              style={{ background: "rgba(212,160,64,0.12)", color: "#e8b850", border: "1px solid rgba(212,160,64,0.25)" }}>✓ 7 хоног үнэгүй</span>
-          </div>
-        </div>
-
-        <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(290px, 1fr))" }}>
-          {PLANS.map(plan => {
-            const isSel = selected === plan.id;
-            return (
-              <div key={plan.id} onClick={() => setSelected(plan.id)}
-                className="bg-bg-card rounded-[32px] p-7 cursor-pointer relative transition-all duration-[220ms]"
-                style={{
-                  border: isSel ? `2px solid ${plan.color}` : "1px solid rgba(255,255,255,0.07)",
-                  boxShadow: isSel ? `0 0 40px ${plan.color}20` : "none",
-                }}>
-                <div className="absolute top-[-12px] right-5">
-                  <span className="px-3 py-1 rounded-full text-[11px] font-bold"
-                    style={{ background: plan.color, color: plan.id === "quarterly" ? "#1a1000" : "white" }}>
-                    {plan.badge}
-                  </span>
-                </div>
-                {isSel && (
-                  <div className="absolute top-4 left-4 w-[22px] h-[22px] rounded-full flex items-center justify-center text-[13px] text-white"
-                    style={{ background: plan.color }}>✓</div>
-                )}
-                <div className="mt-3">
-                  <div className="text-xs font-bold tracking-[0.05em] mb-1.5" style={{ color: "var(--text-muted)" }}>{plan.name.toUpperCase()}</div>
-                  <div className="flex items-baseline gap-1.5 mb-2">
-                    <span className="text-[38px] font-black font-serif" style={{ color: plan.color }}>₮{plan.price.toLocaleString()}</span>
-                    <span className="text-[13px]" style={{ color: "var(--text-muted)" }}>/{plan.period}</span>
-                  </div>
-                  <p className="text-[13px] leading-[1.6] mb-5" style={{ color: "var(--text-secondary)" }}>{plan.desc}</p>
-                  <div className="flex flex-col gap-2 mb-[22px]">
-                    {plan.features.map((f, i) => (
-                      <div key={i} className="flex gap-2 items-center text-[13px]">
-                        <span className="text-xs shrink-0" style={{ color: plan.color }}>✓</span>
-                        <span style={{ color: "var(--text-primary)" }}>{f}</span>
-                      </div>
-                    ))}
-                    {plan.missing.slice(0, 2).map((f, i) => (
-                      <div key={i} className="flex gap-2 items-center text-[13px]">
-                        <span className="text-xs shrink-0" style={{ color: "var(--text-muted)" }}>—</span>
-                        <span style={{ color: "var(--text-muted)" }}>{f}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <Link href="/auth/register">
-                    <button className="w-full py-[13px] rounded-[14px] font-bold text-sm cursor-pointer transition-all duration-200"
-                      style={{
-                        background: isSel ? plan.color : "transparent",
-                        border: isSel ? "none" : `1px solid ${plan.color}50`,
-                        color: isSel ? (plan.id === "quarterly" ? "#1a1000" : "white") : plan.color,
-                      }}>
-                      {isSel ? "✓ Энэ багц сонгосон" : "Сонгох"}
-                    </button>
-                  </Link>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+      <PricingPage />
 
       {/* CTA */}
       <section className="text-center px-6 pb-32 relative">
