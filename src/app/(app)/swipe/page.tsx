@@ -1,16 +1,48 @@
 "use client";
 import { useState } from "react";
-import { Cpu, X, Heart, Star, MapPin } from "lucide-react";
+import { X, Heart, Star, MapPin, Zap } from "lucide-react";
 
 const PROFILES = [
-  { name: "Oyunaa", age: 25, city: "Улаанбаатар", bio: "Хөгжим, аялал дуртай. Жинхэнэ яриа хайж байна.", interests: ["Хөгжим", "Аялал", "Кино"], match: 94,
-    gradientA: "#6b1528", gradientB: "#2a0814", skinGlow: "rgba(220,150,130,0.1)" },
-  { name: "Tsetseg", age: 23, city: "Дархан", bio: "Уран зохиол болон roleplay-д дуртай. Дуртай дүрүүдийн тухай ярих хамтрагч хайж байна.", interests: ["Уран зохиол", "Roleplay", "Кафе"], match: 88,
-    gradientA: "#3a1060", gradientB: "#120820", skinGlow: "rgba(180,150,220,0.1)" },
-  { name: "Narantsetseg", age: 28, city: "Улаанбаатар", bio: "Нийслэлд амьдардаг, кино, хооллохыг дуртай. Инээмсэглэл чухал!", interests: ["Кино", "Хоол", "Спорт"], match: 81,
-    gradientA: "#5a3010", gradientB: "#1a0c08", skinGlow: "rgba(220,180,120,0.1)" },
-  { name: "Enkhjargal", age: 24, city: "Эрдэнэт", bio: "IT мэргэжилтэй, тоглоом болон аниме дуртай. Хамт тоглох хүн хайж байна.", interests: ["Тоглоом", "Аниме", "Технологи"], match: 76,
-    gradientA: "#0e4028", gradientB: "#040e0a", skinGlow: "rgba(140,210,170,0.09)" },
+  {
+    name: "Oyunaa", age: 25, city: "Улаанбаатар",
+    bio: "Хөгжим, аялал дуртай. Жинхэнэ яриа хайж байна.",
+    interests: ["Хөгжим", "Аялал", "Кино"],
+    match: 94,
+    avatar: "О",
+    bg: "linear-gradient(160deg, #6b1528 0%, #2a0814 60%, #0d0408 100%)",
+    glow: "rgba(220,80,100,0.25)",
+    avatarFrom: "#c22d50", avatarTo: "#7a0f20",
+  },
+  {
+    name: "Tsetseg", age: 23, city: "Дархан",
+    bio: "Уран зохиол болон roleplay-д дуртай. Дуртай дүрүүдийн тухай ярих хамтрагч хайж байна.",
+    interests: ["Уран зохиол", "Roleplay", "Кафе"],
+    match: 88,
+    avatar: "Ц",
+    bg: "linear-gradient(160deg, #3a1060 0%, #120820 60%, #060210 100%)",
+    glow: "rgba(160,100,240,0.25)",
+    avatarFrom: "#9b59ff", avatarTo: "#4a1888",
+  },
+  {
+    name: "Narantsetseg", age: 28, city: "Улаанбаатар",
+    bio: "Нийслэлд амьдардаг, кино, хооллохыг дуртай. Инээмсэглэл чухал!",
+    interests: ["Кино", "Хоол", "Спорт"],
+    match: 81,
+    avatar: "Н",
+    bg: "linear-gradient(160deg, #5a3010 0%, #1a0c08 60%, #0a0504 100%)",
+    glow: "rgba(220,150,60,0.22)",
+    avatarFrom: "#e8b850", avatarTo: "#8a5510",
+  },
+  {
+    name: "Enkhjargal", age: 24, city: "Эрдэнэт",
+    bio: "IT мэргэжилтэй, тоглоом болон аниме дуртай. Хамт тоглох хүн хайж байна.",
+    interests: ["Тоглоом", "Аниме", "Технологи"],
+    match: 76,
+    avatar: "Э",
+    bg: "linear-gradient(160deg, #0e4028 0%, #040e0a 60%, #020806 100%)",
+    glow: "rgba(60,200,120,0.2)",
+    avatarFrom: "#3cc878", avatarTo: "#0d5428",
+  },
 ];
 
 export default function SwipePage() {
@@ -32,121 +64,225 @@ export default function SwipePage() {
   };
 
   return (
-    <div className="max-w-[680px] mx-auto">
+    <div className="max-w-[480px] mx-auto flex flex-col">
+
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="font-serif text-[24px] font-bold tracking-[-0.02em]">Танилц</h1>
-          <p className="text-text-secondary text-[13px] mt-0.5">AI-ийн санал болгосон хүмүүс</p>
+          <h1 className="font-serif text-[22px] font-bold">Танилц</h1>
+          <p className="text-text-muted text-[12px]">AI-ийн санал болгосон хүмүүс</p>
         </div>
-        <div className="flex gap-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold tracking-[0.04em] uppercase bg-[rgba(158,24,56,0.12)] text-accent-light border border-[rgba(158,24,56,0.2)]">
-            {PROFILES.length * 3} хүлээж байна
-          </span>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold tracking-[0.04em] uppercase bg-[rgba(90,31,138,0.12)] text-accent-purple border border-[rgba(90,31,138,0.2)]">
-            <Cpu size={11} strokeWidth={1.8} /> AI Match
-          </span>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold"
+          style={{ background: "rgba(232,65,90,0.1)", border: "1px solid rgba(232,65,90,0.25)", color: "#e8415a" }}>
+          <Zap size={11} strokeWidth={2.5} />
+          {PROFILES.length * 3} хүлээж байна
         </div>
       </div>
 
       {/* Match modal */}
       {matched && (
-        <div className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center backdrop-blur-[10px]">
-          <div className="backdrop-blur-[28px] border rounded-[28px] px-10 py-12 text-center max-w-[340px] w-[90%] animate-fade-up bg-[rgba(12,8,25,0.95)] border-[rgba(158,24,56,0.4)] shadow-[0_0_0_1px_rgba(158,24,56,0.07),0_0_50px_rgba(158,24,56,0.18)]">
-            <div className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center animate-heartbeat bg-[linear-gradient(135deg,#b82040,#6e0f22)] shadow-[0_8px_32px_rgba(158,24,56,0.4)]">
-              <Heart size={28} fill="white" strokeWidth={0} />
-            </div>
-            <h2 className="font-serif text-[28px] font-black mb-2">
-              <span className="bg-gradient-to-br from-[#c22d50] to-[#8c1828] bg-clip-text text-transparent">Match болсон!</span>
-            </h2>
-            <p className="text-text-secondary mb-8 text-[14px]">
-              Та болон <strong className="text-text-primary">{profile.name}</strong> хоёр таалагдсан байна.
-            </p>
-            <div className="flex gap-2.5">
-              <button
-                onClick={() => { setMatched(false); setCardIdx(i => i + 1); }}
-                className="flex-1 bg-transparent text-text-secondary border border-white/[0.08] rounded-[12px] font-medium text-sm cursor-pointer transition-all duration-200 hover:text-text-primary hover:border-white/[0.15] py-3">
+        <>
+          <style>{`
+            @keyframes matchModalIn {
+              from { opacity: 0; transform: scale(0.75) translateY(24px); }
+              to   { opacity: 1; transform: scale(1) translateY(0); }
+            }
+            @keyframes matchAvatarPop {
+              0%   { opacity: 0; transform: scale(0) rotate(-12deg); }
+              65%  { transform: scale(1.12) rotate(3deg); opacity: 1; }
+              100% { transform: scale(1) rotate(0deg); opacity: 1; }
+            }
+            @keyframes matchRingPulse {
+              0%   { transform: scale(1); opacity: 0.7; }
+              100% { transform: scale(2.8); opacity: 0; }
+            }
+            @keyframes matchHeartBeat {
+              0%, 100% { transform: scale(1); }
+              30%  { transform: scale(1.25); }
+              60%  { transform: scale(0.92); }
+              80%  { transform: scale(1.1); }
+            }
+            @keyframes matchHeartFloat {
+              0%   { opacity: 0; transform: translateY(0) scale(0.6) rotate(var(--r)); }
+              15%  { opacity: 1; }
+              85%  { opacity: 0.5; }
+              100% { opacity: 0; transform: translateY(-220px) scale(1.2) rotate(var(--r)); }
+            }
+            @keyframes matchTextUp {
+              from { opacity: 0; transform: translateY(10px); }
+              to   { opacity: 1; transform: translateY(0); }
+            }
+          `}</style>
+
+          <div className="fixed inset-0 z-[100] flex items-center justify-center backdrop-blur-[14px] p-5 overflow-hidden"
+            style={{ background: "rgba(4,2,10,0.88)" }}>
+
+            {/* Floating hearts */}
+            {[
+              { l: "8%",  d: 0,    r: "-15deg", dur: 2.8 },
+              { l: "20%", d: 0.4,  r: "10deg",  dur: 3.1 },
+              { l: "35%", d: 0.15, r: "-5deg",  dur: 2.5 },
+              { l: "50%", d: 0.6,  r: "20deg",  dur: 3.3 },
+              { l: "63%", d: 0.25, r: "-12deg", dur: 2.7 },
+              { l: "77%", d: 0.5,  r: "8deg",   dur: 3.0 },
+              { l: "88%", d: 0.1,  r: "-20deg", dur: 2.9 },
+            ].map((h, i) => (
+              <div key={i} className="absolute bottom-[12%] text-[20px] pointer-events-none select-none"
+                style={{
+                  left: h.l,
+                  ["--r" as string]: h.r,
+                  animation: `matchHeartFloat ${h.dur}s ease-out ${h.d}s infinite`,
+                }}>❤️</div>
+            ))}
+
+            {/* Modal card */}
+            <div className="rounded-[32px] px-8 py-10 text-center w-full max-w-[340px] relative z-10"
+              style={{
+                background: "rgba(10,6,22,0.98)",
+                border: "1px solid rgba(232,65,90,0.28)",
+                boxShadow: "0 0 80px rgba(200,37,74,0.22), 0 24px 60px rgba(0,0,0,0.6)",
+                animation: "matchModalIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both",
+              }}>
+
+              {/* Avatars row */}
+              <div className="flex items-center justify-center gap-3 mb-7">
+                <div className="w-[66px] h-[66px] rounded-full flex items-center justify-center text-[26px] font-black text-white"
+                  style={{
+                    background: "linear-gradient(135deg, #e8415a, #9e1838)",
+                    boxShadow: "0 4px 24px rgba(200,37,74,0.55)",
+                    animation: "matchAvatarPop 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.15s both",
+                  }}>М</div>
+
+                {/* Pulsing heart center */}
+                <div className="relative w-10 h-10 flex items-center justify-center">
+                  <div className="absolute inset-0 rounded-full"
+                    style={{ background: "rgba(232,65,90,0.35)", animation: "matchRingPulse 1.3s ease-out 0.6s infinite" }} />
+                  <div className="absolute inset-0 rounded-full"
+                    style={{ background: "rgba(232,65,90,0.2)", animation: "matchRingPulse 1.3s ease-out 0.9s infinite" }} />
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center relative z-10"
+                    style={{
+                      background: "linear-gradient(135deg, #e8415a, #e8b850)",
+                      boxShadow: "0 0 24px rgba(232,65,90,0.8)",
+                      animation: "matchHeartBeat 1.1s ease-in-out 0.7s infinite",
+                    }}>
+                    <Heart size={17} fill="white" strokeWidth={0} />
+                  </div>
+                </div>
+
+                <div className="w-[66px] h-[66px] rounded-full flex items-center justify-center text-[26px] font-black text-white"
+                  style={{
+                    background: `linear-gradient(135deg, ${profile.avatarFrom}, ${profile.avatarTo})`,
+                    boxShadow: `0 4px 24px ${profile.glow}`,
+                    animation: "matchAvatarPop 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.3s both",
+                  }}>
+                  {profile.avatar}
+                </div>
+              </div>
+
+              <h2 className="font-serif text-[28px] font-black mb-2"
+                style={{ color: "#e8415a", animation: "matchTextUp 0.45s ease-out 0.45s both" }}>
+                Match болсон!
+              </h2>
+              <p className="text-text-secondary text-[14px] mb-7 leading-relaxed"
+                style={{ animation: "matchTextUp 0.45s ease-out 0.6s both" }}>
+                Та болон <strong className="text-white">{profile.name}</strong> хоёр бие биедээ таалагдсан байна.
+              </p>
+              <div className="flex gap-2.5"
+                style={{ animation: "matchTextUp 0.45s ease-out 0.8s both" }}>
+              <button onClick={() => { setMatched(false); setCardIdx(i => i + 1); }}
+                className="flex-1 py-3 rounded-[14px] text-[13px] font-medium text-text-secondary transition-colors hover:text-text-primary"
+                style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
                 Үргэлжлүүлэх
               </button>
-              <button
-                onClick={() => setMatched(false)}
-                className="flex-1 text-white border-none rounded-[12px] font-semibold text-sm cursor-pointer transition-all duration-200 shadow-[0_4px_20px_rgba(158,24,56,0.35)] hover:-translate-y-0.5 py-3 bg-[linear-gradient(135deg,#b82040,#6e0f22)]">
-                Мессеж илгээх
+              <button onClick={() => setMatched(false)}
+                className="flex-1 py-3 rounded-[14px] text-[13px] font-bold text-white transition-all hover:-translate-y-0.5"
+                style={{ background: "linear-gradient(135deg, #e8415a, #9e1838)", boxShadow: "0 4px 20px rgba(200,37,74,0.4)" }}>
+                Мессеж
               </button>
+              </div>
             </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* Card stack */}
-      <div className="relative h-[560px] mb-8">
-        {/* Background card */}
-        <div className="absolute w-full h-full z-[1] rounded-[20px] overflow-hidden border border-white/[0.04]"
+      <div className="relative mb-5" style={{ height: "clamp(420px, 62vh, 560px)" }}>
+
+        {/* Back card */}
+        <div className="absolute inset-0 rounded-[28px] overflow-hidden"
           style={{
-            transform: "scale(0.94) translateY(18px)",
+            transform: "scale(0.93) translateY(20px)",
             transformOrigin: "bottom center",
-            background: `linear-gradient(165deg, ${nextProfile.gradientA} 0%, ${nextProfile.gradientB} 100%)`,
+            background: nextProfile.bg,
+            zIndex: 1,
           }} />
 
         {/* Front card */}
-        <div className="absolute w-full h-full z-[2] rounded-[20px] overflow-hidden border border-white/[0.07] cursor-grab"
+        <div className="absolute inset-0 rounded-[28px] overflow-hidden cursor-grab active:cursor-grabbing"
           style={{
-            transform: swipeDir === "left" ? "translateX(-160%) rotate(-18deg)" : swipeDir === "right" ? "translateX(160%) rotate(18deg)" : "none",
+            zIndex: 2,
+            background: profile.bg,
+            transform: swipeDir === "left"
+              ? "translateX(-150%) rotate(-20deg)"
+              : swipeDir === "right"
+              ? "translateX(150%) rotate(20deg)"
+              : "none",
             transition: swipeDir ? "transform 0.42s cubic-bezier(0.25,0.46,0.45,0.94)" : "none",
-            background: `linear-gradient(165deg, ${profile.gradientA} 0%, ${profile.gradientB} 100%)`,
+            boxShadow: "0 24px 60px rgba(0,0,0,0.5)",
           }}>
 
-          {/* Photo area — atmospheric gradient placeholder */}
-          <div className="relative overflow-hidden h-[60%]">
-            {/* Base atmosphere */}
-            <div className="absolute inset-0" style={{
-              background: `linear-gradient(165deg, ${profile.gradientA} 0%, ${profile.gradientB} 100%)`
-            }} />
-            {/* Warm skin-tone glow suggesting a figure */}
-            <div className="absolute inset-0" style={{
-              background: `radial-gradient(ellipse at 50% 35%, ${profile.skinGlow} 0%, rgba(255,180,150,0.04) 40%, transparent 70%)`
-            }} />
-            {/* Color accent glow top-right */}
-            <div className="absolute inset-0" style={{
-              background: `radial-gradient(ellipse at 70% 15%, ${profile.gradientA}80 0%, transparent 55%)`
-            }} />
-            {/* Bottom fade into card body */}
-            <div className="absolute bottom-0 left-0 right-0 h-[55%]" style={{
-              background: `linear-gradient(to top, ${profile.gradientB} 0%, transparent 100%)`
-            }} />
+          {/* Top ambient glow */}
+          <div className="absolute top-0 left-0 right-0 h-[65%] pointer-events-none"
+            style={{ background: `radial-gradient(ellipse at 50% 30%, ${profile.glow} 0%, transparent 65%)` }} />
 
-            {/* Match badge */}
-            <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-[10px] rounded-full px-3 py-1.5 flex items-center gap-1.5 border border-white/[0.08]">
-              <Cpu size={12} strokeWidth={1.8} className="text-green" />
-              <span className="text-[12px] font-bold text-green">{profile.match}%</span>
+          {/* Avatar */}
+          <div className="absolute top-0 left-0 right-0 h-[62%] flex items-center justify-center">
+            <div className="w-28 h-28 rounded-full flex items-center justify-center text-[52px] font-black text-white"
+              style={{
+                background: `linear-gradient(135deg, ${profile.avatarFrom}, ${profile.avatarTo})`,
+                boxShadow: `0 0 0 4px rgba(255,255,255,0.08), 0 8px 40px ${profile.glow}`,
+              }}>
+              {profile.avatar}
             </div>
-
-            {/* Swipe indicators */}
-            {swipeDir === "left" && (
-              <div className="absolute top-5 left-5 rounded-[10px] px-4 py-2 border border-[rgba(200,50,70,0.6)] bg-[rgba(158,24,56,0.75)] backdrop-blur-[8px]">
-                <span className="font-bold text-base text-white tracking-wide">ҮГҮЙ</span>
-              </div>
-            )}
-            {swipeDir === "right" && (
-              <div className="absolute top-5 left-5 rounded-[10px] px-4 py-2 border border-[rgba(30,160,90,0.6)] bg-[rgba(20,120,60,0.75)] backdrop-blur-[8px]">
-                <span className="font-bold text-base text-white tracking-wide">ТИЙМ</span>
-              </div>
-            )}
           </div>
 
-          {/* Profile info */}
-          <div className="px-6 py-5">
-            <div className="flex items-baseline gap-2.5 mb-2">
-              <h2 className="font-serif text-[24px] font-bold tracking-[-0.01em]">{profile.name}</h2>
-              <span className="text-lg text-text-secondary">{profile.age}</span>
-              <span className="text-[12px] text-text-muted flex items-center gap-1">
-                <MapPin size={11} strokeWidth={1.8} /> {profile.city}
-              </span>
+          {/* Match badge */}
+          <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-[10px]"
+            style={{ background: "rgba(0,0,0,0.55)", border: "1px solid rgba(255,255,255,0.1)" }}>
+            <Zap size={11} strokeWidth={2.5} style={{ color: "#3cc878" }} />
+            <span className="text-[12px] font-bold" style={{ color: "#3cc878" }}>{profile.match}%</span>
+          </div>
+
+          {/* Swipe stamps */}
+          {swipeDir === "left" && (
+            <div className="absolute top-6 left-5 px-4 py-1.5 rounded-xl rotate-[-12deg]"
+              style={{ background: "rgba(200,37,74,0.85)", border: "2px solid rgba(232,65,90,0.8)" }}>
+              <span className="font-black text-[18px] text-white tracking-widest">ҮГҮЙ</span>
             </div>
-            <p className="text-[13px] text-text-secondary mb-4 leading-[1.65]">{profile.bio}</p>
-            <div className="flex gap-1.5 flex-wrap">
+          )}
+          {swipeDir === "right" && (
+            <div className="absolute top-6 right-5 px-4 py-1.5 rounded-xl rotate-[12deg]"
+              style={{ background: "rgba(30,140,70,0.85)", border: "2px solid rgba(60,200,120,0.8)" }}>
+              <span className="font-black text-[18px] text-white tracking-widest">ТИЙМ</span>
+            </div>
+          )}
+
+          {/* Bottom info overlay */}
+          <div className="absolute bottom-0 left-0 right-0 px-6 py-6"
+            style={{ background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.7) 60%, transparent 100%)" }}>
+            <div className="flex items-baseline gap-2 mb-1">
+              <h2 className="font-serif text-[26px] font-black text-white leading-none">{profile.name}</h2>
+              <span className="text-[18px] text-white/60 font-light">{profile.age}</span>
+            </div>
+            <div className="flex items-center gap-1 text-white/50 text-[12px] mb-3">
+              <MapPin size={11} strokeWidth={2} />
+              <span>{profile.city}</span>
+            </div>
+            <p className="text-[13px] text-white/70 leading-relaxed mb-4 line-clamp-2">{profile.bio}</p>
+            <div className="flex gap-2 flex-wrap">
               {profile.interests.map(t => (
-                <span key={t} className="px-2.5 py-[5px] rounded-full text-[11px] font-medium text-text-secondary bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.07)]">
+                <span key={t} className="px-3 py-1 rounded-full text-[11px] font-medium text-white/70"
+                  style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)" }}>
                   {t}
                 </span>
               ))}
@@ -156,20 +292,25 @@ export default function SwipePage() {
       </div>
 
       {/* Action buttons */}
-      <div className="flex justify-center gap-5 items-center">
+      <div className="flex items-center justify-center gap-6 pb-4">
         <button onClick={() => swipe("left")}
-          className="w-[56px] h-[56px] rounded-full flex items-center justify-center cursor-pointer transition-all duration-[180ms] hover:scale-110 bg-[rgba(158,24,56,0.1)] border border-[rgba(158,24,56,0.3)]">
-          <X size={20} strokeWidth={2} className="text-accent-light" />
+          className="w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
+          style={{ background: "rgba(232,65,90,0.1)", border: "1.5px solid rgba(232,65,90,0.35)", boxShadow: "0 4px 16px rgba(232,65,90,0.15)" }}>
+          <X size={22} strokeWidth={2.5} style={{ color: "#e8415a" }} />
         </button>
+
         <button onClick={() => swipe("right")}
-          className="w-[68px] h-[68px] rounded-full border-none flex items-center justify-center cursor-pointer transition-all duration-[180ms] hover:scale-110 bg-[linear-gradient(135deg,#b82040,#6e0f22)] shadow-[0_8px_32px_rgba(158,24,56,0.45)]">
-          <Heart size={26} fill="white" strokeWidth={0} />
+          className="w-[72px] h-[72px] rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
+          style={{ background: "linear-gradient(135deg, #e8415a, #9e1838)", boxShadow: "0 6px 30px rgba(200,37,74,0.55)" }}>
+          <Heart size={30} fill="white" strokeWidth={0} />
         </button>
-        <button
-          className="w-[56px] h-[56px] rounded-full flex items-center justify-center cursor-pointer transition-all duration-[180ms] hover:scale-110 bg-[rgba(154,96,16,0.1)] border border-[rgba(154,96,16,0.3)]">
-          <Star size={20} strokeWidth={1.8} className="text-accent-gold-light" />
+
+        <button className="w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
+          style={{ background: "rgba(232,184,80,0.1)", border: "1.5px solid rgba(232,184,80,0.35)", boxShadow: "0 4px 16px rgba(232,184,80,0.15)" }}>
+          <Star size={22} strokeWidth={2} style={{ color: "#e8b850" }} />
         </button>
       </div>
+
     </div>
   );
 }

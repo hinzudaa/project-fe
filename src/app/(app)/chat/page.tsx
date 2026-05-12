@@ -54,7 +54,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex gap-4 h-[calc(100vh-100px)]">
+    <div className="flex gap-4 h-[calc(100vh-168px)] md:h-[calc(100vh-100px)]">
       {/* Conversation list */}
       <div
         className={`w-[280px] shrink-0 bg-bg-card border border-white/[0.06] rounded-[22px] flex flex-col overflow-hidden
