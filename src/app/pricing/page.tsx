@@ -6,18 +6,18 @@ const PLANS = [
   {
     id: "standard", name: "Стандарт", price: 29900, period: "сар", badge: "Үндсэн",
     desc: "Roleplay + Forum + Swipe (өдөрт 30) + Тоглоом",
-    features: ["Swipe (өдөрт 30 удаа)", "Forum унших & бичих", "Basic roleplay сценари", "Mini-game хандалт", "Chat (өдөрт 10 хүн)"],
+    features: ["Swipe (өдөрт 30 удаа)", "Forum унших & бичих", "Basic roleplay сценари", "Mini-game хандалт", "Chat"],
     missing: ["AI companion", "Unlimited swipe", "Boost & Super-like", "Exclusive content"],
   },
   {
     id: "premium", name: "Premium", price: 59900, period: "сар", badge: "Хамгийн алдартай",
     desc: "Бүгд + Unlimited swipe + AI companion + Boost x3 + Exclusive content",
-    features: ["Хязгааргүй swipe", "AI Roleplay companion", "Boost x3 / сар", "Super-like x5 / өдөр", "Exclusive forum & content", "Хязгааргүй chat", "Нууц forum хэсэг", "VIP badge & тэргүүлэх эрх"],
+    features: ["Хязгааргүй swipe", "AI Roleplay companion", "Boost x3 / сар", "Super-like x5 / өдөр", "Exclusive forum & content", "Chat", "Нууц forum хэсэг", "VIP badge & тэргүүлэх эрх"],
     missing: [],
   },
   {
     id: "quarterly", name: "Улирлын", price: 39900, period: "3 сар", badge: "Хэмнэлттэй",
-    desc: "Стандарт багц — 3 сарын урьдчилан төлөлт (↓10K хэмнэлт)",
+    desc: "Стандарт багц — 3 сар",
     features: ["Стандартын бүх зүйл", "3 сарын урьдчилан төлөлт", "10,000₮ хэмнэлт", "Priority дэмжлэг", "Онцгой streak badge"],
     missing: ["AI companion", "Unlimited swipe", "Boost & Super-like"],
   },
@@ -48,18 +48,16 @@ export default function PricingPage() {
             const isSel = selected === plan.id;
             return (
               <div key={plan.id} onClick={() => setSelected(plan.id)}
-                className={`rounded-[28px] p-7 cursor-pointer relative transition-all duration-200 ${
-                  isSel
-                    ? "bg-[rgba(158,24,56,0.08)] border-[1.5px] border-[rgba(200,37,74,0.5)] shadow-[0_0_40px_rgba(158,24,56,0.15)]"
-                    : "bg-bg-card border border-[rgba(255,255,255,0.07)]"
-                }`}>
+                className={`rounded-[28px] p-7 cursor-pointer relative transition-all duration-200 ${isSel
+                  ? "bg-[rgba(158,24,56,0.08)] border-[1.5px] border-[rgba(200,37,74,0.5)] shadow-[0_0_40px_rgba(158,24,56,0.15)]"
+                  : "bg-bg-card border border-[rgba(255,255,255,0.07)]"
+                  }`}>
 
                 <div className="absolute top-[-12px] right-5">
-                  <span className={`px-3 py-1 rounded-full text-[11px] font-bold text-white ${
-                    isSel
-                      ? "bg-[linear-gradient(135deg,#c8254a,#780f20)] text-white"
-                      : "bg-[rgba(255,255,255,0.08)] text-text-muted"
-                  }`}>
+                  <span className={`px-3 py-1 rounded-full text-[11px] font-bold text-white ${isSel
+                    ? "bg-[linear-gradient(135deg,#c8254a,#780f20)] text-white"
+                    : "bg-[rgba(255,255,255,0.08)] text-text-muted"
+                    }`}>
                     {plan.badge}
                   </span>
                 </div>
@@ -95,11 +93,10 @@ export default function PricingPage() {
 
                   <button
                     onClick={e => { e.stopPropagation(); setSelected(plan.id); router.push("/dashboard"); }}
-                    className={`w-full py-3 rounded-[14px] font-bold text-sm cursor-pointer transition-all duration-200 hover:-translate-y-0.5 border-none ${
-                      isSel
-                        ? "bg-[linear-gradient(135deg,#c8254a,#780f20)] text-white shadow-[0_4px_20px_rgba(158,24,56,0.35)]"
-                        : "bg-[rgba(255,255,255,0.05)] text-text-secondary"
-                    }`}>
+                    className={`w-full py-3 rounded-[14px] font-bold text-sm cursor-pointer transition-all duration-200 hover:-translate-y-0.5 border-none ${isSel
+                      ? "bg-[linear-gradient(135deg,#c8254a,#780f20)] text-white shadow-[0_4px_20px_rgba(158,24,56,0.35)]"
+                      : "bg-[rgba(255,255,255,0.05)] text-text-secondary"
+                      }`}>
                     {isSel ? "✓ Энэ багц сонгосон" : "Сонгох"}
                   </button>
                 </div>

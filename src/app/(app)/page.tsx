@@ -1,11 +1,46 @@
 "use client";
 import Link from "next/link";
-import { Flame, Heart, Crown, Zap, Lock } from "lucide-react";
+import { Flame, Heart, Crown, Zap, Lock, Video, Play, Plus, DollarSign } from "lucide-react";
 
 const STATS = [
   { label: "Шинэ профайл", value: "14", color: "#e8415a" },
   { label: "Match", value: "7", color: "#e8415a" },
   { label: "Мессеж", value: "3", color: "#a06de0" },
+];
+
+const MOCK_VIDEOS = [
+  {
+    id: "v1",
+    author: "munkh_22",
+    price: 299,
+    duration: "00:45",
+    thumbnail: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80",
+    unlocked: false
+  },
+  {
+    id: "v2",
+    author: "naraa_sweet",
+    price: 499,
+    duration: "01:20",
+    thumbnail: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80",
+    unlocked: false
+  },
+  {
+    id: "v3",
+    author: "boldoo_hero",
+    price: 199,
+    duration: "00:30",
+    thumbnail: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80",
+    unlocked: false
+  },
+  {
+    id: "v4",
+    author: "ari_queen",
+    price: 599,
+    duration: "02:15",
+    thumbnail: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80",
+    unlocked: false
+  }
 ];
 
 export default function DashboardPage() {
@@ -79,13 +114,49 @@ export default function DashboardPage() {
       </div>
 
       <div className="mt-8">
+        <div className="flex items-center justify-between mb-4 px-1">
+          <h2 className="text-[17px] font-bold text-white flex items-center gap-2">
+            <Video size={18} className="text-[#e8415a]" /> Онцгой бичлэгүүд
+          </h2>
+        </div>
+        
+        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide px-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          {MOCK_VIDEOS.map((video) => (
+            <div key={video.id} className="relative w-[180px] aspect-[9/16] rounded-[24px] overflow-hidden shrink-0 border border-white/5 group cursor-pointer">
+              <div className="absolute inset-0 bg-cover bg-center blur-xl scale-110 opacity-60 transition-transform duration-500 group-hover:scale-125"
+                style={{ backgroundImage: `url(${video.thumbnail})` }} />
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
+                <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-2 border border-white/20">
+                  <Lock size={18} className="text-white opacity-80" />
+                </div>
+                <div className="flex items-center gap-1 text-[#e8415a] font-black text-[15px]">
+                   {video.price} <DollarSign size={12} strokeWidth={3} />
+                </div>
+              </div>
+              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white/60">
+                <div className="flex items-center gap-1 text-[10px] font-bold">
+                  <Play size={8} fill="currentColor" /> {video.duration}
+                </div>
+                <div className="text-[9px] font-bold">@{video.author}</div>
+              </div>
+            </div>
+          ))}
+          <div className="w-[120px] aspect-[9/16] rounded-[24px] flex flex-col items-center justify-center shrink-0 border border-dashed border-[#e8415a]/30 bg-[#e8415a]/5 hover:bg-[#e8415a]/10 transition-colors cursor-pointer">
+            <Plus size={20} className="text-[#e8415a] mb-1" />
+            <span className="text-[10px] text-[#e8415a] font-bold">Бүгдийг үзэх</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-[17px] font-bold text-white flex items-center gap-2">
             <Heart size={18} className="text-[#e8415a]" /> Танд таалагдсан
           </h2>
           <Link href="/likes" className="text-[13px] text-[#e8415a] hover:underline">Бүгдийг харах</Link>
         </div>
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide px-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           {[1, 2, 3, 4, 5].map((_, i) => (
             <div key={i} className="relative w-20 h-24 rounded-2xl overflow-hidden shrink-0 bg-bg-elevated border border-white/[0.05]">
               <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&q=80')] bg-cover bg-center blur-md opacity-60" />

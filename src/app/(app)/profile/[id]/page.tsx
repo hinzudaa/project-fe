@@ -20,7 +20,7 @@ export default function UserProfilePage() {
 
       {/* Profile Header Card */}
       <div className="bg-bg-card border border-white/[0.08] rounded-[28px] overflow-hidden relative shadow-2xl">
-        
+
         {/* Cover Photo */}
         <div className="h-48 md:h-64 relative w-full bg-bg-secondary">
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557682250-33bd709cbe85?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-40" />
@@ -29,7 +29,7 @@ export default function UserProfilePage() {
 
         {/* Profile Info */}
         <div className="px-6 md:px-10 pb-8 relative -mt-16 md:-mt-20 flex flex-col md:flex-row gap-6 md:gap-8 items-center md:items-end text-center md:text-left">
-          
+
           {/* Avatar */}
           <div className="relative">
             <div className="w-32 h-32 md:w-40 md:h-40 rounded-[32px] flex items-center justify-center text-[56px] md:text-[72px] font-black font-serif text-white shrink-0 border-4 border-bg-card relative z-10"
@@ -65,7 +65,7 @@ export default function UserProfilePage() {
 
       {/* Content Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-        
+
         {/* Left Column (About & Stats) */}
         <div className="flex flex-col gap-6 md:col-span-1">
           {/* About */}
@@ -106,12 +106,12 @@ export default function UserProfilePage() {
           <h3 className="font-bold text-lg mb-1 text-white px-2 flex items-center gap-2">
             <Clock size={18} className="text-[#388add]" /> Сүүлийн нийтлэлүүд
           </h3>
-          
+
           {[1, 2, 3].map((post) => (
             <div key={post} className="bg-bg-card border border-white/[0.05] rounded-[20px] p-5 hover:border-white/[0.1] transition-colors cursor-pointer">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0 text-white"
-                     style={{ background: "linear-gradient(135deg, #e8415a, #9b59ff)" }}>
+                  style={{ background: "linear-gradient(135deg, #e8415a, #9b59ff)" }}>
                   {avatarLetter}
                 </div>
                 <div>
