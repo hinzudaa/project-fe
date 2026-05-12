@@ -8,9 +8,9 @@ const NOTIF_COUNT = 4;
 export default function Header() {
   const pathname = usePathname();
 
-  if (pathname.startsWith("/auth") || pathname.startsWith("/onboarding")) return null;
+  if (pathname.startsWith("/login") || pathname.startsWith("/register")) return null;
 
-  const isLoggedIn = !pathname.startsWith("/auth");
+  const isLoggedIn = !pathname.startsWith("/login") && !pathname.startsWith("/register");
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between h-16 pl-3.5 pr-5 md:pr-7 bg-[rgba(4,2,8,0.7)] backdrop-blur-[32px] backdrop-saturate-[1.4] border-b border-[rgba(255,255,255,0.04)]">
