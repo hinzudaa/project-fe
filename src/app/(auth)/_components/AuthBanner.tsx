@@ -62,12 +62,9 @@ export default function AuthBanner() {
         </div>
       ))}
 
-      {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/60" />
-      {/* Bottom vignette */}
       <div className="absolute bottom-0 left-0 right-0 h-2/3 bg-[linear-gradient(to_top,rgba(4,2,8,0.95)_0%,transparent_100%)]" />
 
-      {/* ── MOBILE layout ── */}
       <div className="md:hidden absolute inset-0 flex flex-col justify-between p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -89,7 +86,6 @@ export default function AuthBanner() {
         </div>
       </div>
 
-      {/* ── DESKTOP layout ── */}
       <div className="hidden md:flex absolute inset-0 flex-col px-10 py-12">
         <div className="flex items-center gap-2.5 mb-auto">
           <div

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Flame } from "lucide-react";
+import { Flame, Heart, Crown, Zap, Lock } from "lucide-react";
 
 const STATS = [
   { label: "Шинэ профайл", value: "14", color: "#e8415a" },
@@ -76,6 +76,55 @@ export default function DashboardPage() {
             Хадгалах
           </button>
         </Link>
+      </div>
+
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-[17px] font-bold text-white flex items-center gap-2">
+            <Heart size={18} className="text-[#e8415a]" /> Танд таалагдсан
+          </h2>
+          <Link href="/likes" className="text-[13px] text-[#e8415a] hover:underline">Бүгдийг харах</Link>
+        </div>
+        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          {[1, 2, 3, 4, 5].map((_, i) => (
+            <div key={i} className="relative w-20 h-24 rounded-2xl overflow-hidden shrink-0 bg-bg-elevated border border-white/[0.05]">
+              <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&q=80')] bg-cover bg-center blur-md opacity-60" />
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                <Lock size={16} className="text-white/70" />
+              </div>
+            </div>
+          ))}
+          <div className="w-20 h-24 rounded-2xl flex flex-col items-center justify-center shrink-0 border border-dashed border-[#e8415a]/30 bg-[#e8415a]/5 cursor-pointer hover:bg-[#e8415a]/10 transition-colors">
+            <Crown size={20} className="text-[#e8b850] mb-1" />
+            <span className="text-[10px] text-[#e8b850] font-bold">Premium</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-8 mb-4">
+        <h2 className="text-[17px] font-bold text-white flex items-center gap-2 mb-4">
+          <Zap size={18} className="text-[#a06de0]" /> Шуурхай үйлдэл
+        </h2>
+        <div className="grid grid-cols-2 gap-3">
+          <Link href="/roleplay" className="p-4 rounded-2xl border border-white/[0.05] bg-bg-secondary hover:bg-bg-elevated transition-colors flex flex-col items-center text-center gap-2">
+            <div className="w-10 h-10 rounded-full bg-[rgba(139,79,212,0.15)] flex items-center justify-center border border-[#8b4fd4]/30">
+              <span className="text-xl">🎭</span>
+            </div>
+            <div>
+              <div className="text-[14px] font-semibold text-white">Roleplay</div>
+              <div className="text-[11px] text-text-muted">Дүрд хувирах</div>
+            </div>
+          </Link>
+          <Link href="/forum" className="p-4 rounded-2xl border border-white/[0.05] bg-bg-secondary hover:bg-bg-elevated transition-colors flex flex-col items-center text-center gap-2">
+            <div className="w-10 h-10 rounded-full bg-[rgba(232,65,90,0.15)] flex items-center justify-center border border-[#e8415a]/30">
+              <span className="text-xl">💬</span>
+            </div>
+            <div>
+              <div className="text-[14px] font-semibold text-white">Forum</div>
+              <div className="text-[11px] text-text-muted">Нууц хэлэлцүүлэг</div>
+            </div>
+          </Link>
+        </div>
       </div>
 
     </div>

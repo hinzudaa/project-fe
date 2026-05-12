@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 
 const CATEGORIES = [
   { id: "hot", label: "🔥 Халуун", color: "#e8415a" },
@@ -101,19 +102,37 @@ export default function ForumPage() {
 
             {/* Author row */}
             <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0"
-                style={{
-                  background: post.anon ? "rgba(255,255,255,0.08)" : `${post.authorColor}22`,
-                  border: `1px solid ${post.anon ? "rgba(255,255,255,0.1)" : `${post.authorColor}40`}`,
-                  color: post.authorColor,
-                }}>
-                {post.avatar}
-              </div>
+              {post.anon ? (
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0"
+                  style={{
+                    background: "rgba(255,255,255,0.08)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    color: post.authorColor,
+                  }}>
+                  {post.avatar}
+                </div>
+              ) : (
+                <Link href={`/profile/${post.author}`} className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0 hover:scale-105 transition-transform"
+                  style={{
+                    background: `${post.authorColor}22`,
+                    border: `1px solid ${post.authorColor}40`,
+                    color: post.authorColor,
+                  }}>
+                  {post.avatar}
+                </Link>
+              )}
+              
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className={`text-[13px] font-semibold truncate ${post.anon ? "text-text-muted" : "text-text-primary"}`}>
-                    {post.author}
-                  </span>
+                  {post.anon ? (
+                    <span className="text-[13px] font-semibold truncate text-text-muted">
+                      {post.author}
+                    </span>
+                  ) : (
+                    <Link href={`/profile/${post.author}`} className="text-[13px] font-semibold truncate text-text-primary hover:underline">
+                      {post.author}
+                    </Link>
+                  )}
                   {post.anon && (
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide bg-[rgba(212,160,64,0.12)] text-[#e8b850] border border-[rgba(212,160,64,0.25)] shrink-0">
                       Нэргүй
