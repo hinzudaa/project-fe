@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { Home, Heart, Drama, Users, MessageCircle, Gamepad2 } from "lucide-react";
+import { Home, Heart, Drama, Users, MessageCircle, Film, Gamepad } from "lucide-react";
 import AgeVerification from "@/components/AgeVerification";
 import { useAuth } from "@/store/AuthProvider";
 
@@ -12,7 +12,9 @@ const NAV = [
   { href: "/roleplay", icon: Drama, label: "Roleplay" },
   { href: "/forum", icon: Users, label: "Forum" },
   { href: "/chat", icon: MessageCircle, label: "Чат" },
-  { href: "/games", icon: Gamepad2, label: "Тоглоом" },
+  { href: "/movies", icon: Film, label: "Кино" },
+  { href: "/games", icon: Gamepad, label: "Тоглоом" },
+
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -56,11 +58,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   }`}>
                   <Icon size={17} strokeWidth={active ? 2.2 : 1.8} />
                   <span>{n.label}</span>
-                  {n.href === "/games" && (
-                    <span className="ml-auto inline-flex items-center gap-1 px-[6px] py-0.5 rounded-full text-[9px] font-bold tracking-wide uppercase bg-[rgba(212,160,64,0.12)] text-[#e8b850] border border-[rgba(212,160,64,0.25)]">
-                      Шинэ
-                    </span>
-                  )}
                 </div>
               </Link>
             );

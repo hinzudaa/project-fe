@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
+import { Film, Flame, Heart, Zap, Lock, Loader2, CheckCircle } from "lucide-react";
 import Link from "next/link";
-import { Flame, Heart, Zap, Lock, Crown, Loader2 } from "lucide-react";
 import { useAuth } from "@/store/AuthProvider";
-import { swipeApi, SwipeUser, SwipeQuota } from "@/lib/api";
+import { swipeApi, SwipeUser, SwipeQuota, movieApi, Movie } from "@/lib/api";
 
 interface HomeData {
   feedTotal: number;
@@ -11,6 +11,7 @@ interface HomeData {
   quota: SwipeQuota | null;
   recentMatches: { _id: string; target: SwipeUser }[];
   likes: { _id: string; user: SwipeUser }[];
+  movies: Movie[];
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
@@ -53,13 +54,15 @@ export default function DashboardPage() {
       swipeApi.getFeedSingle(),
       swipeApi.getMatches(),
       swipeApi.getLikes(),
-    ]).then(([feedRes, matchRes, likesRes]) => {
+      movieApi.list(1, 6),
+    ]).then(([feedRes, matchRes, likesRes, moviesRes]) => {
       setData({
         feedTotal: feedRes.status === "fulfilled" ? feedRes.value.total : 0,
         matchTotal: matchRes.status === "fulfilled" ? matchRes.value.total : 0,
         quota: feedRes.status === "fulfilled" ? feedRes.value.quota : null,
         recentMatches: matchRes.status === "fulfilled" ? matchRes.value.data : [],
         likes: likesRes.status === "fulfilled" ? likesRes.value.data : [],
+        movies: moviesRes.status === "fulfilled" ? moviesRes.value.data : [],
       });
       setLoading(false);
     });
@@ -223,7 +226,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick actions */}
-      <div className="mb-4">
+      <div className="mb-6">
         <h2 className="text-[17px] font-bold text-white flex items-center gap-2 mb-4">
           <Zap size={18} className="text-[#a06de0]" /> Шуурхай үйлдэл
         </h2>
@@ -249,6 +252,58 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Movies section */}
+      {(data?.movies ?? []).length > 0 && (
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-[17px] font-bold text-white flex items-center gap-2">
+              <Film size={18} className="text-[#388add]" /> Кино
+            </h2>
+            <Link href="/movies" className="text-[13px] text-[#e8415a] hover:underline">Бүгдийг харах</Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+            {data!.movies.map(m => <HomeMovieCard key={m._id} movie={m} />)}
+          </div>
+        </div>
+      )}
+
     </div>
+  );
+}
+
+const BASE_URL_MOVIE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
+function resolveMovieImg(url?: string | null) {
+  if (!url) return null;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `${BASE_URL_MOVIE}${url}`;
+}
+
+function HomeMovieCard({ movie }: { movie: Movie }) {
+  const img = resolveMovieImg(movie.image?.url);
+  return (
+    <Link href="/movies" className="no-underline shrink-0">
+      <div className="relative w-[120px] rounded-[16px] overflow-hidden border border-white/[0.06] bg-bg-elevated cursor-pointer hover:-translate-y-1 transition-all duration-200">
+        <div className="aspect-[2/3] relative">
+          {img
+            ? <img src={img} alt={movie.title} className="w-full h-full object-cover" />
+            : <div className="w-full h-full flex items-center justify-center text-3xl bg-[rgba(56,138,221,0.1)]">🎬</div>
+          }
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+          {movie.owned ? (
+            <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-[#3cc878] flex items-center justify-center">
+              <CheckCircle size={11} strokeWidth={2.5} className="text-white" />
+            </div>
+          ) : (
+            <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-black/60 text-white border border-white/10">
+              ₮{movie.effectivePrice.toLocaleString()}
+            </div>
+          )}
+        </div>
+        <div className="px-2 py-2">
+          <p className="text-[11px] font-semibold text-text-primary truncate leading-tight">{movie.title}</p>
+          {movie.genres[0] && <p className="text-[10px] text-text-muted truncate">{movie.genres[0]}</p>}
+        </div>
+      </div>
+    </Link>
   );
 }

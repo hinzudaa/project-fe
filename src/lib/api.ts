@@ -350,6 +350,142 @@ export const notificationApi = {
     request<{ success: boolean }>("/notifications/read", { method: "POST" }),
 };
 
+export interface GameZone {
+  _id: string;
+  image: { _id: string; url: string; blurHash?: string | null } | null;
+  title: string;
+  description?: string | null;
+  type: string;
+  level: string;
+  responseMode: string;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GameZonePlayResult {
+  game: GameZone;
+  playerName: string;
+  selectedLevel: string;
+  response: string;
+  model: string;
+}
+
+export const gameZoneApi = {
+  list: (page = 1, limit = 50, type?: string, level?: string) => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (type) params.set("type", type);
+    if (level) params.set("level", level);
+    return request<{ data: GameZone[]; total: number; page: number; totalPages: number }>(
+      `/game-zones?${params}`
+    );
+  },
+
+  play: (id: string, body: { playerName: string; level: string }) =>
+    request<{ data: GameZonePlayResult }>(`/game-zones/${id}/play`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+};
+
+export interface MovieImage {
+  _id: string;
+  url: string;
+  blurHash?: string | null;
+}
+
+export interface Movie {
+  _id: string;
+  title: string;
+  description?: string | null;
+  image: MovieImage | null;
+  price: number;
+  discountedPrice?: number | null;
+  effectivePrice: number;
+  releaseYear?: number | null;
+  genres: string[];
+  duration: number;
+  thumbnailUrl?: string | null;
+  qualities: string[];
+  status: string;
+  isActive: boolean;
+  owned: boolean;
+  ownership: "single" | "bundle" | null;
+  streamUrl?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MovieBundle {
+  _id: string;
+  title: string;
+  description?: string | null;
+  image: MovieImage | null;
+  price: number;
+  discountedPrice?: number | null;
+  effectivePrice: number;
+  isActive: boolean;
+  owned: boolean;
+  totalMovies?: number;
+}
+
+export interface MoviePurchaseResponse {
+  purchaseId: string;
+  invoice: QPayInvoice;
+  orderId: string;
+  movie: Movie;
+  status: string;
+}
+
+export interface MovieStreamData {
+  _id: string;
+  title: string;
+  streamUrl: string;
+  duration: number;
+  qualities: string[];
+  thumbnailUrl?: string | null;
+  ownership: "single" | "bundle";
+}
+
+export const movieApi = {
+  list: (page = 1, limit = 20, genre?: string, search?: string) => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (genre) params.set("genre", genre);
+    if (search) params.set("search", search);
+    return request<{ data: Movie[]; total: number; page: number; totalPages: number; bundleOwned: boolean }>(
+      `/movies?${params}`
+    );
+  },
+
+  getDetail: (id: string) =>
+    request<{ data: Movie }>(`/movies/${id}`),
+
+  getStream: (id: string) =>
+    request<{ data: MovieStreamData }>(`/movies/${id}/stream`),
+
+  purchase: (movieId: string) =>
+    request<MoviePurchaseResponse>("/movies/purchase", {
+      method: "POST",
+      body: JSON.stringify({ movieId }),
+    }),
+
+  getPurchaseStatus: (purchaseId: string) =>
+    request<{ active: boolean }>(`/movies/purchases/${purchaseId}/status`),
+
+  getBundle: () =>
+    request<{ data: MovieBundle }>("/movies/bundle"),
+
+  purchaseBundle: () =>
+    request<{ purchaseId: string; invoice: QPayInvoice; orderId: string; bundle: MovieBundle; status: string }>(
+      "/movies/bundle/purchase",
+      { method: "POST" }
+    ),
+
+  myPurchases: () =>
+    request<{ bundle: { purchasedAt: string; price: number } | null; data: Movie[] }>("/movies/me"),
+};
+
 export interface AIHumanImage {
   _id: string;
   url: string;
