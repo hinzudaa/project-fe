@@ -44,7 +44,9 @@ export interface MembershipPlan {
   tier: string;
   swipeDailyLimit: number;
   aiHumanDailyMessageLimit: number;
+  movieComplimentaryQuota: number;
   sortOrder: number;
+  image?: { _id: string; url: string };
 }
 
 export interface QPayUrl {
