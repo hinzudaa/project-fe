@@ -110,11 +110,24 @@ export const profileApi = {
     return data;
   },
 
-  updateMyProfile: (body: { city?: string; birthYear?: number; bio?: string; interests?: string[] }) =>
+  updateMyProfile: (body: { city?: string; birthYear?: number; bio?: string; interests?: string[]; images?: string[] }) =>
     request<AuthUser>("/users/me/profile", {
       method: "PUT",
       body: JSON.stringify(body),
     }),
+
+  uploadImage: async (file: File): Promise<{ url: string }> => {
+    const form = new FormData();
+    form.append("file", file);
+    const res = await fetch(`${BASE_URL}/users/me/avatar`, {
+      method: "PUT",
+      credentials: "include",
+      body: form,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data?.message ?? "Алдаа гарлаа");
+    return { url: data?.data?.image?.url ?? data?.data?.user?.avatar ?? "" };
+  },
 };
 
 export interface SwipeUser {

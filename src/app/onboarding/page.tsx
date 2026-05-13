@@ -1,25 +1,42 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Check, Search, Loader2 } from "lucide-react";
+import {
+  ChevronLeft, ChevronRight, Check, Search, Loader2,
+  Upload, X, Camera, UserCheck, AlertTriangle,
+} from "lucide-react";
 import { profileApi } from "@/lib/api";
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 5;
 
-const INTERESTS_LIST = [
-  "Хөгжим", "Аялал", "Кино", "Кафе", "Уран зохиол", "Спорт",
-  "Roleplay", "Фото", "Тоглоом", "Хоол хийх", "Байгаль", "Уран бүтээл",
-  "Фитнесс", "Кофе", "Шөнийн амьдрал", "Ном уншлага", "Дуу хөгжим",
-];
+type UploadedPhoto = {
+  file: File;
+  preview: string;
+  url?: string;
+  faceStatus: "pending" | "detected" | "not_found" | "unsupported" | "checking";
+};
 
 type FormData = {
+  photos: UploadedPhoto[];
   city: string;
   birthYear: string;
   bio: string;
   interests: string[];
 };
 
-const INITIAL: FormData = { city: "", birthYear: "", bio: "", interests: [] };
+const INITIAL: FormData = { photos: [], city: "", birthYear: "", bio: "", interests: [] };
+
+// Browser native Face Detector (Chrome Shape Detection API)
+async function detectFace(imgEl: HTMLImageElement): Promise<"detected" | "not_found" | "unsupported"> {
+  if (typeof window === "undefined" || !("FaceDetector" in window)) return "unsupported";
+  try {
+    const detector = new (window as any).FaceDetector({ fastMode: true });
+    const faces = await detector.detect(imgEl);
+    return faces.length > 0 ? "detected" : "not_found";
+  } catch {
+    return "unsupported";
+  }
+}
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1);
@@ -30,19 +47,39 @@ export default function OnboardingPage() {
 
   const progress = (step / TOTAL_STEPS) * 100;
 
+  const canProceed = () => {
+    if (step === 1) return data.photos.length > 0 && data.photos.every(p => p.faceStatus !== "checking");
+    return true;
+  };
+
   const next = async () => {
-    if (step < TOTAL_STEPS) {
-      setStep(s => s + 1);
-      return;
-    }
-    setLoading(true);
     setError("");
+    if (step === 1) {
+      // Warn if a face wasn't found but still allow continue
+      const noFace = data.photos.some(p => p.faceStatus === "not_found");
+      if (noFace && !window.confirm("Нэг зурагт царай илрүүлсэнгүй. Үргэлжлүүлэх үү?")) return;
+    }
+    if (step < TOTAL_STEPS) { setStep(s => s + 1); return; }
+
+    setLoading(true);
     try {
+      // Upload photos that haven't been uploaded yet
+      const uploadedPhotos: UploadedPhoto[] = [];
+      for (const photo of data.photos) {
+        if (photo.url) { uploadedPhotos.push(photo); continue; }
+        const result = await profileApi.uploadImage(photo.file);
+        uploadedPhotos.push({ ...photo, url: result.url });
+      }
+      setData(d => ({ ...d, photos: uploadedPhotos }));
+
+      const imageUrls = uploadedPhotos.map(p => p.url).filter(Boolean) as string[];
+
       await profileApi.updateMyProfile({
         city: data.city || undefined,
         birthYear: data.birthYear ? Number(data.birthYear) : undefined,
         bio: data.bio || undefined,
         interests: data.interests.length > 0 ? data.interests : undefined,
+        images: imageUrls.length > 0 ? imageUrls : undefined,
       });
       setDone(true);
     } catch (err) {
@@ -53,7 +90,7 @@ export default function OnboardingPage() {
   };
 
   const back = () => step > 1 && setStep(s => s - 1);
-  const set = (key: keyof FormData, val: string) => setData(d => ({ ...d, [key]: val }));
+  const set = (key: keyof FormData, val: any) => setData(d => ({ ...d, [key]: val }));
   const toggleInterest = (t: string) =>
     setData(d => ({
       ...d,
@@ -72,6 +109,7 @@ export default function OnboardingPage() {
           <div className="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-black text-white font-serif bg-[linear-gradient(135deg,#c8254a,#780f20)]">С</div>
           <span className="text-[15px] font-bold font-serif text-text-primary">Intimate</span>
         </div>
+        <span className="text-[12px] text-text-muted">{step} / {TOTAL_STEPS}</span>
       </div>
 
       {/* Progress */}
@@ -81,12 +119,17 @@ export default function OnboardingPage() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-5 flex flex-col max-w-[480px] mx-auto w-full">
-        <div className="mb-2 text-[11px] font-bold text-text-muted uppercase tracking-widest">{step} / {TOTAL_STEPS}</div>
-        {step === 1 && <StepCity value={data.city} onChange={v => set("city", v)} />}
-        {step === 2 && <StepBirthYear value={data.birthYear} onChange={v => set("birthYear", v)} />}
-        {step === 3 && <StepBio value={data.bio} onChange={v => set("bio", v)} />}
-        {step === 4 && <StepInterests selected={data.interests} toggle={toggleInterest} />}
+      <div className="flex-1 px-5 flex flex-col max-w-[480px] mx-auto w-full overflow-hidden">
+        {step === 1 && (
+          <StepPhotos
+            photos={data.photos}
+            onChange={photos => set("photos", photos)}
+          />
+        )}
+        {step === 2 && <StepCity value={data.city} onChange={v => set("city", v)} />}
+        {step === 3 && <StepBirthYear value={data.birthYear} onChange={v => set("birthYear", v)} />}
+        {step === 4 && <StepBio value={data.bio} onChange={v => set("bio", v)} />}
+        {step === 5 && <StepInterests selected={data.interests} toggle={toggleInterest} />}
       </div>
 
       {/* Nav */}
@@ -95,13 +138,15 @@ export default function OnboardingPage() {
         <div className="flex gap-3">
           {step > 1 && (
             <button onClick={back} disabled={loading}
-              className="w-11 h-11 rounded-xl flex items-center justify-center border transition-colors duration-200 hover:bg-[rgba(255,255,255,0.05)] disabled:opacity-40"
+              className="w-11 h-11 rounded-xl flex items-center justify-center border transition-colors duration-200 hover:bg-[rgba(255,255,255,0.05)] disabled:opacity-40 cursor-pointer bg-transparent"
               style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
               <ChevronLeft size={18} strokeWidth={2} className="text-text-secondary" />
             </button>
           )}
-          <button onClick={next} disabled={loading}
-            className="flex-1 h-11 rounded-xl font-semibold text-[14px] text-white flex items-center justify-center gap-2 transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed"
+          <button
+            onClick={next}
+            disabled={loading || !canProceed()}
+            className="flex-1 h-11 rounded-xl font-semibold text-[14px] text-white flex items-center justify-center gap-2 transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer border-none"
             style={{ background: "linear-gradient(135deg, #e8415a, #9e1838)", boxShadow: "0 4px 20px rgba(200,37,74,0.4)" }}>
             {loading ? <Loader2 size={16} className="animate-spin" /> : null}
             {loading ? "Хадгалж байна..." : step === TOTAL_STEPS ? "Дуусгах" : "Үргэлжлүүлэх"}
@@ -112,6 +157,189 @@ export default function OnboardingPage() {
     </div>
   );
 }
+
+/* ─── Step 1: Photo upload with face detection ─── */
+
+function StepPhotos({
+  photos,
+  onChange,
+}: {
+  photos: UploadedPhoto[];
+  onChange: (p: UploadedPhoto[]) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const imgRefs = useRef<(HTMLImageElement | null)[]>([]);
+
+  const runFaceDetect = async (idx: number, list: UploadedPhoto[]) => {
+    const img = imgRefs.current[idx];
+    if (!img) return;
+    const status = await detectFace(img);
+    const updated = [...list];
+    updated[idx] = { ...updated[idx], faceStatus: status };
+    onChange(updated);
+  };
+
+  const handleFiles = useCallback((files: FileList | null) => {
+    if (!files) return;
+    const remaining = 2 - photos.length;
+    const toAdd = Array.from(files).slice(0, remaining);
+    const newPhotos: UploadedPhoto[] = toAdd.map(file => ({
+      file,
+      preview: URL.createObjectURL(file),
+      faceStatus: "checking",
+    }));
+    const updated = [...photos, ...newPhotos];
+    onChange(updated);
+    // Run face detection after images load (via ref callback)
+    newPhotos.forEach((_, relIdx) => {
+      const absIdx = photos.length + relIdx;
+      setTimeout(() => runFaceDetect(absIdx, updated), 300);
+    });
+  }, [photos, onChange]);
+
+  const remove = (idx: number) => {
+    URL.revokeObjectURL(photos[idx].preview);
+    onChange(photos.filter((_, i) => i !== idx));
+  };
+
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    handleFiles(e.dataTransfer.files);
+  };
+
+  return (
+    <div className="flex-1 flex flex-col">
+      <h2 className="text-[26px] font-black font-serif mb-1.5 leading-tight">Зургаа оруулна уу</h2>
+      <p className="text-text-secondary text-[14px] mb-6">
+        Нүүр тань тодорхой харагдах 1–2 зургийг оруулна уу. Зурагт царай автоматаар илрүүлнэ.
+      </p>
+
+      <div className="grid grid-cols-2 gap-3 mb-5">
+        {Array.from({ length: 2 }).map((_, idx) => {
+          const photo = photos[idx];
+          return (
+            <div key={idx} className="relative aspect-[3/4]">
+              {photo ? (
+                <div className="w-full h-full rounded-[20px] overflow-hidden relative border border-white/[0.08]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    ref={el => { imgRefs.current[idx] = el; }}
+                    src={photo.preview}
+                    alt="preview"
+                    className="w-full h-full object-cover"
+                    onLoad={() => {
+                      if (photo.faceStatus === "checking") {
+                        runFaceDetect(idx, photos);
+                      }
+                    }}
+                    crossOrigin="anonymous"
+                  />
+                  {/* Face status badge */}
+                  <div className="absolute bottom-2 left-2">
+                    {photo.faceStatus === "checking" && (
+                      <span className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold bg-black/70 text-white backdrop-blur-sm">
+                        <Loader2 size={10} className="animate-spin" /> Шалгаж байна
+                      </span>
+                    )}
+                    {photo.faceStatus === "detected" && (
+                      <span className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold bg-[rgba(60,200,120,0.85)] text-white backdrop-blur-sm">
+                        <UserCheck size={10} /> Царай илэрсэн
+                      </span>
+                    )}
+                    {photo.faceStatus === "not_found" && (
+                      <span className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold bg-[rgba(232,184,80,0.85)] text-white backdrop-blur-sm">
+                        <AlertTriangle size={10} /> Царай илрүүлсэнгүй
+                      </span>
+                    )}
+                    {photo.faceStatus === "unsupported" && (
+                      <span className="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold bg-black/60 text-white/70 backdrop-blur-sm">
+                        <Check size={10} /> Зураг нэмэгдсэн
+                      </span>
+                    )}
+                  </div>
+                  {/* Remove button */}
+                  <button
+                    onClick={() => remove(idx)}
+                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white border border-white/20 cursor-pointer"
+                  >
+                    <X size={13} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => photos.length === idx && inputRef.current?.click()}
+                  className="w-full h-full rounded-[20px] border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all duration-200 cursor-pointer bg-transparent"
+                  style={{
+                    borderColor: photos.length === idx ? "rgba(232,65,90,0.4)" : "rgba(255,255,255,0.08)",
+                    background: photos.length === idx ? "rgba(232,65,90,0.05)" : "rgba(255,255,255,0.02)",
+                    opacity: photos.length < idx ? 0.4 : 1,
+                  }}
+                >
+                  {photos.length === idx ? (
+                    <>
+                      <div className="w-10 h-10 rounded-full bg-[rgba(232,65,90,0.12)] flex items-center justify-center border border-[rgba(232,65,90,0.3)]">
+                        <Upload size={18} style={{ color: "#e8415a" }} />
+                      </div>
+                      <span className="text-[12px] font-medium text-[#e8415a]">
+                        {idx === 0 ? "Үндсэн зураг" : "2-р зураг"}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <Camera size={22} className="text-text-muted" />
+                      <span className="text-[11px] text-text-muted">2-р зураг</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Drop zone / click to add (when both slots visible) */}
+      {photos.length < 2 && (
+        <div
+          onDrop={onDrop}
+          onDragOver={e => e.preventDefault()}
+          onClick={() => inputRef.current?.click()}
+          className="border border-dashed rounded-2xl py-4 flex items-center justify-center gap-2 cursor-pointer transition-all duration-200 hover:bg-[rgba(232,65,90,0.04)]"
+          style={{ borderColor: "rgba(255,255,255,0.1)" }}
+        >
+          <Upload size={15} className="text-text-muted" />
+          <span className="text-[13px] text-text-muted">Зураг сонгох эсвэл чирч оруулах</span>
+        </div>
+      )}
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        multiple
+        className="hidden"
+        onChange={e => handleFiles(e.target.files)}
+      />
+
+      {/* Tips */}
+      <div className="mt-4 flex flex-col gap-2 text-white">
+        {[
+          "Нүүр тань тодорхой, гэрэлтэй байх",
+          "Дангаараа байгаа зуйрлаа оруулах",
+          "Нар шил, малгайгүй зургийг илүүд үзнэ",
+        ].map((tip, i) => (
+          <div key={i} className="flex items-start gap-2">
+            <div className="w-4 h-4 rounded-full bg-[rgba(232,65,90,0.12)] flex items-center justify-center shrink-0 mt-0.5">
+              <Check size={9} style={{ color: "#e8415a" }} />
+            </div>
+            <span className="text-[12px] text-text-muted text-white">{tip}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Step 2: City ─── */
 
 const ALL_LOCATIONS = [
   "Улаанбаатар",
@@ -124,16 +352,12 @@ const ALL_LOCATIONS = [
 
 function StepCity({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const [query, setQuery] = useState("");
-  const filtered = ALL_LOCATIONS.filter(c =>
-    c.toLowerCase().includes(query.toLowerCase())
-  );
+  const filtered = ALL_LOCATIONS.filter(c => c.toLowerCase().includes(query.toLowerCase()));
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
       <h2 className="text-[26px] font-black font-serif mb-2 leading-tight">Та хаана байна вэ?</h2>
       <p className="text-text-secondary text-[14px] mb-5">Ойрын хүмүүстэй танилцахад ашиглана</p>
-
-      {/* Search */}
       <div className="relative mb-4">
         <Search size={15} strokeWidth={2} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
         <input
@@ -145,15 +369,11 @@ function StepCity({ value, onChange }: { value: string; onChange: (v: string) =>
           style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", colorScheme: "dark" }}
         />
       </div>
-
-      {/* List */}
       <div className="flex flex-col gap-2 overflow-y-auto pr-1 flex-1">
-        {filtered.length === 0 && (
-          <p className="text-center text-text-muted text-[13px] py-6">Олдсонгүй</p>
-        )}
+        {filtered.length === 0 && <p className="text-center text-text-muted text-[13px] py-6">Олдсонгүй</p>}
         {filtered.map(c => (
           <button key={c} onClick={() => onChange(c)}
-            className="w-full flex items-center justify-between px-5 py-3.5 rounded-2xl text-left transition-all duration-200 shrink-0"
+            className="w-full flex items-center justify-between px-5 py-3.5 rounded-2xl text-left transition-all duration-200 shrink-0 cursor-pointer border"
             style={{
               background: value === c ? "rgba(232,65,90,0.1)" : "rgba(255,255,255,0.04)",
               border: value === c ? "1px solid rgba(232,65,90,0.4)" : "1px solid rgba(255,255,255,0.07)",
@@ -167,12 +387,14 @@ function StepCity({ value, onChange }: { value: string; onChange: (v: string) =>
   );
 }
 
+/* ─── Step 3: Birth year ─── */
+
 function StepBirthYear({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 43 }, (_, i) => currentYear - 18 - i);
   return (
     <div className="flex-1">
-      <h2 className="text-[26px] font-black font-serif mb-2 leading-tight">Төрсөн оноо оруулна уу</h2>
+      <h2 className="text-[26px] font-black font-serif mb-2 leading-tight">Төрсөн оноо</h2>
       <p className="text-text-secondary text-[14px] mb-8">18-аас дээш насны хэрэглэгч бүртгүүлэх боломжтой</p>
       <div className="relative">
         <select value={value} onChange={e => onChange(e.target.value)}
@@ -186,6 +408,8 @@ function StepBirthYear({ value, onChange }: { value: string; onChange: (v: strin
     </div>
   );
 }
+
+/* ─── Step 4: Bio ─── */
 
 function StepBio({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
@@ -204,6 +428,14 @@ function StepBio({ value, onChange }: { value: string; onChange: (v: string) => 
   );
 }
 
+/* ─── Step 5: Interests ─── */
+
+const INTERESTS_LIST = [
+  "Хөгжим", "Аялал", "Кино", "Кафе", "Уран зохиол", "Спорт",
+  "Roleplay", "Фото", "Тоглоом", "Хоол хийх", "Байгаль", "Уран бүтээл",
+  "Фитнесс", "Кофе", "Шөнийн амьдрал", "Ном уншлага", "Дуу хөгжим",
+];
+
 function StepInterests({ selected, toggle }: { selected: string[]; toggle: (t: string) => void }) {
   return (
     <div className="flex-1">
@@ -218,7 +450,7 @@ function StepInterests({ selected, toggle }: { selected: string[]; toggle: (t: s
           const disabled = !active && selected.length >= 6;
           return (
             <button key={t} onClick={() => toggle(t)} disabled={disabled}
-              className="px-4 py-2 rounded-full text-[13px] font-medium transition-all duration-200"
+              className="px-4 py-2 rounded-full text-[13px] font-medium transition-all duration-200 cursor-pointer border"
               style={{
                 background: active ? "rgba(232,65,90,0.15)" : "rgba(255,255,255,0.05)",
                 border: active ? "1px solid rgba(232,65,90,0.5)" : "1px solid rgba(255,255,255,0.1)",
@@ -234,6 +466,8 @@ function StepInterests({ selected, toggle }: { selected: string[]; toggle: (t: s
   );
 }
 
+/* ─── Done ─── */
+
 function DoneScreen() {
   return (
     <div className="min-h-screen bg-bg-primary flex flex-col items-center justify-center px-5 text-center">
@@ -248,7 +482,7 @@ function DoneScreen() {
         Профайл тань бэлэн боллоо. Одоо шинэ хүмүүстэй танилцаж эхэлцгээе.
       </p>
       <Link href="/" className="relative z-10">
-        <button className="px-8 py-3.5 rounded-2xl font-semibold text-[15px] text-white transition-all duration-200 hover:-translate-y-0.5"
+        <button className="px-8 py-3.5 rounded-2xl font-semibold text-[15px] text-white transition-all duration-200 hover:-translate-y-0.5 border-none cursor-pointer"
           style={{ background: "linear-gradient(135deg, #e8415a, #9e1838)", boxShadow: "0 4px 24px rgba(200,37,74,0.45)" }}>
           Эхлэх →
         </button>
