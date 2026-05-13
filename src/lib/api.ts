@@ -350,6 +350,84 @@ export const notificationApi = {
     request<{ success: boolean }>("/notifications/read", { method: "POST" }),
 };
 
+export interface AIHumanImage {
+  _id: string;
+  url: string;
+  blurHash?: string | null;
+}
+
+export interface AIHumanConversation {
+  _id: string;
+  persona: string;
+  user: string;
+  behaviorPrompt?: string | null;
+  lastMessageAt?: string | null;
+  lastMessagePreview?: string | null;
+  lastMessageRole?: "user" | "assistant" | null;
+  messageCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AIHuman {
+  _id: string;
+  image: AIHumanImage | null;
+  name: string;
+  age?: number | null;
+  gender: string;
+  badge: string[];
+  shortBio: string;
+  prompt: string;
+  greeting?: string | null;
+  model: string;
+  isActive: boolean;
+  canChat?: boolean;
+  conversation: AIHumanConversation | null;
+}
+
+export interface AIHumanMessage {
+  _id: string;
+  conversation: string;
+  persona: string;
+  role: "user" | "assistant";
+  content: string;
+  model?: string | null;
+  createdAt: string;
+}
+
+export interface AIHumanQuota {
+  tier: string;
+  limit: number;
+  used: number;
+  remaining: number | null;
+  unlimited: boolean;
+  resetAt: string;
+}
+
+export const aiHumanApi = {
+  list: (page = 1, limit = 20) =>
+    request<{ data: AIHuman[]; total: number; page: number; totalPages: number; canChat: boolean; quota: AIHumanQuota | null }>(
+      `/ai-humans?page=${page}&limit=${limit}`
+    ),
+
+  getDetail: (id: string) =>
+    request<{ data: AIHuman; quota: AIHumanQuota | null }>(`/ai-humans/${id}`),
+
+  getHistory: (id: string, page = 1, limit = 50) =>
+    request<{ persona: AIHuman; conversation: AIHumanConversation | null; data: AIHumanMessage[]; total: number; totalPages: number; quota: AIHumanQuota | null }>(
+      `/ai-humans/${id}/history?page=${page}&limit=${limit}`
+    ),
+
+  chat: (id: string, body: { message: string; behaviorPrompt?: string }) =>
+    request<{ persona: AIHuman; conversation: AIHumanConversation; userMessage: AIHumanMessage; assistantMessage: AIHumanMessage; quota: AIHumanQuota | null }>(
+      `/ai-humans/${id}/chat`,
+      { method: "POST", body: JSON.stringify(body) }
+    ),
+
+  deleteChat: (id: string) =>
+    request<{ success: boolean; deleted: boolean }>(`/ai-humans/${id}/chat`, { method: "DELETE" }),
+};
+
 export const authApi = {
   register: (body: { phone: string; name: string; gender: string }) =>
     request<AuthResponse>("/auth/register", {
