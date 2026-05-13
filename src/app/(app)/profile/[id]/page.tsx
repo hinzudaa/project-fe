@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { MessageCircle, Heart, ArrowLeft, Star, Calendar, Clock, Loader2, Zap } from "lucide-react";
+import { MessageCircle, Heart, ArrowLeft, Star, Calendar, Clock, Loader2, Zap, MapPin } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { userApi, PublicProfile, PublicNetworkPost } from "@/lib/api";
 import { useAuth } from "@/store/AuthProvider";
@@ -116,12 +116,21 @@ export default function UserProfilePage() {
                 </span>
               )}
             </div>
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-[13px] text-text-muted mb-3">
-              {profile.gender && <span>{GENDERS[profile.gender] ?? profile.gender}</span>}
-              {profile.age && <span>· {profile.age} нас</span>}
-              {profile.createdAt && (
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1.5 text-[13px] text-text-muted mb-3">
+              {(profile.gender || profile.age) && (
+                <span>
+                  {[profile.gender ? GENDERS[profile.gender] ?? profile.gender : null, profile.age ? `${profile.age} нас` : null]
+                    .filter(Boolean).join(" · ")}
+                </span>
+              )}
+              {profile.city && (
                 <span className="flex items-center gap-1">
-                  <Calendar size={12} /> {timeAgo(profile.createdAt)} нэгдсэн
+                  <MapPin size={12} /> {profile.city}
+                </span>
+              )}
+              {profile.birthYear && (
+                <span className="flex items-center gap-1">
+                  <Calendar size={12} /> {profile.birthYear} он
                 </span>
               )}
             </div>
@@ -144,6 +153,40 @@ export default function UserProfilePage() {
                 Засах
               </button>
             </Link>
+          )}
+        </div>
+
+        {/* Extended Profile Info */}
+        <div className="px-6 md:px-10 pb-8 relative z-10">
+          {/* Bio */}
+          {profile.bio && (
+            <p className="text-[14px] text-text-secondary leading-relaxed mb-6 border-l-2 pl-4"
+              style={{ borderColor: "rgba(200,37,74,0.4)" }}>
+              {profile.bio}
+            </p>
+          )}
+
+          {/* Photos */}
+          {profile.photos && profile.photos.length > 0 && (
+            <div className="grid grid-cols-2 gap-3.5 mb-7">
+              {profile.photos.slice(0, 2).map((url, idx) => (
+                <div key={idx} className="aspect-[3/4] rounded-[24px] overflow-hidden border border-white/[0.06] bg-bg-card shadow-xl group">
+                  <img src={url} alt="" className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Interests */}
+          {profile.interests && profile.interests.length > 0 && (
+            <div className="flex flex-wrap gap-2.5">
+              {profile.interests.map(t => (
+                <span key={t} className="px-3.5 py-1.5 rounded-full text-[12px] font-medium text-text-secondary"
+                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                  {t}
+                </span>
+              ))}
+            </div>
           )}
         </div>
       </div>

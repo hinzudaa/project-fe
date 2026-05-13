@@ -63,24 +63,22 @@ export default function OnboardingPage() {
 
     setLoading(true);
     try {
-      // Upload photos that haven't been uploaded yet
-      const uploadedPhotos: UploadedPhoto[] = [];
-      for (const photo of data.photos) {
-        if (photo.url) { uploadedPhotos.push(photo); continue; }
-        const result = await profileApi.uploadImage(photo.file);
-        uploadedPhotos.push({ ...photo, url: result.url });
+      const form = new FormData();
+      if (data.city) form.append("city", data.city);
+      if (data.birthYear) form.append("birthYear", data.birthYear);
+      if (data.bio) form.append("bio", data.bio);
+      if (data.interests.length > 0) {
+        form.append("interests", JSON.stringify(data.interests));
       }
-      setData(d => ({ ...d, photos: uploadedPhotos }));
 
-      const imageUrls = uploadedPhotos.map(p => p.url).filter(Boolean) as string[];
+      // Add all photo files to the 'photos' field
+      for (const photo of data.photos) {
+        if (photo.file) {
+          form.append("photos", photo.file);
+        }
+      }
 
-      await profileApi.updateMyProfile({
-        city: data.city || undefined,
-        birthYear: data.birthYear ? Number(data.birthYear) : undefined,
-        bio: data.bio || undefined,
-        interests: data.interests.length > 0 ? data.interests : undefined,
-        images: imageUrls.length > 0 ? imageUrls : undefined,
-      });
+      await profileApi.updateMyProfile(form);
       setDone(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Алдаа гарлаа");

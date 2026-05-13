@@ -27,6 +27,7 @@ export interface AuthUser {
   bio?: string;
   interests?: string[];
   avatar?: string;
+  photos?: string[];
   membershipExpiresAt?: string;
 }
 
@@ -112,11 +113,24 @@ export const profileApi = {
     return data;
   },
 
-  updateMyProfile: (body: { city?: string; birthYear?: number; bio?: string; interests?: string[]; images?: string[] }) =>
-    request<AuthUser>("/users/me/profile", {
+  updateMyProfile: (body: any) => {
+    if (body instanceof FormData) {
+      return fetch(`${BASE_URL}/users/me/profile`, {
+        method: "PUT",
+        credentials: "include",
+        body,
+        // No Content-Type header, browser will set it with boundary
+      }).then(async (res) => {
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data?.message ?? "Алдаа гарлаа");
+        return data as AuthUser;
+      });
+    }
+    return request<AuthUser>("/users/me/profile", {
       method: "PUT",
       body: JSON.stringify(body),
-    }),
+    });
+  },
 
   uploadImage: async (file: File): Promise<{ url: string }> => {
     const form = new FormData();
@@ -236,6 +250,11 @@ export interface PublicProfile {
   level?: { level: number; title: string } | null;
   nextLevel?: { level: number; title: string; requiredExp: number } | null;
   createdAt?: string;
+  bio?: string;
+  city?: string;
+  birthYear?: number;
+  interests?: string[];
+  photos?: string[];
 }
 
 export interface PublicNetworkPost {

@@ -143,6 +143,18 @@ export default function ProfilePage() {
             </p>
           )}
 
+          {/* Photos */}
+          {user?.photos && user.photos.length > 0 && (
+            <div className="grid grid-cols-2 gap-3.5 mb-6">
+              {user.photos.slice(0, 2).map((url, idx) => (
+                <div key={idx} className="aspect-[3/4] rounded-[24px] overflow-hidden border border-white/[0.06] bg-bg-card shadow-xl group">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={url} alt={`photo-${idx}`} className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" />
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Interests */}
           {user?.interests && user.interests.length > 0 ? (
             <div className="flex flex-wrap gap-2">
@@ -188,6 +200,10 @@ export default function ProfilePage() {
         </button>
       </div>
 
+      <style jsx global>{`
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </div>
   );
 }
