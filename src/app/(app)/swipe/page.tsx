@@ -26,6 +26,7 @@ export default function SwipePage() {
   const [swipeDir, setSwipeDir] = useState<"left" | "right" | null>(null);
   const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
   const [error, setError] = useState("");
+  const [photoIndex, setPhotoIndex] = useState(0);
   const pageRef = useRef(1);
   const totalPagesRef = useRef(1);
   const fetchingMore = useRef(false);
@@ -49,6 +50,23 @@ export default function SwipePage() {
   }
 
   useEffect(() => { loadFeed(true); }, []);
+
+  // Reset photo index when top card changes
+  useEffect(() => {
+    setPhotoIndex(0);
+  }, [cards[0]?._id]);
+
+  const nextPhoto = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!top?.photos || top.photos.length <= 1) return;
+    setPhotoIndex(prev => (prev + 1) % top.photos!.length);
+  };
+
+  const prevPhoto = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!top?.photos || top.photos.length <= 1) return;
+    setPhotoIndex(prev => (prev - 1 + top.photos!.length) % top.photos!.length);
+  };
 
   async function swipe(dir: "left" | "right") {
     if (swiping || cards.length === 0) return;
@@ -219,31 +237,61 @@ export default function SwipePage() {
 
           {/* Front card */}
           {top && (
-            <div className="absolute inset-0 rounded-[28px] overflow-hidden cursor-grab active:cursor-grabbing"
+            <div className="absolute inset-0 rounded-[28px] overflow-hidden cursor-grab active:cursor-grabbing shadow-[0_24px_60px_rgba(0,0,0,0.6)]"
               style={{
                 zIndex: 2,
-                background: "linear-gradient(160deg, #6b1528 0%, #2a0814 60%, #0d0408 100%)",
+                background: "#0d0408",
                 transform: swipeDir === "left"
                   ? "translateX(-150%) rotate(-20deg)"
                   : swipeDir === "right"
                     ? "translateX(150%) rotate(20deg)"
                     : "none",
-                transition: swipeDir ? "transform 0.42s cubic-bezier(0.25,0.46,0.45,0.94)" : "none",
-                boxShadow: "0 24px 60px rgba(0,0,0,0.5)",
+                transition: swipeDir ? "transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94)" : "none",
               }}>
 
-              <div className="absolute top-0 left-0 right-0 h-[65%] pointer-events-none"
-                style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(220,80,100,0.2) 0%, transparent 65%)" }} />
-
-              {/* Avatar */}
-              <div className="absolute top-0 left-0 right-0 h-[62%] flex items-center justify-center">
-                <div className="w-28 h-28 rounded-full flex items-center justify-center text-[52px] font-black text-white overflow-hidden"
-                  style={{ background: "linear-gradient(135deg, #c22d50, #7a0f20)", boxShadow: "0 0 0 4px rgba(255,255,255,0.08), 0 8px 40px rgba(220,80,100,0.25)" }}>
-                  {top.avatar
-                    ? <img src={resolveAvatar(top.avatar)!} className="w-full h-full object-cover" alt="" />
-                    : avatarLetter(top)}
-                </div>
+              {/* Photo Display */}
+              <div className="absolute inset-0 bg-bg-card">
+                {top.photos && top.photos.length > 0 ? (
+                  <img
+                    src={top.photos[photoIndex]}
+                    className="w-full h-full object-cover select-none pointer-events-none"
+                    alt=""
+                  />
+                ) : top.avatar ? (
+                  <img
+                    src={resolveAvatar(top.avatar)!}
+                    className="w-full h-full object-cover select-none pointer-events-none"
+                    alt=""
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-[80px] font-black text-white/10 select-none">
+                    {avatarLetter(top)}
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
               </div>
+
+              {/* Photo Navigation Overlays */}
+              {top.photos && top.photos.length > 1 && (
+                <div className="absolute inset-0 flex z-10">
+                  <div className="flex-1 cursor-pointer" onClick={prevPhoto} title="Өмнөх" />
+                  <div className="flex-1 cursor-pointer" onClick={nextPhoto} title="Дараах" />
+                </div>
+              )}
+
+              {/* Progress Bars */}
+              {top.photos && top.photos.length > 1 && (
+                <div className="absolute top-3 left-4 right-4 flex gap-1.5 z-20">
+                  {top.photos.map((_, i) => (
+                    <div key={i} className="h-1 flex-1 rounded-full overflow-hidden bg-white/20 backdrop-blur-md">
+                      <div
+                        className="h-full bg-white transition-all duration-300"
+                        style={{ width: i === photoIndex ? "100%" : i < photoIndex ? "100%" : "0%" }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Online badge */}
               {top.isOnline && (

@@ -151,6 +151,7 @@ export interface SwipeUser {
   name?: string;
   username?: string;
   avatar?: string;
+  photos?: string[];
   gender?: string;
   age?: number;
   isOnline?: boolean;
