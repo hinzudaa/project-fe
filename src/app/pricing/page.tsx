@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Check, Zap, Film, Heart, Bot } from "lucide-react";
-import { membershipApi, MembershipPlan, QPayInvoice } from "@/lib/api";
+import { membershipApi, MembershipPlan, QPayInvoice } from "@/apis";
 import QPayModal from "@/components/QPayModal";
 import { useAuth } from "@/store/AuthProvider";
 

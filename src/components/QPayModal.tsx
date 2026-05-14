@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { X, CheckCircle, Loader2 } from "lucide-react";
-import { membershipApi, QPayInvoice, MembershipPlan } from "@/lib/api";
+import { membershipApi, QPayInvoice, MembershipPlan } from "@/apis";
 
 interface Props {
   invoice: QPayInvoice;

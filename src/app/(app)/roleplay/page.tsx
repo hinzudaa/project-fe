@@ -1,8 +1,9 @@
 "use client";
+import useSWR from "swr";
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { Loader2, Trash2, ArrowLeft, Send, Zap } from "lucide-react";
-import { aiHumanApi, AIHuman, AIHumanMessage, AIHumanQuota } from "@/lib/api";
+import { aiHumanApi, AIHuman, AIHumanMessage, AIHumanQuota } from "@/apis";
 import { useAuth } from "@/store/AuthProvider";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
@@ -44,25 +45,16 @@ function QuotaBar({ quota }: { quota: AIHumanQuota }) {
 
 export default function RoleplayPage() {
   const { user } = useAuth();
-  const [personas, setPersonas] = useState<AIHuman[]>([]);
-  const [quota, setQuota] = useState<AIHumanQuota | null>(null);
-  const [loading, setLoading] = useState(true);
   const [active, setActive] = useState<AIHuman | null>(null);
 
-  useEffect(() => {
-    aiHumanApi.list(1, 50)
-      .then(res => { setPersonas(res.data); setQuota(res.quota); })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+  const { data, mutate, isLoading } = useSWR("ai-human-list", () => aiHumanApi.list(1, 50));
+  const personas = data?.data ?? [];
+  const quota = data?.quota ?? null;
 
   const handleChatOpen = (persona: AIHuman) => setActive(persona);
 
-  const handleChatClose = (updatedPersona?: AIHuman, updatedQuota?: AIHumanQuota | null) => {
-    if (updatedPersona) {
-      setPersonas(prev => prev.map(p => p._id === updatedPersona._id ? updatedPersona : p));
-    }
-    if (updatedQuota !== undefined) setQuota(updatedQuota);
+  const handleChatClose = () => {
+    mutate(); // Refresh list to get latest previews
     setActive(null);
   };
 
@@ -80,7 +72,7 @@ export default function RoleplayPage() {
         {quota && <QuotaBar quota={quota} />}
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div className="flex justify-center py-20">
           <Loader2 size={36} className="animate-spin text-[#c8254a]" />
         </div>
@@ -169,9 +161,6 @@ function ChatView({
   onClose: (p?: AIHuman, q?: AIHumanQuota | null) => void;
 }) {
   const [persona, setPersona] = useState(initialPersona);
-  const [messages, setMessages] = useState<AIHumanMessage[]>([]);
-  const [quota, setQuota] = useState<AIHumanQuota | null>(null);
-  const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [input, setInput] = useState("");
@@ -182,16 +171,13 @@ function ChatView({
   const socketRef = useRef<Socket | null>(null);
   const sentIds = useRef<Set<string>>(new Set());
 
+  const { data, mutate, isLoading } = useSWR(["ai-human-history", persona._id], () => aiHumanApi.getHistory(persona._id, 1, 100));
+  const messages = data?.data ?? [];
+  const quota = data?.quota ?? null;
+
   useEffect(() => {
-    aiHumanApi.getHistory(persona._id, 1, 100)
-      .then(res => {
-        setMessages(res.data);
-        setQuota(res.quota);
-        if (res.persona) setPersona(res.persona);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [persona._id]);
+    if (data?.persona) setPersona(data.persona);
+  }, [data]);
 
   useEffect(() => {
     const socket = io(BASE_URL, { withCredentials: true, reconnectionAttempts: 5 });
@@ -200,21 +186,27 @@ function ChatView({
     socket.on("ai-human:message", (msg: AIHumanMessage) => {
       if (String(msg.persona) !== String(persona._id)) return;
       if (sentIds.current.has(msg._id)) { sentIds.current.delete(msg._id); return; }
-      setMessages(prev => prev.some(m => m._id === msg._id) ? prev : [...prev, msg]);
+      mutate(prev => {
+        if (!prev) return prev;
+        if (prev.data.some(m => m._id === msg._id)) return prev;
+        return { ...prev, data: [...prev.data, msg] };
+      }, false);
     });
 
     socket.on("ai-human:typing", (data: { personaId: string; isTyping: boolean }) => {
       if (String(data.personaId) === String(persona._id)) setIsTyping(data.isTyping);
     });
 
-    socket.on("ai-human:quota", (q: AIHumanQuota) => setQuota(q));
+    socket.on("ai-human:quota", (q: AIHumanQuota) => {
+      mutate(prev => prev ? { ...prev, quota: q } : prev, false);
+    });
 
     socket.on("ai-human:error", (data: { personaId: string; message: string }) => {
       if (String(data.personaId) === String(persona._id)) setError(data.message);
     });
 
     return () => { socket.disconnect(); socketRef.current = null; };
-  }, [persona._id]);
+  }, [persona._id, mutate]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -234,23 +226,30 @@ function ChatView({
       content: text,
       createdAt: new Date().toISOString(),
     };
-    setMessages(prev => [...prev, optimistic]);
+
+    mutate(prev => prev ? { ...prev, data: [...prev.data, optimistic] } : prev, false);
     setSending(true);
 
     try {
       const res = await aiHumanApi.chat(persona._id, { message: text });
       sentIds.current.add(res.userMessage._id);
       sentIds.current.add(res.assistantMessage._id);
-      setMessages(prev => {
-        const withoutOpt = prev.filter(m => m._id !== optimistic._id);
+
+      mutate(prev => {
+        if (!prev) return prev;
+        const withoutOpt = prev.data.filter(m => m._id !== optimistic._id);
         const ids = new Set(withoutOpt.map(m => m._id));
         const toAdd = [res.userMessage, res.assistantMessage].filter(m => !ids.has(m._id));
-        return [...withoutOpt, ...toAdd];
-      });
-      if (res.quota) setQuota(res.quota);
+        return {
+          ...prev,
+          data: [...withoutOpt, ...toAdd],
+          quota: res.quota ?? prev.quota,
+          persona: res.persona
+        };
+      }, false);
       setPersona(res.persona);
     } catch (e: any) {
-      setMessages(prev => prev.filter(m => m._id !== optimistic._id));
+      mutate(prev => prev ? { ...prev, data: prev.data.filter(m => m._id !== optimistic._id) } : prev, false);
       setError(e?.message ?? "Алдаа гарлаа");
     } finally {
       setSending(false);
@@ -260,10 +259,10 @@ function ChatView({
   const handleDelete = async () => {
     if (deleting) return;
     setDeleting(true);
-    await aiHumanApi.deleteChat(persona._id).catch(() => {});
+    await aiHumanApi.deleteChat(persona._id).catch(() => { });
     setDeleting(false);
     setConfirmDelete(false);
-    onClose({ ...persona, conversation: null }, quota);
+    onClose();
   };
 
   const avatarUrl = resolveAvatar(persona.image?.url);
@@ -306,7 +305,7 @@ function ChatView({
 
         {/* Messages */}
         <div className="flex-1 bg-bg-card border border-white/[0.06] rounded-[22px] p-4 overflow-y-auto flex flex-col gap-3 mb-3">
-          {loading ? (
+          {isLoading ? (
             <div className="flex-1 flex items-center justify-center">
               <Loader2 size={28} className="animate-spin text-[#c8254a]" />
             </div>

@@ -1,7 +1,8 @@
 "use client";
+import useSWR from "swr";
 import { useEffect, useRef, useState } from "react";
 import { Loader2, Play, Lock, CheckCircle, X, Film, Info, ChevronRight, Zap } from "lucide-react";
-import { movieApi, Movie, MovieBundle, QPayInvoice } from "@/lib/api";
+import { movieApi, Movie, MovieBundle, QPayInvoice } from "@/apis";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
 
@@ -25,28 +26,38 @@ function fmtPrice(price: number) {
 const POLL_MS = 3000;
 
 export default function MoviesPage() {
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [bundle, setBundle] = useState<MovieBundle | null>(null);
-  const [genres, setGenres] = useState<string[]>([]);
   const [genre, setGenre] = useState("");
-  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Movie | null>(null);
 
-  useEffect(() => {
-    Promise.all([
+  const { data, mutate, isLoading } = useSWR("movies-list", async () => {
+    const [res, bundleRes] = await Promise.all([
       movieApi.list(1, 100),
       movieApi.getBundle().catch(() => null),
-    ]).then(([res, bundleRes]) => {
-      setMovies(res.data);
-      const allGenres = Array.from(new Set(res.data.flatMap(m => m.genres))).filter(Boolean);
-      setGenres(allGenres);
-      if (bundleRes?.data) setBundle(bundleRes.data);
-    }).catch(() => { }).finally(() => setLoading(false));
-  }, []);
+    ]);
+    
+    const allGenres = Array.from(new Set(res.data.flatMap(m => m.genres))).filter(Boolean);
+    
+    return {
+      movies: res.data,
+      genres: allGenres,
+      bundle: bundleRes?.data ?? null
+    };
+  });
+
+  const movies = data?.movies ?? [];
+  const genres = data?.genres ?? [];
+  const bundle = data?.bundle ?? null;
 
   const handlePurchased = (updatedMovie: Movie) => {
-    setMovies(prev => prev.map(m => m._id === updatedMovie._id ? updatedMovie : m));
+    mutate(prev => prev ? {
+      ...prev,
+      movies: prev.movies.map(m => m._id === updatedMovie._id ? updatedMovie : m)
+    } : prev, false);
     setSelected(updatedMovie);
+  };
+
+  const setBundle = (newBundle: MovieBundle) => {
+    mutate(prev => prev ? { ...prev, bundle: newBundle } : prev, false);
   };
 
   const filtered = genre ? movies.filter(m => m.genres.includes(genre)) : movies;
@@ -102,7 +113,7 @@ export default function MoviesPage() {
           ))}
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
             <div className="relative">
               <div className="w-16 h-16 rounded-full border-t-2 border-r-2 border-[#e8415a] animate-spin" />

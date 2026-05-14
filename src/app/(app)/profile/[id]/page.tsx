@@ -1,9 +1,10 @@
 "use client";
+import useSWR from "swr";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { MessageCircle, Heart, ArrowLeft, Star, Calendar, Clock, Loader2, Zap, MapPin } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { userApi, PublicProfile, PublicNetworkPost } from "@/lib/api";
+import { userApi, PublicProfile, PublicNetworkPost } from "@/apis";
 import { useAuth } from "@/store/AuthProvider";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
@@ -32,27 +33,17 @@ export default function UserProfilePage() {
   const { user: me } = useAuth();
   const id = params.id as string;
 
-  const [profile, setProfile] = useState<PublicProfile | null>(null);
-  const [posts, setPosts] = useState<PublicNetworkPost[]>([]);
-  const [postsTotal, setPostsTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
   const isOwnProfile = me?._id === id;
 
-  useEffect(() => {
-    setLoading(true);
-    userApi.getPublicProfile(id)
-      .then(res => {
-        setProfile(res.profile);
-        setPosts(res.posts);
-        setPostsTotal(res.postsTotal);
-      })
-      .catch(e => setError(e instanceof Error ? e.message : "Профайл ачаалахад алдаа гарлаа"))
-      .finally(() => setLoading(false));
-  }, [id]);
+  const { data, error, isLoading } = useSWR(["public-profile", id], async () => {
+    return await userApi.getPublicProfile(id);
+  });
 
-  if (loading) {
+  const profile = data?.profile ?? null;
+  const posts = data?.posts ?? [];
+  const postsTotal = data?.postsTotal ?? 0;
+
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
         <Loader2 size={36} className="animate-spin text-[#c8254a]" />

@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { io, Socket } from "socket.io-client";
-import { notificationApi, AppNotification } from "@/lib/api";
+import { notificationApi, AppNotification } from "@/apis";
 import { useAuth } from "./AuthProvider";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";

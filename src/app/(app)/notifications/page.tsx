@@ -1,9 +1,10 @@
 "use client";
+import useSWR from "swr";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { io, Socket } from "socket.io-client";
 import { Loader2, Bell, MessageCircle, CreditCard, Megaphone, Users, BookOpen } from "lucide-react";
-import { notificationApi, AppNotification } from "@/lib/api";
+import { notificationApi, AppNotification } from "@/apis";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
 
@@ -97,16 +98,10 @@ function NotifRow({
 }
 
 export default function NotificationsPage() {
-  const [notifs, setNotifs] = useState<AppNotification[]>([]);
-  const [loading, setLoading] = useState(true);
   const [markingAll, setMarkingAll] = useState(false);
   const socketRef = useRef<Socket | null>(null);
 
-  useEffect(() => {
-    notificationApi.list().then(res => {
-      setNotifs(res.data);
-    }).catch(() => {}).finally(() => setLoading(false));
-  }, []);
+  const { data: notifs = [], mutate, isLoading } = useSWR<AppNotification[]>("notifications", () => notificationApi.list().then(res => res.data));
 
   // Real-time new notifications via socket
   useEffect(() => {
@@ -114,17 +109,17 @@ export default function NotificationsPage() {
     socketRef.current = socket;
 
     socket.on("notification:new", (notif: AppNotification) => {
-      setNotifs(prev => {
-        if (prev.some(n => n._id === notif._id)) return prev;
+      mutate(prev => {
+        if (!prev || prev.some(n => n._id === notif._id)) return prev;
         return [notif, ...prev];
-      });
+      }, false);
     });
 
     return () => { socket.disconnect(); };
-  }, []);
+  }, [mutate]);
 
   const markRead = async (id: string) => {
-    setNotifs(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
+    mutate(prev => prev?.map(n => n._id === id ? { ...n, isRead: true } : n), false);
     await notificationApi.markRead(id).catch(() => {});
   };
 
@@ -132,7 +127,7 @@ export default function NotificationsPage() {
     if (markingAll) return;
     setMarkingAll(true);
     await notificationApi.markAllRead().catch(() => {});
-    setNotifs(prev => prev.map(n => ({ ...n, isRead: true })));
+    mutate(prev => prev?.map(n => ({ ...n, isRead: true })), false);
     setMarkingAll(false);
   };
 
@@ -160,7 +155,7 @@ export default function NotificationsPage() {
         )}
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div className="flex justify-center py-20">
           <Loader2 size={36} className="animate-spin text-[#c8254a]" />
         </div>

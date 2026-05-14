@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Loader2, Send, Trash2 } from "lucide-react";
-import { networkApi, NetworkPost, NetworkComment } from "@/lib/api";
+import { networkApi, NetworkPost, NetworkComment } from "@/apis";
 import { useAuth } from "@/store/AuthProvider";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";

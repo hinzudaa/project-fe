@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { X, Heart, Star, MapPin, Zap, Loader2 } from "lucide-react";
-import { swipeApi, SwipeUser, SwipeQuota, MatchResult } from "@/lib/api";
+import { swipeApi, SwipeUser, SwipeQuota, MatchResult } from "@/apis";
 import { useAuth } from "@/store/AuthProvider";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";

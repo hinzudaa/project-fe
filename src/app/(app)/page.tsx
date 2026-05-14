@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import useSWR from "swr";
 import { Film, Flame, Heart, Zap, Lock, Loader2, CheckCircle, ChevronRight, MessageSquare, Play, Users } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/store/AuthProvider";
-import { swipeApi, SwipeUser, SwipeQuota, movieApi, Movie } from "@/lib/api";
+import { swipeApi, SwipeUser, SwipeQuota, movieApi, Movie } from "@/apis";
 
 interface HomeData {
   feedTotal: number;
@@ -45,29 +45,25 @@ function Avatar({ user, size = 40 }: { user: SwipeUser; size?: number }) {
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const [data, setData] = useState<HomeData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const displayName = user?.name ?? user?.phone ?? "Хэрэглэгч";
-
-  useEffect(() => {
-    Promise.allSettled([
+  
+  const { data, isLoading } = useSWR<HomeData>("home-dashboard", async () => {
+    const [feedRes, matchRes, likesRes, moviesRes] = await Promise.all([
       swipeApi.getFeedSingle(),
       swipeApi.getMatches(),
       swipeApi.getLikes(),
       movieApi.list(1, 10),
-    ]).then(([feedRes, matchRes, likesRes, moviesRes]) => {
-      setData({
-        feedTotal: feedRes.status === "fulfilled" ? feedRes.value.total : 0,
-        matchTotal: matchRes.status === "fulfilled" ? matchRes.value.total : 0,
-        quota: feedRes.status === "fulfilled" ? feedRes.value.quota : null,
-        recentMatches: matchRes.status === "fulfilled" ? matchRes.value.data : [],
-        likes: likesRes.status === "fulfilled" ? likesRes.value.data : [],
-        movies: moviesRes.status === "fulfilled" ? moviesRes.value.data : [],
-      });
-      setLoading(false);
-    });
-  }, []);
+    ]);
+    return {
+      feedTotal: feedRes.total,
+      matchTotal: matchRes.total,
+      quota: feedRes.quota,
+      recentMatches: matchRes.data,
+      likes: likesRes.data,
+      movies: moviesRes.data,
+    };
+  });
+
+  const displayName = user?.name ?? user?.phone ?? "Хэрэглэгч";
 
   const stats = [
     { label: "Шинэ профайл", value: data?.feedTotal ?? "—", color: "#e8415a", icon: Users },
@@ -75,7 +71,7 @@ export default function DashboardPage() {
     { label: "Swipe үлдсэн", value: data?.quota ? data.quota.remaining : "—", color: "#a06de0", icon: Zap },
   ];
 
-  if (loading) {
+  if (isLoading || !data) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <div className="relative">

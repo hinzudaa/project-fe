@@ -5,7 +5,7 @@ import {
   ChevronLeft, ChevronRight, Check, Search, Loader2,
   Upload, X, Camera, UserCheck, AlertTriangle,
 } from "lucide-react";
-import { profileApi } from "@/lib/api";
+import { profileApi } from "@/apis";
 
 const TOTAL_STEPS = 5;
 

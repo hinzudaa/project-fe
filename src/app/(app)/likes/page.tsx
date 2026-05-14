@@ -1,8 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import useSWRInfinite from "swr/infinite";
+import { useState } from "react";
 import Link from "next/link";
 import { Loader2, Heart, MessageCircle, ChevronRight } from "lucide-react";
-import { swipeApi, SwipeUser } from "@/lib/api";
+import { swipeApi, SwipeUser } from "@/apis";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
 
@@ -29,36 +30,25 @@ interface LikeEntry {
 
 const PAGE_SIZE = 20;
 
+const getKey = (pageIndex: number, previousPageData: any) => {
+  if (previousPageData && !previousPageData.data.length) return null;
+  return `likes?page=${pageIndex + 1}&limit=${PAGE_SIZE}`;
+};
+
+const fetcher = async (url: string) => {
+  const params = new URLSearchParams(url.split('?')[1]);
+  return swipeApi.getLikesFull(Number(params.get('page')), Number(params.get('limit')));
+};
+
 export default function LikesPage() {
-  const [likes, setLikes] = useState<LikeEntry[]>([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const { data, size, setSize, isLoading, isValidating } = useSWRInfinite(getKey, fetcher);
 
-  useEffect(() => {
-    setLoading(true);
-    swipeApi.getLikesFull(1, PAGE_SIZE)
-      .then(res => {
-        setLikes(res.data);
-        setTotal(res.total);
-        setPage(1);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
-
-  const loadMore = async () => {
-    setLoadingMore(true);
-    try {
-      const res = await swipeApi.getLikesFull(page + 1, PAGE_SIZE);
-      setLikes(prev => [...prev, ...res.data]);
-      setPage(p => p + 1);
-    } catch { /* ignore */ }
-    finally { setLoadingMore(false); }
-  };
-
+  const likes = data ? data.flatMap(res => res.data) : [];
+  const total = data?.[0]?.total ?? 0;
+  const isLoadingMore = isLoading || (size > 0 && data && typeof data[size - 1] === "undefined");
   const hasMore = likes.length < total;
+
+  const loadMore = () => setSize(size + 1);
 
   return (
     <div className="max-w-[860px] mx-auto pb-10">
@@ -68,11 +58,11 @@ export default function LikesPage() {
           Танд таалагдсан
         </h1>
         <p className="text-text-secondary text-[14px]">
-          {loading ? "Ачаалж байна..." : total > 0 ? `${total} хүн таны профайлыг like хийсэн байна` : "Одоохондоо хэнч like хийгээгүй байна"}
+          {isLoading ? "Ачаалж байна..." : total > 0 ? `${total} хүн таны профайлыг like хийсэн байна` : "Одоохондоо хэнч like хийгээгүй байна"}
         </p>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div className="flex justify-center py-20">
           <Loader2 size={36} className="animate-spin text-[#c8254a]" />
         </div>
@@ -103,11 +93,11 @@ export default function LikesPage() {
             <div className="flex justify-center mt-7">
               <button
                 onClick={loadMore}
-                disabled={loadingMore}
+                disabled={isLoadingMore}
                 className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-[13px] font-semibold text-text-secondary border border-white/[0.1] hover:border-white/[0.2] hover:text-text-primary transition-all duration-200 disabled:opacity-50 cursor-pointer bg-transparent"
               >
-                {loadingMore ? <Loader2 size={14} className="animate-spin" /> : <ChevronRight size={14} />}
-                {loadingMore ? "Ачаалж байна..." : "Цааш үзэх"}
+                {isLoadingMore ? <Loader2 size={14} className="animate-spin" /> : <ChevronRight size={14} />}
+                {isLoadingMore ? "Ачаалж байна..." : "Цааш үзэх"}
               </button>
             </div>
           )}

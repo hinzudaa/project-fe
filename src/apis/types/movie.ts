@@ -1,0 +1,60 @@
+import { QPayInvoice } from "./membership";
+
+export interface MovieImage {
+  _id: string;
+  url: string;
+  blurHash?: string | null;
+}
+
+export interface Movie {
+  _id: string;
+  title: string;
+  description?: string | null;
+  image: MovieImage | null;
+  price: number;
+  discountedPrice?: number | null;
+  effectivePrice: number;
+  releaseYear?: number | null;
+  genres: string[];
+  duration: number;
+  thumbnailUrl?: string | null;
+  qualities: string[];
+  status: string;
+  isActive: boolean;
+  owned: boolean;
+  ownership: "single" | "bundle" | null;
+  streamUrl?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MovieBundle {
+  _id: string;
+  title: string;
+  description?: string | null;
+  image: MovieImage | null;
+  price: number;
+  discountedPrice?: number | null;
+  effectivePrice: number;
+  isActive: boolean;
+  owned: boolean;
+  totalMovies?: number;
+}
+
+export interface MoviePurchaseResponse {
+  purchaseId: string;
+  invoice: QPayInvoice;
+  orderId: string;
+  movie: Movie;
+  status: string;
+}
+
+export interface MovieStreamData {
+  _id: string;
+  title: string;
+  streamUrl: string;
+  duration: number;
+  qualities: string[];
+  thumbnailUrl?: string | null;
+  ownership: "single" | "bundle";
+}

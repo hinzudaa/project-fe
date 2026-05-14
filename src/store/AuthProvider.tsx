@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { authApi, AuthUser } from "@/lib/api";
+import { authApi, AuthUser } from "@/apis";
 
 function isMembershipActive(user: AuthUser | null): boolean {
   if (!user?.membershipExpiresAt) return false;

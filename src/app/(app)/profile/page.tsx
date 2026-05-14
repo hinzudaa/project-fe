@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MapPin, Edit3, Camera, Settings, ChevronRight, Shield, Bell, LogOut, Calendar, Loader2 } from "lucide-react";
 import { useAuth } from "@/store/AuthProvider";
-import { profileApi } from "@/lib/api";
+import { profileApi } from "@/apis";
 
 const GENDER_LABEL: Record<string, string> = {
   male: "Эрэгтэй",

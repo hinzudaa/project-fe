@@ -1,8 +1,9 @@
 "use client";
+import useSWR from "swr";
 import { useState, useRef, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { io, Socket } from "socket.io-client";
-import { chatApi, ChatRoom, ChatMessage } from "@/lib/api";
+import { chatApi, ChatRoom, ChatMessage } from "@/apis";
 import { useAuth } from "@/store/AuthProvider";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
@@ -95,8 +96,6 @@ function ChatPageInner() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
 
-  const [rooms, setRooms] = useState<ChatRoom[]>([]);
-  const [roomsLoading, setRoomsLoading] = useState(true);
   const [activeRoom, setActiveRoom] = useState<ChatRoom | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -140,22 +139,26 @@ function ChatPageInner() {
         });
       }
       // Update last message in room list
-      setRooms((prev) =>
-        prev.map((r) =>
-          r._id === msg.room
-            ? {
-              ...r,
-              lastMessage: {
-                _id: msg._id,
-                body: msg.body,
-                sender: msg.sender,
-                createdAt: msg.createdAt,
-              },
-              unread: activeRoomRef.current?._id !== msg.room ? true : r.unread,
-            }
-            : r
-        )
-      );
+      setRoomsData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          data: prev.data.map((r) =>
+            r._id === msg.room
+              ? {
+                ...r,
+                lastMessage: {
+                  _id: msg._id,
+                  body: msg.body,
+                  sender: msg.sender,
+                  createdAt: msg.createdAt,
+                },
+                unread: activeRoomRef.current?._id !== msg.room ? true : r.unread,
+              }
+              : r
+          )
+        };
+      }, false);
     });
 
     socket.on("user:online", ({ userId }: { userId: string }) => {
@@ -176,15 +179,8 @@ function ChatPageInner() {
     };
   }, []);
 
-  // Load chat list
-  useEffect(() => {
-    setRoomsLoading(true);
-    chatApi
-      .listChats()
-      .then((res) => setRooms(res.data ?? []))
-      .catch(() => { })
-      .finally(() => setRoomsLoading(false));
-  }, []);
+  const { data: roomsData, mutate: setRoomsData, isLoading: roomsLoading } = useSWR("chat-rooms", () => chatApi.listChats());
+  const rooms = roomsData?.data ?? [];
 
   // Handle ?user= query param after rooms load
   useEffect(() => {
@@ -195,10 +191,11 @@ function ChatPageInner() {
       .createDirect(userId)
       .then((res) => {
         const room = res.data;
-        setRooms((prev) => {
-          const exists = prev.find((r) => r._id === room._id);
-          return exists ? prev : [room, ...prev];
-        });
+        setRoomsData((prev) => {
+          if (!prev) return prev;
+          const exists = prev.data.find((r) => r._id === room._id);
+          return exists ? prev : { ...prev, data: [room, ...prev.data] };
+        }, false);
         openRoom(room);
       })
       .catch(() => { });
@@ -223,9 +220,10 @@ function ChatPageInner() {
 
     // Mark as read
     chatApi.markRead(room._id).catch(() => { });
-    setRooms((prev) =>
-      prev.map((r) => (r._id === room._id ? { ...r, unread: false } : r))
-    );
+    setRoomsData((prev) => prev ? {
+      ...prev,
+      data: prev.data.map((r) => (r._id === room._id ? { ...r, unread: false } : r))
+    } : prev, false);
   }, []);
 
   // Scroll to bottom when messages change
@@ -288,7 +286,10 @@ function ChatPageInner() {
     if (!activeRoom || deleting) return;
     setDeleting(true);
     await chatApi.deleteChat(activeRoom._id).catch(() => {});
-    setRooms((prev) => prev.filter((r) => r._id !== activeRoom._id));
+    setRoomsData((prev) => prev ? {
+      ...prev,
+      data: prev.data.filter((r) => r._id !== activeRoom._id)
+    } : prev, false);
     setActiveRoom(null);
     setMessages([]);
     setMobileView("list");
