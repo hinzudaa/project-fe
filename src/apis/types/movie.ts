@@ -58,3 +58,11 @@ export interface MovieStreamData {
   thumbnailUrl?: string | null;
   ownership: "single" | "bundle";
 }
+export interface MovieBulkPurchaseResponse {
+  purchaseIds: string[];
+  orderId: string;
+  invoice: QPayInvoice;
+  totalPrice: number;
+  movies: Movie[];
+  status: string;
+}

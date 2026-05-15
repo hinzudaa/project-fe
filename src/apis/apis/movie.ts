@@ -1,5 +1,5 @@
 import { request } from "@/utils/request";
-import { Movie, MovieStreamData, MoviePurchaseResponse, MovieBundle } from "../types/movie";
+import { Movie, MovieStreamData, MoviePurchaseResponse, MovieBundle, MovieBulkPurchaseResponse } from "../types/movie";
 import { QPayInvoice } from "../types/membership";
 
 export const movieApi = {
@@ -38,4 +38,10 @@ export const movieApi = {
 
   myPurchases: () =>
     request<{ bundle: { purchasedAt: string; price: number } | null; data: Movie[] }>("/movies/me"),
+
+  bulkPurchase: (movieIds: string[]) =>
+    request<MovieBulkPurchaseResponse>("/movies/bulk/purchase", {
+      method: "POST",
+      body: JSON.stringify({ movieIds }),
+    }),
 };

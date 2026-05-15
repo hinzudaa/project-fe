@@ -2,7 +2,7 @@
 import useSWR from "swr";
 import { useEffect, useRef, useState } from "react";
 import { Loader2, Play, Lock, CheckCircle, X, Film, Info, ChevronRight, Zap } from "lucide-react";
-import { movieApi, Movie, MovieBundle, QPayInvoice } from "@/apis";
+import { movieApi, Movie, MovieBundle, QPayInvoice, MovieBulkPurchaseResponse } from "@/apis";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
 
@@ -28,6 +28,9 @@ const POLL_MS = 3000;
 export default function MoviesPage() {
   const [genre, setGenre] = useState("");
   const [selected, setSelected] = useState<Movie | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkInvoice, setBulkInvoice] = useState<MovieBulkPurchaseResponse | null>(null);
+  const [bulkLoading, setBulkLoading] = useState(false);
 
   const { data, mutate, isLoading } = useSWR("movies-list", async () => {
     const [res, bundleRes] = await Promise.all([
@@ -56,14 +59,49 @@ export default function MoviesPage() {
     setSelected(updatedMovie);
   };
 
+  const handleBulkPurchased = (updatedMovies: Movie[]) => {
+    mutate(prev => {
+      if (!prev) return prev;
+      const movieMap = new Map(updatedMovies.map(m => [m._id, m]));
+      return {
+        ...prev,
+        movies: prev.movies.map(m => movieMap.has(m._id) ? { ...m, ...movieMap.get(m._id), owned: true } : m)
+      };
+    }, false);
+    setSelectedIds([]);
+  };
+
   const setBundle = (newBundle: MovieBundle) => {
     mutate(prev => prev ? { ...prev, bundle: newBundle } : prev, false);
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  const handleBulkBuy = async () => {
+    if (selectedIds.length === 0) return;
+    if (selectedIds.length === 1) {
+      const movie = movies.find(m => m._id === selectedIds[0]);
+      if (movie) setSelected(movie);
+      return;
+    }
+
+    setBulkLoading(true);
+    try {
+      const res = await movieApi.bulkPurchase(selectedIds);
+      setBulkInvoice(res);
+    } catch (e: any) {
+      alert(e?.message ?? "Алдаа гарлаа");
+    } finally {
+      setBulkLoading(false);
+    }
   };
 
   const filtered = genre ? movies.filter(m => m.genres.includes(genre)) : movies;
 
   return (
-    <div className="max-w-[1000px] mx-auto px-4 sm:px-6">
+    <div className="max-w-[1000px] mx-auto px-4 sm:px-6 pb-24">
       {/* Background Orbs */}
       <div className="pointer-events-none fixed top-0 right-0 w-[600px] h-[600px] rounded-full opacity-[0.08]"
         style={{ background: "radial-gradient(circle, #e8415a 0%, transparent 70%)" }} />
@@ -71,8 +109,8 @@ export default function MoviesPage() {
         style={{ background: "radial-gradient(circle, #9e1838 0%, transparent 70%)" }} />
 
       <div className="relative z-10">
-        <header className="mb-10 pt-4">
-          <div className="flex items-center gap-3 mb-2">
+        <header className="mb-10 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[rgba(232,65,90,0.1)] border border-[rgba(232,65,90,0.2)] flex items-center justify-center">
               <Film size={22} className="text-[#e8415a]" />
             </div>
@@ -81,6 +119,15 @@ export default function MoviesPage() {
               <p className="text-text-secondary text-[14px]">Танд зориулсан онцгой цуглуулга</p>
             </div>
           </div>
+          
+          {selectedIds.length > 0 && (
+            <button 
+              onClick={() => setSelectedIds([])}
+              className="text-sm font-medium text-text-muted hover:text-white transition-colors flex items-center gap-1 bg-transparent border-none cursor-pointer"
+            >
+              <X size={14} /> Цуцлах ({selectedIds.length})
+            </button>
+          )}
         </header>
 
         {/* Bundle banner */}
@@ -133,11 +180,42 @@ export default function MoviesPage() {
         ) : (
           <div className="grid gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {filtered.map(m => (
-              <MovieCard key={m._id} movie={m} onClick={setSelected} />
+              <MovieCard 
+                key={m._id} 
+                movie={m} 
+                isSelected={selectedIds.includes(m._id)}
+                onSelect={toggleSelect}
+                onClick={setSelected} 
+              />
             ))}
           </div>
         )}
       </div>
+
+      {/* Bulk Checkout Floating Bar */}
+      {selectedIds.length > 0 && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-32px)] max-w-[500px]">
+          <div className="bg-[#1a161f]/80 backdrop-blur-xl border border-white/10 rounded-[28px] p-4 flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+            <div className="flex items-center gap-3 pl-2">
+              <div className="w-10 h-10 rounded-2xl bg-[#e8415a] text-white flex items-center justify-center font-black">
+                {selectedIds.length}
+              </div>
+              <div>
+                <p className="text-[14px] font-bold text-white">Кино сонгосон</p>
+                <p className="text-[11px] text-text-muted">Нийт {fmtPrice(movies.filter(m => selectedIds.includes(m._id)).reduce((acc, m) => acc + m.effectivePrice, 0))}</p>
+              </div>
+            </div>
+            <button
+              onClick={handleBulkBuy}
+              disabled={bulkLoading}
+              className="px-6 h-12 rounded-2xl bg-[#e8415a] text-white font-black text-sm shadow-[0_10px_20px_rgba(232,65,90,0.3)] hover:-translate-y-0.5 transition-all active:scale-95 disabled:opacity-50 cursor-pointer border-none flex items-center gap-2"
+            >
+              {bulkLoading ? <Loader2 size={16} className="animate-spin" /> : <Zap size={16} fill="white" />}
+              ХУДАЛДАН АВАХ
+            </button>
+          </div>
+        </div>
+      )}
 
       {selected && (
         <MovieDetailModal
@@ -145,6 +223,14 @@ export default function MoviesPage() {
           bundleOwned={bundle?.owned ?? false}
           onClose={() => setSelected(null)}
           onPurchased={handlePurchased}
+        />
+      )}
+
+      {bulkInvoice && (
+        <BulkInvoiceModal 
+          res={bulkInvoice} 
+          onClose={() => setBulkInvoice(null)}
+          onSuccess={handleBulkPurchased}
         />
       )}
 
@@ -164,14 +250,28 @@ export default function MoviesPage() {
   );
 }
 
-function MovieCard({ movie, onClick }: { movie: Movie; onClick: (m: Movie) => void }) {
+function MovieCard({ 
+  movie, 
+  isSelected,
+  onSelect,
+  onClick 
+}: { 
+  movie: Movie; 
+  isSelected: boolean;
+  onSelect: (id: string) => void;
+  onClick: (m: Movie) => void 
+}) {
   const img = resolveImg(movie.image?.url);
   const isOwned = movie.owned;
 
   return (
     <div
-      onClick={() => onClick(movie)}
-      className="group relative flex flex-col bg-bg-card border border-white/[0.06] rounded-[24px] overflow-hidden cursor-pointer transition-all duration-[400ms] hover:border-[rgba(232,65,90,0.3)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
+      onClick={() => isOwned ? onClick(movie) : onSelect(movie._id)}
+      className={`group relative flex flex-col bg-bg-card border rounded-[24px] overflow-hidden cursor-pointer transition-all duration-[400ms] hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] ${
+        isSelected 
+          ? "border-[#e8415a] shadow-[0_0_20px_rgba(232,65,90,0.2)]" 
+          : "border-white/[0.06] hover:border-[rgba(232,65,90,0.3)]"
+      }`}
     >
       <div className="relative aspect-[3/4] bg-bg-elevated overflow-hidden">
         {img ? (
@@ -188,10 +288,23 @@ function MovieCard({ movie, onClick }: { movie: Movie; onClick: (m: Movie) => vo
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
 
+        {/* Selection Indicator */}
+        {!isOwned && (
+          <div className={`absolute top-3 right-3 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 z-20 ${
+            isSelected 
+              ? "bg-[#e8415a] border-[#e8415a]" 
+              : "bg-black/20 border-white/40 backdrop-blur-md"
+          }`}>
+            {isSelected && <CheckCircle size={14} className="text-white" strokeWidth={3} />}
+          </div>
+        )}
+
         {/* Lock Overlay for non-owned */}
         {!isOwned && (
           <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-            <div className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center mb-3 shadow-2xl transition-transform duration-300 group-hover:scale-110">
+            <div className={`w-12 h-12 rounded-full backdrop-blur-md border border-white/10 flex items-center justify-center mb-3 shadow-2xl transition-all duration-300 group-hover:scale-110 ${
+              isSelected ? "bg-[#e8415a]/80" : "bg-black/40"
+            }`}>
               <Lock size={20} className="text-white" />
             </div>
             <div className="px-3 py-1.5 rounded-full bg-[#e8415a] text-white text-[11px] font-black shadow-[0_4px_12px_rgba(232,65,90,0.4)]">
@@ -225,10 +338,10 @@ function MovieCard({ movie, onClick }: { movie: Movie; onClick: (m: Movie) => vo
       </div>
 
       <div className="p-4 flex flex-col gap-1">
-        <h3 className="font-bold text-[14px] text-text-primary truncate transition-colors group-hover:text-[#e8415a]">{movie.title}</h3>
+        <h3 className={`font-bold text-[14px] truncate transition-colors ${isSelected ? "text-[#e8415a]" : "text-text-primary group-hover:text-[#e8415a]"}`}>{movie.title}</h3>
         <div className="flex items-center justify-between">
           <span className="text-[11px] text-text-muted font-medium">{movie.releaseYear ?? "2024"} · {fmtDuration(movie.duration)}</span>
-          <div className="text-[12px] font-bold text-text-muted group-hover:text-[#e8415a] transition-colors">
+          <div className={`text-[12px] font-bold transition-colors ${isSelected ? "text-[#e8415a]" : "text-text-muted group-hover:text-[#e8415a]"}`}>
             <ChevronRight size={14} />
           </div>
         </div>
@@ -558,5 +671,61 @@ function VideoPlayer({ url, title, onClose }: { url: string; title: string; onCl
         />
       </div>
     </div>
+  );
+}
+
+function BulkInvoiceModal({ 
+  res, 
+  onClose,
+  onSuccess
+}: { 
+  res: MovieBulkPurchaseResponse; 
+  onClose: () => void;
+  onSuccess: (movies: Movie[]) => void;
+}) {
+  const [paid, setPaid] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    intervalRef.current = setInterval(async () => {
+      try {
+        const s = await movieApi.getPurchaseStatus(res.purchaseIds[0]);
+        if (s.active) {
+          setPaid(true);
+          clearInterval(intervalRef.current!);
+          onSuccess(res.movies);
+        }
+      } catch { /* keep polling */ }
+    }, 3000);
+    return () => clearInterval(intervalRef.current!);
+  }, [res.purchaseIds]);
+
+  if (paid) {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl">
+        <div className="w-full max-w-[420px] rounded-[32px] overflow-hidden border border-[#3cc878]/20 bg-bg-card p-8 text-center shadow-2xl">
+          <div className="w-20 h-20 rounded-full bg-[#3cc878]/10 border border-[#3cc878]/20 flex items-center justify-center mx-auto mb-6">
+            <CheckCircle size={40} className="text-[#3cc878]" />
+          </div>
+          <h2 className="text-2xl font-black mb-2 text-white">Төлбөр амжилттай</h2>
+          <p className="text-text-secondary mb-8">Таны сонгосон {res.movies.length} кино амжилттай нээгдлээ.</p>
+          <button 
+            onClick={onClose}
+            className="w-full py-4 rounded-2xl bg-[#3cc878] text-white font-black hover:opacity-90 transition-opacity cursor-pointer border-none"
+          >
+            ҮРГЭЛЖЛҮҮЛЭХ
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <InvoiceModal 
+      invoice={res.invoice} 
+      title={`${res.movies.length} кино багц`} 
+      price={res.totalPrice} 
+      onClose={onClose} 
+    />
   );
 }
