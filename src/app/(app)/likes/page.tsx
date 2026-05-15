@@ -111,6 +111,7 @@ function LikeCard({ entry }: { entry: LikeEntry }) {
   const { user } = entry;
   const avatarSrc = resolveAvatar(user.avatar);
   const displayName = user.name ?? user.username ?? "Хэрэглэгч";
+  const userAge = user.birthYear ? new Date().getFullYear() - user.birthYear : null;
 
   return (
     <div className="group relative aspect-[3/4] rounded-[20px] overflow-hidden bg-bg-elevated border border-white/[0.06] transition-all duration-250 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.5)]">
@@ -146,7 +147,7 @@ function LikeCard({ entry }: { entry: LikeEntry }) {
       {/* Info */}
       <div className="absolute bottom-0 left-0 right-0 p-3">
         <p className="text-[13px] font-bold text-white leading-tight truncate">
-          {displayName}{user.age ? `, ${user.age}` : ""}
+          {displayName}{userAge ? `, ${userAge}` : ""}
         </p>
         <p className="text-[10px] text-white/50 mt-0.5">{timeAgo(entry.likedAt)}</p>
 
