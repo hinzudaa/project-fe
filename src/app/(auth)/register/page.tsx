@@ -21,8 +21,9 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({ name: "", phone: "", password: "", gender: "" });
+  const [agreed, setAgreed] = useState(false);
 
-  const canSubmit = form.name.length >= 2 && form.phone.length >= 8 && form.password.length >= 4 && !!form.gender;
+  const canSubmit = form.name.length >= 2 && form.phone.length >= 8 && form.password.length >= 4 && !!form.gender && agreed;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,8 +95,8 @@ export default function RegisterPage() {
                       type="button"
                       onClick={() => setForm(p => ({ ...p, gender: g }))}
                       className={`flex-1 py-3.5 rounded-xl text-[13px] font-semibold transition-all duration-200 cursor-pointer ${form.gender === g
-                          ? "border-[1.5px] border-[rgba(200,48,90,0.7)] bg-[rgba(200,48,90,0.1)] text-[#e04878]"
-                          : "border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] text-text-secondary"
+                        ? "border-[1.5px] border-[rgba(200,48,90,0.7)] bg-[rgba(200,48,90,0.1)] text-[#e04878]"
+                        : "border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.02)] text-text-secondary"
                         }`}
                     >
                       {g}
@@ -125,6 +126,35 @@ export default function RegisterPage() {
                 </div>
               </div>
 
+              {/* Agreement checkbox */}
+              <label className="flex items-start gap-3 cursor-pointer">
+                <div
+                  onClick={() => setAgreed(p => !p)}
+                  className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${
+                    agreed
+                      ? "bg-[#c8254a] border-[#c8254a]"
+                      : "bg-transparent border-white/20 hover:border-white/40"
+                  }`}
+                >
+                  {agreed && (
+                    <svg width="11" height="8" viewBox="0 0 11 8" fill="none">
+                      <path d="M1 3.5L4 6.5L10 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  )}
+                </div>
+                <span className="text-[13px] text-text-muted leading-snug">
+                  Би{" "}
+                  <Link href="/privacy" target="_blank" className="text-white/80 hover:text-white underline transition-colors">
+                    Нууцлалын бодлого
+                  </Link>
+                  {" "}болон{" "}
+                  <Link href="/terms" target="_blank" className="text-white/80 hover:text-white underline transition-colors">
+                    Үйлчилгээний нөхцөл
+                  </Link>
+                  -ийг уншиж, зөвшөөрч байна
+                </span>
+              </label>
+
               {error && (
                 <p className="text-[13px] text-[#e04878] text-center -mt-1">{error}</p>
               )}
@@ -152,8 +182,13 @@ export default function RegisterPage() {
             </p>
           </div>
 
-          <p className="text-center mt-6 text-[11px] text-text-muted/50 tracking-wide">
+          <p className="text-center mt-6 text-[11px] text-white tracking-wide">
             18+ · Зөвхөн насанд хүрэгчдэд
+          </p>
+          <p className="text-center mt-2 text-[11px] text-white">
+            <Link href="/privacy" className="hover:text-text-muted transition-colors">Нууцлалын бодлого</Link>
+            {" · "}
+            <Link href="/terms" className="hover:text-text-muted transition-colors">Үйлчилгээний нөхцөл</Link>
           </p>
         </div>
       </div>
