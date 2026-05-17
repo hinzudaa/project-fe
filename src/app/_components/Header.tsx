@@ -8,10 +8,10 @@ import Image from "next/image";
 
 export default function Header() {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { unreadCount } = useNotifications();
 
-  if (pathname.startsWith("/login") || pathname.startsWith("/register")) return null;
+  if (loading || pathname.startsWith("/login") || pathname.startsWith("/register")) return null;
 
   const isLoggedIn = !!user;
   const avatarLetter = (user?.name ?? user?.phone ?? "М").charAt(0).toUpperCase();
