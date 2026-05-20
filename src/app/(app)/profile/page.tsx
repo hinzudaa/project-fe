@@ -17,7 +17,7 @@ export default function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarLoading, setAvatarLoading] = useState(false);
 
-  const displayName = user?.name ?? user?.phone ?? "Хэрэглэгч";
+  const displayName = user?.username ?? "Хэрэглэгч";
   const avatarLetter = displayName.charAt(0).toUpperCase();
   const currentYear = new Date().getFullYear();
   const age = user?.birthYear ? currentYear - user.birthYear : null;
@@ -35,7 +35,6 @@ export default function ProfilePage() {
       await profileApi.updateAvatar(file);
       await refreshUser();
     } catch {
-      // silently fail — could add toast later
     } finally {
       setAvatarLoading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -45,7 +44,6 @@ export default function ProfilePage() {
   return (
     <div className="max-w-[860px] mx-auto">
 
-      {/* Profile card */}
       <div className="rounded-3xl overflow-hidden mb-5 relative border"
         style={{
           background: "linear-gradient(160deg, rgba(200,37,74,0.12) 0%, rgba(14,11,28,0.95) 50%)",

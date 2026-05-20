@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { profileApi } from "@/apis";
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 type UploadedPhoto = {
   file: File;
@@ -17,6 +17,7 @@ type UploadedPhoto = {
 };
 
 type FormData = {
+  username: string;
   photos: UploadedPhoto[];
   city: string;
   birthYear: string;
@@ -24,7 +25,7 @@ type FormData = {
   interests: string[];
 };
 
-const INITIAL: FormData = { photos: [], city: "", birthYear: "", bio: "", interests: [] };
+const INITIAL: FormData = { username: "", photos: [], city: "", birthYear: "", bio: "", interests: [] };
 
 // Browser native Face Detector (Chrome Shape Detection API)
 async function detectFace(imgEl: HTMLImageElement): Promise<"detected" | "not_found" | "unsupported"> {
@@ -49,6 +50,7 @@ export default function OnboardingPage() {
 
   const canProceed = () => {
     if (step === 1) return data.photos.length > 0 && data.photos.every(p => p.faceStatus !== "checking");
+    if (step === 2) return data.username.trim().length >= 2;
     return true;
   };
 
@@ -64,6 +66,7 @@ export default function OnboardingPage() {
     setLoading(true);
     try {
       const form = new FormData();
+      if (data.username) form.append("username", data.username.trim());
       if (data.city) form.append("city", data.city);
       if (data.birthYear) form.append("birthYear", data.birthYear);
       if (data.bio) form.append("bio", data.bio);
@@ -124,10 +127,11 @@ export default function OnboardingPage() {
             onChange={photos => set("photos", photos)}
           />
         )}
-        {step === 2 && <StepCity value={data.city} onChange={v => set("city", v)} />}
-        {step === 3 && <StepBirthYear value={data.birthYear} onChange={v => set("birthYear", v)} />}
-        {step === 4 && <StepBio value={data.bio} onChange={v => set("bio", v)} />}
-        {step === 5 && <StepInterests selected={data.interests} toggle={toggleInterest} />}
+        {step === 2 && <StepName value={data.username} onChange={v => set("username", v)} />}
+        {step === 3 && <StepCity value={data.city} onChange={v => set("city", v)} />}
+        {step === 4 && <StepBirthYear value={data.birthYear} onChange={v => set("birthYear", v)} />}
+        {step === 5 && <StepBio value={data.bio} onChange={v => set("bio", v)} />}
+        {step === 6 && <StepInterests selected={data.interests} toggle={toggleInterest} />}
       </div>
 
       {/* Nav */}
@@ -337,7 +341,29 @@ function StepPhotos({
   );
 }
 
-/* ─── Step 2: City ─── */
+/* ─── Step 2: Name ─── */
+
+function StepName({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="flex-1">
+      <h2 className="text-[26px] font-black font-serif mb-2 leading-tight">Нэрээ оруулна уу</h2>
+      <p className="text-text-secondary text-[14px] mb-8">Таны профайл дээр харагдах нэр</p>
+      <input
+        type="text"
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder="Жишээ: Болд"
+        maxLength={30}
+        autoFocus
+        className="w-full px-4 py-3.5 rounded-2xl text-[15px] font-medium text-text-primary outline-none"
+        style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", colorScheme: "dark" }}
+      />
+      <p className="text-[12px] text-text-muted mt-2 text-right">{value.trim().length}/30</p>
+    </div>
+  );
+}
+
+/* ─── Step 3: City ─── */
 
 const ALL_LOCATIONS = [
   "Улаанбаатар",
@@ -385,7 +411,7 @@ function StepCity({ value, onChange }: { value: string; onChange: (v: string) =>
   );
 }
 
-/* ─── Step 3: Birth year ─── */
+/* ─── Step 4: Birth year ─── */
 
 function StepBirthYear({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const currentYear = new Date().getFullYear();
@@ -407,7 +433,7 @@ function StepBirthYear({ value, onChange }: { value: string; onChange: (v: strin
   );
 }
 
-/* ─── Step 4: Bio ─── */
+/* ─── Step 5: Bio ─── */
 
 function StepBio({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
@@ -426,7 +452,7 @@ function StepBio({ value, onChange }: { value: string; onChange: (v: string) => 
   );
 }
 
-/* ─── Step 5: Interests ─── */
+/* ─── Step 6: Interests ─── */
 
 const INTERESTS_LIST = [
   "Хөгжим", "Аялал", "Бичлэг", "Кафе", "Уран зохиол", "Спорт",
