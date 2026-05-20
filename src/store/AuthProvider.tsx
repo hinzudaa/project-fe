@@ -29,11 +29,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function refreshUser() {
+    setLoading(true);
     try {
       const u = await authApi.me();
       setUser(u);
     } catch {
       // keep existing user
+    } finally {
+      setLoading(false);
     }
   }
 

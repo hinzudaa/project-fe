@@ -30,7 +30,6 @@ export default function LoginPage() {
       try {
         const res = await authApi.phoneStatus(verificationId);
         if (res.user) {
-          // GET status already called signIn — cookie is set, user is in response
           if (!cancelled) {
             await refreshUser();
             router.push("/");
@@ -46,7 +45,6 @@ export default function LoginPage() {
           return;
         }
       } catch {
-        // ignore transient errors
       }
       if (!cancelled) setTimeout(poll, 2000);
     }
