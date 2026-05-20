@@ -12,8 +12,6 @@ interface AuthContextValue {
   loading: boolean;
   membershipActive: boolean;
   refreshUser: () => Promise<void>;
-  register: (body: { phone: string; name: string; gender: string }) => Promise<void>;
-  login: (body: { phone: string }) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -39,25 +37,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function register(body: { phone: string; name: string; gender: string }) {
-    const res = await authApi.register(body);
-    setUser(res.user);
-  }
-
-  async function login(body: { phone: string }) {
-    const res = await authApi.login(body);
-    setUser(res.user);
-  }
-
   async function logout() {
-    await authApi.logout().catch(() => {});
+    await authApi.logout().catch(() => { });
     setUser(null);
   }
 
   const membershipActive = isMembershipActive(user);
 
   return (
-    <AuthContext.Provider value={{ user, loading, membershipActive, refreshUser, register, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, membershipActive, refreshUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

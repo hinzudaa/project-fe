@@ -1,22 +1,27 @@
 import { request } from "@/utils/request";
-import { AuthResponse, AuthUser } from "../types/auth";
+import { AuthResponse, AuthUser, PhoneInitResponse, PhoneStatusResponse } from "../types/auth";
 
 export const authApi = {
-  register: (body: { phone: string; name: string; gender: string }) =>
-    request<AuthResponse>("/auth/register", {
+  login: (body: { phone: string }) =>
+    request<PhoneInitResponse>("/auth/login", {
       method: "POST",
       body: JSON.stringify(body),
     }),
 
-  login: (body: { phone: string }) =>
-    request<AuthResponse>("/auth/login", {
+  register: (body: { phone: string; gender: string }) =>
+    request<PhoneInitResponse>("/auth/register", {
       method: "POST",
       body: JSON.stringify(body),
     }),
+
+  phoneStatus: (verificationId: string) =>
+    request<PhoneStatusResponse>(`/auth/phone/status/${verificationId}`),
 
   logout: () =>
     request<void>("/auth/logout", { method: "POST" }),
 
-  me: () =>
-    request<AuthUser>("/auth/me"),
+  me: async (): Promise<AuthUser> => {
+    const res = await request<{ user?: AuthUser } & Record<string, unknown>>("/auth/me");
+    return (res.user ?? res) as AuthUser;
+  },
 };
