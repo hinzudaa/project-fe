@@ -63,7 +63,7 @@ export default function DashboardPage() {
     };
   });
 
-  const displayName = user?.name ?? user?.phone ?? "Хэрэглэгч";
+  const displayName = user?.username ?? "Хэрэглэгч";
 
   const stats = [
     { label: "Шинэ профайл", value: data?.feedTotal ?? "—", color: "#e8415a", icon: Users },
