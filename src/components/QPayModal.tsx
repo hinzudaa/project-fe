@@ -83,8 +83,8 @@ export default function QPayModal({ invoice, membershipId, plan, onPaid, onClose
 
               {/* Bank deep links */}
               {invoice.urls && invoice.urls.length > 0 && (
-                <div className="grid grid-cols-2 gap-2 mb-4">
-                  {invoice.urls.slice(0, 8).map((u, i) => (
+                <div className="grid grid-cols-2 gap-2 mb-4 max-h-[280px] overflow-y-auto pr-1">
+                  {invoice.urls.map((u, i) => (
                     <a key={i} href={u.link} target="_blank" rel="noopener noreferrer"
                       className="flex items-center gap-2.5 px-3 py-2.5 rounded-[12px] no-underline transition-all duration-200 hover:bg-white/[0.07]"
                       style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
