@@ -1,6 +1,11 @@
-import { BASE_URL_CONSTANT } from "@/utils/request";
+import { BASE_URL_CONSTANT, getAuthToken } from "@/utils/request";
 import { request } from "@/utils/request";
 import { AuthUser } from "../types/auth";
+
+function authHeaders(): Record<string, string> {
+  const token = getAuthToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 export const profileApi = {
   updateAvatar: async (file: File): Promise<{ data: { user: AuthUser; image: { url: string } } }> => {
@@ -9,6 +14,7 @@ export const profileApi = {
     const res = await fetch(`${BASE_URL_CONSTANT}/users/me/avatar`, {
       method: "PUT",
       credentials: "include",
+      headers: authHeaders(),
       body: form,
     });
     const data = await res.json().catch(() => ({}));
@@ -21,6 +27,7 @@ export const profileApi = {
       return fetch(`${BASE_URL_CONSTANT}/users/me/profile`, {
         method: "PUT",
         credentials: "include",
+        headers: authHeaders(),
         body,
       }).then(async (res) => {
         const data = await res.json().catch(() => ({}));
@@ -40,6 +47,7 @@ export const profileApi = {
     const res = await fetch(`${BASE_URL_CONSTANT}/users/me/avatar`, {
       method: "PUT",
       credentials: "include",
+      headers: authHeaders(),
       body: form,
     });
     const data = await res.json().catch(() => ({}));
