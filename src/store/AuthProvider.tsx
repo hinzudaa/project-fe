@@ -1,6 +1,7 @@
 "use client";
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { authApi, AuthUser } from "@/apis";
+import { clearAuthToken } from "@/utils/request";
 
 function isMembershipActive(user: AuthUser | null): boolean {
   if (!user?.membershipExpiresAt) return false;
@@ -11,6 +12,7 @@ interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
   membershipActive: boolean;
+  loginUser: (user: AuthUser) => void;
   refreshUser: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -40,15 +42,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  function loginUser(u: AuthUser) {
+    setUser(u);
+  }
+
   async function logout() {
     await authApi.logout().catch(() => { });
+    clearAuthToken();
     setUser(null);
   }
 
   const membershipActive = isMembershipActive(user);
 
   return (
-    <AuthContext.Provider value={{ user, loading, membershipActive, refreshUser, logout }}>
+    <AuthContext.Provider value={{ user, loading, membershipActive, loginUser, refreshUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

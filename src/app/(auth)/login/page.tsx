@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import AuthBanner from "../_components/AuthBanner";
 import { authApi } from "@/apis";
 import { useAuth } from "@/store/AuthProvider";
+import { setAuthToken } from "@/utils/request";
 
 export default function LoginPage() {
   const [phone, setPhone] = useState("");
@@ -15,7 +16,7 @@ export default function LoginPage() {
   const [step, setStep] = useState<"phone" | "sms">("phone");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { refreshUser } = useAuth();
+  const { loginUser } = useAuth();
   const router = useRouter();
 
   const inputCls = "w-full bg-white/[0.04] border border-white/[0.08] text-text-primary px-4 py-3.5 rounded-xl text-sm outline-none transition-all duration-200 placeholder:text-text-muted focus:border-[rgba(200,48,90,0.5)] focus:bg-white/[0.06] focus:shadow-[0_0_0_3px_rgba(200,48,90,0.1)]";
@@ -31,7 +32,8 @@ export default function LoginPage() {
         const res = await authApi.phoneStatus(verificationId);
         if (res.user) {
           if (!cancelled) {
-            await refreshUser();
+            if (res.token) setAuthToken(res.token);
+            loginUser(res.user);
             router.push("/");
           }
           return;
