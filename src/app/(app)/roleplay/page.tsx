@@ -6,7 +6,7 @@ import { Loader2, Trash2, ArrowLeft, Send, Zap } from "lucide-react";
 import { aiHumanApi, AIHuman, AIHumanMessage, AIHumanQuota } from "@/apis";
 import { useAuth } from "@/store/AuthProvider";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
+const BASE_URL = "https://projectm.zuraach.site";
 
 function resolveAvatar(url?: string | null): string | undefined {
   if (!url) return undefined;

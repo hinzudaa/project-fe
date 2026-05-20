@@ -6,7 +6,7 @@ import { io, Socket } from "socket.io-client";
 import { chatApi, ChatRoom, ChatMessage } from "@/apis";
 import { useAuth } from "@/store/AuthProvider";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
+const BASE_URL = "https://projectm.zuraach.site";
 
 function resolveAvatar(avatar?: string): string | null {
   if (!avatar) return null;
@@ -285,7 +285,7 @@ function ChatPageInner() {
   const handleDeleteConfirm = async () => {
     if (!activeRoom || deleting) return;
     setDeleting(true);
-    await chatApi.deleteChat(activeRoom._id).catch(() => {});
+    await chatApi.deleteChat(activeRoom._id).catch(() => { });
     setRoomsData((prev) => prev ? {
       ...prev,
       data: prev.data.filter((r) => r._id !== activeRoom._id)
@@ -299,234 +299,234 @@ function ChatPageInner() {
 
   return (
     <>
-    {confirmDelete && (
-      <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-[8px]"
-        style={{ background: "rgba(4,2,10,0.85)" }}
-        onClick={() => setConfirmDelete(false)}>
-        <div className="bg-[rgba(17,14,30,0.98)] border border-white/[0.08] rounded-[24px] p-7 w-full max-w-[340px] text-center"
-          style={{ boxShadow: "0 24px 60px rgba(0,0,0,0.6)" }}
-          onClick={e => e.stopPropagation()}>
-          <div className="text-[36px] mb-3">🗑️</div>
-          <h3 className="font-serif text-[18px] font-bold mb-2">Чат устгах уу?</h3>
-          <p className="text-text-secondary text-[13px] leading-relaxed mb-6">
-            <strong className="text-white">{activeRoom ? roomDisplayName(activeRoom) : ""}</strong>-тай харилцсан бүх мессеж устна. Буцаах боломжгүй.
-          </p>
-          <div className="flex gap-2.5">
-            <button onClick={() => setConfirmDelete(false)}
-              className="flex-1 py-2.5 rounded-[14px] text-[13px] font-medium text-text-secondary border border-white/[0.1] hover:text-text-primary transition-colors">
-              Болих
-            </button>
-            <button onClick={handleDeleteConfirm} disabled={deleting}
-              className="flex-1 py-2.5 rounded-[14px] text-[13px] font-bold text-white disabled:opacity-60 transition-all hover:-translate-y-0.5"
-              style={{ background: "linear-gradient(135deg,#e8415a,#9e1838)", boxShadow: "0 4px 16px rgba(200,37,74,0.4)" }}>
-              {deleting ? "Устгаж байна..." : "Устгах"}
-            </button>
+      {confirmDelete && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-[8px]"
+          style={{ background: "rgba(4,2,10,0.85)" }}
+          onClick={() => setConfirmDelete(false)}>
+          <div className="bg-[rgba(17,14,30,0.98)] border border-white/[0.08] rounded-[24px] p-7 w-full max-w-[340px] text-center"
+            style={{ boxShadow: "0 24px 60px rgba(0,0,0,0.6)" }}
+            onClick={e => e.stopPropagation()}>
+            <div className="text-[36px] mb-3">🗑️</div>
+            <h3 className="font-serif text-[18px] font-bold mb-2">Чат устгах уу?</h3>
+            <p className="text-text-secondary text-[13px] leading-relaxed mb-6">
+              <strong className="text-white">{activeRoom ? roomDisplayName(activeRoom) : ""}</strong>-тай харилцсан бүх мессеж устна. Буцаах боломжгүй.
+            </p>
+            <div className="flex gap-2.5">
+              <button onClick={() => setConfirmDelete(false)}
+                className="flex-1 py-2.5 rounded-[14px] text-[13px] font-medium text-text-secondary border border-white/[0.1] hover:text-text-primary transition-colors">
+                Болих
+              </button>
+              <button onClick={handleDeleteConfirm} disabled={deleting}
+                className="flex-1 py-2.5 rounded-[14px] text-[13px] font-bold text-white disabled:opacity-60 transition-all hover:-translate-y-0.5"
+                style={{ background: "linear-gradient(135deg,#e8415a,#9e1838)", boxShadow: "0 4px 16px rgba(200,37,74,0.4)" }}>
+                {deleting ? "Устгаж байна..." : "Устгах"}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    )}
-    <div className="flex gap-4 h-[calc(100vh-168px)] md:h-[calc(100vh-100px)]">
-      {/* ── Room list ── */}
-      <div
-        className={`w-[280px] shrink-0 bg-bg-card border border-white/[0.06] rounded-[22px] flex flex-col overflow-hidden
+      )}
+      <div className="flex gap-4 h-[calc(100vh-168px)] md:h-[calc(100vh-100px)]">
+        {/* ── Room list ── */}
+        <div
+          className={`w-[280px] shrink-0 bg-bg-card border border-white/[0.06] rounded-[22px] flex flex-col overflow-hidden
           ${mobileView === "chat" ? "max-md:hidden" : ""} max-md:w-full`}
-      >
-        <div className="p-4 border-b border-white/[0.06]">
-          <h3 className="text-[15px] font-bold mb-2.5">Чатууд</h3>
-        </div>
+        >
+          <div className="p-4 border-b border-white/[0.06]">
+            <h3 className="text-[15px] font-bold mb-2.5">Чатууд</h3>
+          </div>
 
-        <div className="flex-1 overflow-y-auto">
-          {roomsLoading ? (
-            <Spinner />
-          ) : rooms.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full gap-2 text-text-muted text-sm px-4 text-center">
-              <span className="text-3xl">💬</span>
-              <span>Одоогоор чат байхгүй байна</span>
-            </div>
-          ) : (
-            rooms.map((room) => {
-              const name = roomDisplayName(room);
-              const avatarSrc = room.type === "direct" ? room.counterpart?.avatar : undefined;
-              const online = isOnline(room);
-              const isActive = activeRoom?._id === room._id;
+          <div className="flex-1 overflow-y-auto">
+            {roomsLoading ? (
+              <Spinner />
+            ) : rooms.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full gap-2 text-text-muted text-sm px-4 text-center">
+                <span className="text-3xl">💬</span>
+                <span>Одоогоор чат байхгүй байна</span>
+              </div>
+            ) : (
+              rooms.map((room) => {
+                const name = roomDisplayName(room);
+                const avatarSrc = room.type === "direct" ? room.counterpart?.avatar : undefined;
+                const online = isOnline(room);
+                const isActive = activeRoom?._id === room._id;
 
-              return (
-                <div
-                  key={room._id}
-                  onClick={() => openRoom(room)}
-                  className="px-3.5 py-3 cursor-pointer transition-all duration-[180ms] hover:bg-white/[0.03]"
-                  style={{
-                    background: isActive ? "rgba(232,65,90,0.08)" : "transparent",
-                    borderLeft: isActive
-                      ? "2px solid var(--accent-primary)"
-                      : "2px solid transparent",
-                  }}
-                >
-                  <div className="flex gap-2.5 items-start">
-                    <div className="relative shrink-0">
-                      <Avatar src={avatarSrc} name={name} size={40} />
-                      {online && (
-                        <div className="absolute bottom-px right-px w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-bg-primary animate-pulse" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-center">
-                        <span className="text-[13px] font-semibold truncate">{name}</span>
-                        <span className="text-[10px] text-text-muted shrink-0 ml-1">
-                          {room.lastMessage
-                            ? formatListTime(room.lastMessage.createdAt)
-                            : formatListTime(room.updatedAt)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center mt-0.5">
-                        <span className="text-xs text-text-muted truncate max-w-[150px]">
-                          {room.lastMessage?.body ?? ""}
-                        </span>
-                        {room.unread && (
-                          <span className="bg-accent text-white rounded-full text-[10px] font-bold px-1.5 py-px shrink-0 ml-1">
-                            •
-                          </span>
+                return (
+                  <div
+                    key={room._id}
+                    onClick={() => openRoom(room)}
+                    className="px-3.5 py-3 cursor-pointer transition-all duration-[180ms] hover:bg-white/[0.03]"
+                    style={{
+                      background: isActive ? "rgba(232,65,90,0.08)" : "transparent",
+                      borderLeft: isActive
+                        ? "2px solid var(--accent-primary)"
+                        : "2px solid transparent",
+                    }}
+                  >
+                    <div className="flex gap-2.5 items-start">
+                      <div className="relative shrink-0">
+                        <Avatar src={avatarSrc} name={name} size={40} />
+                        {online && (
+                          <div className="absolute bottom-px right-px w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-bg-primary animate-pulse" />
                         )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[13px] font-semibold truncate">{name}</span>
+                          <span className="text-[10px] text-text-muted shrink-0 ml-1">
+                            {room.lastMessage
+                              ? formatListTime(room.lastMessage.createdAt)
+                              : formatListTime(room.updatedAt)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center mt-0.5">
+                          <span className="text-xs text-text-muted truncate max-w-[150px]">
+                            {room.lastMessage?.body ?? ""}
+                          </span>
+                          {room.unread && (
+                            <span className="bg-accent text-white rounded-full text-[10px] font-bold px-1.5 py-px shrink-0 ml-1">
+                              •
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        {/* ── Chat area ── */}
+        <div
+          className={`flex-1 min-w-0 bg-bg-card border border-white/[0.06] rounded-[22px] flex flex-col overflow-hidden
+          ${mobileView === "list" ? "max-md:hidden" : ""} max-md:w-full`}
+        >
+          {!activeRoom ? (
+            <div className="flex flex-col items-center justify-center h-full gap-3 text-text-muted">
+              <span className="text-5xl">💬</span>
+              <span className="text-sm">Чат сонгоно уу</span>
+            </div>
+          ) : (
+            <>
+              {/* Header */}
+              <div className="px-4 py-3.5 border-b border-white/[0.06] flex items-center gap-2.5">
+                <button
+                  onClick={() => setMobileView("list")}
+                  className="hidden max-md:block bg-transparent border-none cursor-pointer text-xl text-text-secondary px-1 leading-none"
+                >
+                  ←
+                </button>
+                <div className="relative">
+                  <Avatar
+                    src={
+                      activeRoom.type === "direct"
+                        ? activeRoom.counterpart?.avatar
+                        : undefined
+                    }
+                    name={roomDisplayName(activeRoom)}
+                    size={40}
+                  />
+                  {activeIsOnline && (
+                    <div className="absolute bottom-px right-px w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-bg-primary animate-pulse" />
+                  )}
                 </div>
-              );
-            })
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-sm truncate">
+                    {roomDisplayName(activeRoom)}
+                  </div>
+                  <div
+                    className={`text-[11px] ${activeIsOnline ? "text-green-400" : "text-text-muted"
+                      }`}
+                  >
+                    {activeIsOnline ? "● Онлайн" : "Офлайн"}
+                  </div>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <button
+                    onClick={() => setConfirmDelete(true)}
+                    className="bg-transparent border border-white/[0.1] rounded-full w-[34px] h-[34px] cursor-pointer text-sm text-text-secondary flex items-center justify-center hover:border-[rgba(232,65,90,0.4)] hover:text-[#e8415a] transition-colors"
+                    title="Чат устгах"
+                  >
+                    🗑
+                  </button>
+                </div>
+              </div>
+
+              {/* Messages */}
+              <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-2.5">
+                {msgsLoading ? (
+                  <Spinner />
+                ) : messages.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-full gap-2 text-text-muted text-sm">
+                    <span className="text-3xl">👋</span>
+                    <span>Мессеж илгээж яриа эхлүүлнэ үү</span>
+                  </div>
+                ) : (
+                  messages.map((msg, idx) => {
+                    const isMe = msg.sender._id === user?._id;
+                    const senderName =
+                      msg.sender.name ?? msg.sender.username ?? "Хэрэглэгч";
+
+                    return (
+                      <div
+                        key={idx}
+                        className={`flex gap-2 items-end ${isMe ? "justify-end" : "justify-start"
+                          }`}
+                      >
+                        {!isMe && (
+                          <Avatar
+                            src={msg.sender.avatar}
+                            name={senderName}
+                            size={28}
+                          />
+                        )}
+                        <div className={isMe ? "items-end flex flex-col" : "items-start flex flex-col"}>
+                          <div
+                            className={
+                              isMe
+                                ? "max-w-[70%] px-3.5 py-2.5 rounded-[18px] rounded-br-[4px] text-sm leading-relaxed bg-gradient-to-br from-[#c8305a] to-[#a0204a] text-white shadow-[0_4px_16px_rgba(200,48,90,0.3)]"
+                                : "max-w-[70%] px-3.5 py-2.5 rounded-[18px] rounded-bl-[4px] text-sm leading-relaxed bg-bg-elevated text-text-primary border border-white/[0.07]"
+                            }
+                          >
+                            {msg.body}
+                          </div>
+                          <div
+                            className={`text-[10px] text-text-muted mt-0.5 ${isMe ? "text-right" : "text-left"
+                              }`}
+                          >
+                            {formatTime(msg.createdAt)}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+                <div ref={bottomRef} />
+              </div>
+
+              {/* Input */}
+              <div className="px-4 py-3 border-t border-white/[0.06] flex gap-2 items-center">
+                <input
+                  className="bg-[rgba(11,9,20,0.8)] border border-white/[0.08] text-text-primary px-4 py-2.5 rounded-lg font-[inherit] text-sm transition-[border-color,box-shadow] duration-200 outline-none flex-1 placeholder:text-text-muted focus:border-accent focus:shadow-[0_0_0_3px_rgba(200,48,90,0.12)]"
+                  placeholder="Мессеж бичих..."
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMsg()}
+                  disabled={sending}
+                />
+                <button
+                  onClick={sendMsg}
+                  disabled={sending || !input.trim()}
+                  className="bg-gradient-to-br from-[#d4365a] to-[#9a1c3e] text-white border-none rounded-[14px] font-semibold text-[13px] cursor-pointer transition-all duration-[220ms] shadow-[0_4px_20px_rgba(200,48,90,0.35)] hover:-translate-y-0.5 px-4 py-2.5 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  Илгээх ➤
+                </button>
+              </div>
+            </>
           )}
         </div>
       </div>
-
-      {/* ── Chat area ── */}
-      <div
-        className={`flex-1 min-w-0 bg-bg-card border border-white/[0.06] rounded-[22px] flex flex-col overflow-hidden
-          ${mobileView === "list" ? "max-md:hidden" : ""} max-md:w-full`}
-      >
-        {!activeRoom ? (
-          <div className="flex flex-col items-center justify-center h-full gap-3 text-text-muted">
-            <span className="text-5xl">💬</span>
-            <span className="text-sm">Чат сонгоно уу</span>
-          </div>
-        ) : (
-          <>
-            {/* Header */}
-            <div className="px-4 py-3.5 border-b border-white/[0.06] flex items-center gap-2.5">
-              <button
-                onClick={() => setMobileView("list")}
-                className="hidden max-md:block bg-transparent border-none cursor-pointer text-xl text-text-secondary px-1 leading-none"
-              >
-                ←
-              </button>
-              <div className="relative">
-                <Avatar
-                  src={
-                    activeRoom.type === "direct"
-                      ? activeRoom.counterpart?.avatar
-                      : undefined
-                  }
-                  name={roomDisplayName(activeRoom)}
-                  size={40}
-                />
-                {activeIsOnline && (
-                  <div className="absolute bottom-px right-px w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-bg-primary animate-pulse" />
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-sm truncate">
-                  {roomDisplayName(activeRoom)}
-                </div>
-                <div
-                  className={`text-[11px] ${activeIsOnline ? "text-green-400" : "text-text-muted"
-                    }`}
-                >
-                  {activeIsOnline ? "● Онлайн" : "Офлайн"}
-                </div>
-              </div>
-              <div className="flex gap-2 shrink-0">
-                <button
-                  onClick={() => setConfirmDelete(true)}
-                  className="bg-transparent border border-white/[0.1] rounded-full w-[34px] h-[34px] cursor-pointer text-sm text-text-secondary flex items-center justify-center hover:border-[rgba(232,65,90,0.4)] hover:text-[#e8415a] transition-colors"
-                  title="Чат устгах"
-                >
-                  🗑
-                </button>
-              </div>
-            </div>
-
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-2.5">
-              {msgsLoading ? (
-                <Spinner />
-              ) : messages.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full gap-2 text-text-muted text-sm">
-                  <span className="text-3xl">👋</span>
-                  <span>Мессеж илгээж яриа эхлүүлнэ үү</span>
-                </div>
-              ) : (
-                messages.map((msg, idx) => {
-                  const isMe = msg.sender._id === user?._id;
-                  const senderName =
-                    msg.sender.name ?? msg.sender.username ?? "Хэрэглэгч";
-
-                  return (
-                    <div
-                      key={idx}
-                      className={`flex gap-2 items-end ${isMe ? "justify-end" : "justify-start"
-                        }`}
-                    >
-                      {!isMe && (
-                        <Avatar
-                          src={msg.sender.avatar}
-                          name={senderName}
-                          size={28}
-                        />
-                      )}
-                      <div className={isMe ? "items-end flex flex-col" : "items-start flex flex-col"}>
-                        <div
-                          className={
-                            isMe
-                              ? "max-w-[70%] px-3.5 py-2.5 rounded-[18px] rounded-br-[4px] text-sm leading-relaxed bg-gradient-to-br from-[#c8305a] to-[#a0204a] text-white shadow-[0_4px_16px_rgba(200,48,90,0.3)]"
-                              : "max-w-[70%] px-3.5 py-2.5 rounded-[18px] rounded-bl-[4px] text-sm leading-relaxed bg-bg-elevated text-text-primary border border-white/[0.07]"
-                          }
-                        >
-                          {msg.body}
-                        </div>
-                        <div
-                          className={`text-[10px] text-text-muted mt-0.5 ${isMe ? "text-right" : "text-left"
-                            }`}
-                        >
-                          {formatTime(msg.createdAt)}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-              <div ref={bottomRef} />
-            </div>
-
-            {/* Input */}
-            <div className="px-4 py-3 border-t border-white/[0.06] flex gap-2 items-center">
-              <input
-                className="bg-[rgba(11,9,20,0.8)] border border-white/[0.08] text-text-primary px-4 py-2.5 rounded-lg font-[inherit] text-sm transition-[border-color,box-shadow] duration-200 outline-none flex-1 placeholder:text-text-muted focus:border-accent focus:shadow-[0_0_0_3px_rgba(200,48,90,0.12)]"
-                placeholder="Мессеж бичих..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMsg()}
-                disabled={sending}
-              />
-              <button
-                onClick={sendMsg}
-                disabled={sending || !input.trim()}
-                className="bg-gradient-to-br from-[#d4365a] to-[#9a1c3e] text-white border-none rounded-[14px] font-semibold text-[13px] cursor-pointer transition-all duration-[220ms] shadow-[0_4px_20px_rgba(200,48,90,0.35)] hover:-translate-y-0.5 px-4 py-2.5 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-              >
-                Илгээх ➤
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
     </>
   );
 }

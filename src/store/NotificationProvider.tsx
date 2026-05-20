@@ -4,7 +4,7 @@ import { io, Socket } from "socket.io-client";
 import { notificationApi, AppNotification } from "@/apis";
 import { useAuth } from "./AuthProvider";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
+const BASE_URL = "https://projectm.zuraach.site";
 
 interface NotificationContextValue {
   notifs: AppNotification[];
@@ -26,7 +26,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     if (!user) return;
 
     setLoading(true);
-    notificationApi.list().then(res => setNotifs(res.data)).catch(() => {}).finally(() => setLoading(false));
+    notificationApi.list().then(res => setNotifs(res.data)).catch(() => { }).finally(() => setLoading(false));
 
     const socket = io(BASE_URL, { withCredentials: true, reconnectionAttempts: 5 });
     socketRef.current = socket;
@@ -40,12 +40,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   const markRead = (id: string) => {
     setNotifs(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
-    notificationApi.markRead(id).catch(() => {});
+    notificationApi.markRead(id).catch(() => { });
   };
 
   const markAllRead = () => {
     setNotifs(prev => prev.map(n => ({ ...n, isRead: true })));
-    notificationApi.markAllRead().catch(() => {});
+    notificationApi.markAllRead().catch(() => { });
   };
 
   const unreadCount = notifs.filter(n => !n.isRead).length;

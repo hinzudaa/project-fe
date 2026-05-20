@@ -6,7 +6,7 @@ import { io, Socket } from "socket.io-client";
 import { Loader2, Bell, MessageCircle, CreditCard, Megaphone, Users, BookOpen } from "lucide-react";
 import { notificationApi, AppNotification } from "@/apis";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
+const BASE_URL = "https://projectm.zuraach.site";
 
 type NotifMeta = { icon: React.ElementType; color: string; bg: string };
 
@@ -120,13 +120,13 @@ export default function NotificationsPage() {
 
   const markRead = async (id: string) => {
     mutate(prev => prev?.map(n => n._id === id ? { ...n, isRead: true } : n), false);
-    await notificationApi.markRead(id).catch(() => {});
+    await notificationApi.markRead(id).catch(() => { });
   };
 
   const markAllRead = async () => {
     if (markingAll) return;
     setMarkingAll(true);
-    await notificationApi.markAllRead().catch(() => {});
+    await notificationApi.markAllRead().catch(() => { });
     mutate(prev => prev?.map(n => ({ ...n, isRead: true })), false);
     setMarkingAll(false);
   };

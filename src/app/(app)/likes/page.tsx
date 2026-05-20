@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Loader2, Heart, MessageCircle, ChevronRight } from "lucide-react";
 import { swipeApi, SwipeUser } from "@/apis";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
+const BASE_URL = "https://projectm.zuraach.site";
 
 function resolveAvatar(url?: string | null) {
   if (!url) return null;

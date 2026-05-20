@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
+const BASE_URL = "https://projectm.zuraach.site";
 
 export function useSocket() {
   const socketRef = useRef<Socket | null>(null);

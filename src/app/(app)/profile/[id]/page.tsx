@@ -7,7 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { userApi, PublicProfile, PublicNetworkPost } from "@/apis";
 import { useAuth } from "@/store/AuthProvider";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
+const BASE_URL = "https://projectm.zuraach.site";
 
 const GENDERS: Record<string, string> = { male: "Эрэгтэй", female: "Эмэгтэй", other: "Бусад" };
 

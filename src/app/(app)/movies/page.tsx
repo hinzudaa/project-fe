@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Loader2, Play, Lock, CheckCircle, X, Film, Zap, Package, ShoppingCart } from "lucide-react";
 import { movieApi, Movie, MovieBundle, QPayInvoice, MovieBulkPurchaseResponse, MovieBundlePurchaseResponse } from "@/apis";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
+const BASE_URL = "https://projectm.zuraach.site";
 
 function resolveImg(url?: string | null): string | undefined {
   if (!url) return undefined;

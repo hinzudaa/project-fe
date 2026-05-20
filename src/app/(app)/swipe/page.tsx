@@ -4,7 +4,7 @@ import { X, Heart, Star, MapPin, Zap, Loader2 } from "lucide-react";
 import { swipeApi, SwipeUser, SwipeQuota, MatchResult } from "@/apis";
 import { useAuth } from "@/store/AuthProvider";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
+const BASE_URL = "https://projectm.zuraach.site";
 const GENDERS: Record<string, string> = { male: "Эрэгтэй", female: "Эмэгтэй", other: "Бусад" };
 
 function resolveAvatar(avatar?: string) {

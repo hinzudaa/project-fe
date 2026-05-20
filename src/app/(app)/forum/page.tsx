@@ -5,7 +5,7 @@ import { Loader2, Send, Trash2 } from "lucide-react";
 import { networkApi, NetworkPost, NetworkComment } from "@/apis";
 import { useAuth } from "@/store/AuthProvider";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
+const BASE_URL = "https://projectm.zuraach.site";
 
 const CATEGORIES = [
   { id: "new", label: "✨ Шинэ", color: "#3cc878" },

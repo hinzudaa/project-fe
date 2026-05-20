@@ -14,7 +14,7 @@ interface HomeData {
   movies: Movie[];
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
+const BASE_URL = "https://projectm.zuraach.site";
 
 function resolveAvatar(avatar?: string) {
   if (!avatar) return null;
@@ -319,7 +319,7 @@ export default function DashboardPage() {
   );
 }
 
-const BASE_URL_MOVIE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3080";
+const BASE_URL_MOVIE = "https://projectm.zuraach.site";
 function resolveMovieImg(url?: string | null) {
   if (!url) return null;
   if (url.startsWith("http://") || url.startsWith("https://")) return url;
