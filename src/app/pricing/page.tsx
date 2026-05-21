@@ -47,7 +47,15 @@ interface ActiveInvoice {
 
 export default function PricingPage() {
   const router = useRouter();
-  const { refreshUser } = useAuth();
+  const { refreshUser, user, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace("/login");
+    }
+  }, [authLoading, user, router]);
+
+  if (authLoading || !user) return null;
   const [plans, setPlans] = useState<MembershipPlan[]>([]);
   const [plansLoading, setPlansLoading] = useState(true);
   const [selected, setSelected] = useState<string>("");
