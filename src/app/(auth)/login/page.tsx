@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useRef, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Globe, ArrowRight, ArrowLeft, Phone } from "lucide-react";
+import { Globe, ArrowRight, Phone } from "lucide-react";
 import { authApi } from "@/apis";
 import { useAuth } from "@/store/AuthProvider";
 import { setAuthToken } from "@/utils/request";
@@ -155,17 +155,10 @@ export default function LoginPage() {
 
       {/* Top bar */}
       <nav className="relative z-20 px-6 py-6">
-        <div className="flex items-center justify-between max-w-6xl mx-auto">
+        <div className="flex items-center max-w-6xl mx-auto">
           <Link href="/" className="flex items-center gap-2 text-white">
             <Globe size={22} />
             <span className="font-semibold text-lg">Khuslen</span>
-          </Link>
-          <Link
-            href="/"
-            className="liquid-glass rounded-full pl-3 pr-5 py-2 inline-flex items-center gap-2 text-white/80 hover:text-white text-sm font-medium transition-colors"
-          >
-            <ArrowLeft size={16} />
-            <span>Буцах</span>
           </Link>
         </div>
       </nav>
