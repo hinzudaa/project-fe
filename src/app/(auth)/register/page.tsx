@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useRef, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Globe, ArrowRight, Camera, X } from "lucide-react";
+import { Globe, ArrowRight, ArrowLeft, Phone } from "lucide-react";
 import { authApi } from "@/apis";
 import { useAuth } from "@/store/AuthProvider";
 import { setAuthToken } from "@/utils/request";
@@ -14,7 +14,6 @@ export default function RegisterPage() {
   const [destination, setDestination] = useState("");
   const [smsCode, setSmsCode] = useState("");
   const [step, setStep] = useState<"phone" | "sms">("phone");
-  const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { loginUser } = useAuth();
@@ -151,136 +150,165 @@ export default function RegisterPage() {
           style={{ opacity: 0 }}
           className="absolute inset-0 w-full h-full object-cover translate-y-[17%]"
         />
-        <div className="absolute inset-0 bg-black/45" />
+        <div className="absolute inset-0 bg-black/50" />
       </div>
 
-      {/* Hero content */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-12 text-center">
-        <h1
-          className="text-5xl md:text-6xl lg:text-7xl text-white mb-8 tracking-tight whitespace-nowrap"
-          style={{ fontFamily: "'Instrument Serif', serif" }}
-        >
-          {step === "phone" ? "Бүртгүүлэх" : "SMS илгээх"}
-        </h1>
+      {/* Top bar */}
+      <nav className="relative z-20 px-6 py-6">
+        <div className="flex items-center justify-between max-w-6xl mx-auto">
+          <Link href="/" className="flex items-center gap-2 text-white">
+            <Globe size={22} />
+            <span className="font-semibold text-lg">Khuslen</span>
+          </Link>
+          <Link
+            href="/"
+            className="liquid-glass rounded-full pl-3 pr-5 py-2 inline-flex items-center gap-2 text-white/80 hover:text-white text-sm font-medium transition-colors"
+          >
+            <ArrowLeft size={16} />
+            <span>Буцах</span>
+          </Link>
+        </div>
+      </nav>
 
-        <div className="max-w-xl w-full space-y-4">
+      {/* Main content */}
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-8">
+        {/* Radial glow behind card */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "radial-gradient(60% 50% at 50% 55%, rgba(255,255,255,0.04), rgba(0,0,0,0) 60%)",
+          }}
+        />
+
+        <div className="relative w-full max-w-md">
           {step === "phone" ? (
-            <>
-              <div className="liquid-glass rounded-2xl p-7 space-y-5" style={{ backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", background: "rgba(255,255,255,0.05)" }}>
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  <div className="space-y-2">
-                    <label className="block text-[11px] font-bold text-white/50 tracking-[0.1em] uppercase">
-                      Утасны дугаар
-                    </label>
-                    <div className="bg-white/[0.08] border border-white/[0.14] rounded-xl px-4 py-3.5 flex items-center gap-3 focus-within:border-white/30 focus-within:bg-white/[0.1] transition-all">
-                      <input
-                        className="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-white/30 min-w-0"
-                        type="tel"
-                        placeholder="+976 8014 2409"
-                        value={phone}
-                        onChange={e => setPhone(e.target.value)}
-                        required
-                        autoFocus
-                      />
-                    </div>
-                  </div>
-
-                  <div
-                    className="flex items-start gap-3 cursor-pointer"
-                    onClick={() => setAgreed(p => !p)}
-                  >
-                    <div className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${agreed ? "bg-white border-white" : "bg-transparent border-white/25 hover:border-white/45"
-                      }`}>
-                      {agreed && (
-                        <svg width="11" height="8" viewBox="0 0 11 8" fill="none">
-                          <path d="M1 3.5L4 6.5L10 1" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      )}
-                    </div>
-                    <span className="text-[13px] text-white/55 leading-snug text-left select-none">
-                      Би{" "}
-                      <Link href="/privacy" target="_blank" onClick={e => e.stopPropagation()} className="text-white/80 hover:text-white underline transition-colors">
-                        Нууцлалын бодлого
-                      </Link>
-                      {" "}болон{" "}
-                      <Link href="/terms" target="_blank" onClick={e => e.stopPropagation()} className="text-white/80 hover:text-white underline transition-colors">
-                        Үйлчилгээний нөхцөл
-                      </Link>
-                      -ийг уншиж, зөвшөөрч байна
-                    </span>
-                  </div>
-
-                  {error && <p className="text-[13px] text-red-400 text-center">{error}</p>}
-
-                  <button
-                    type="submit"
-                    disabled={phone.length < 8 || !agreed || loading}
-                    className="w-full bg-white text-black rounded-xl font-semibold text-[15px] py-3.5 flex items-center justify-center gap-2 disabled:opacity-35 disabled:cursor-not-allowed hover:bg-white/90 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 shadow-[0_4px_24px_rgba(255,255,255,0.15)]"
-                  >
-                    {loading ? "Түр хүлээнэ үү..." : (
-                      <>Бүртгүүлэх</>
-                    )}
-                  </button>
-
-                  <p className="text-white text-sm leading-relaxed px-4">
-                    Бүртгэлтэй юу?{" "}
-
-                  </p>
-                  <button
-                    onClick={() => router.push("/login")}
-                    className="w-full bg-white text-black rounded-xl font-semibold text-[15px] py-3.5 flex items-center justify-center gap-2 disabled:opacity-35 disabled:cursor-not-allowed hover:bg-white/90 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 shadow-[0_4px_24px_rgba(255,255,255,0.15)]"
-                  >
-                    <>Нэвтрэх</>
-                  </button>
-                </form>
+            <div className="pane-in liquid-glass-card rounded-[28px] p-7 md:p-9 space-y-6">
+              {/* Segmented toggle */}
+              <div className="liquid-glass rounded-full p-1 flex items-center">
+                <button
+                  onClick={() => router.push("/login")}
+                  className="relative z-[1] flex-1 text-sm font-medium rounded-full px-5 py-2 text-white/70 hover:text-white transition-colors"
+                >
+                  Нэвтрэх
+                </button>
+                <button className="relative z-[1] flex-1 text-sm font-medium rounded-full px-5 py-2 bg-white text-black transition-colors">
+                  Бүртгүүлэх
+                </button>
               </div>
-              <div className="flex justify-center">
-                <span className="text-[11px] text-white/30 tracking-wide">18+ · Зөвхөн насанд хүрэгчдэд</span>
-              </div>
-            </>
+
+              {/* Heading */}
+              <header className="space-y-2">
+                <h1
+                  className="text-4xl md:text-5xl leading-[1.05] tracking-tight text-white"
+                  style={{ fontFamily: "'Instrument Serif', serif" }}
+                >
+                  Аяллаа <em className="italic">эхлүүлье</em>.
+                </h1>
+                <p className="text-white/55 text-sm leading-relaxed">
+                  Утасны дугаараа оруулж бүртгэл үүсгэнэ үү.
+                </p>
+              </header>
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Phone field */}
+                <label className="block">
+                  <div className="field-row flex items-center gap-3">
+                    <Phone size={18} className="text-white/45 shrink-0" />
+                    <input
+                      className="field-input"
+                      type="tel"
+                      placeholder="+976 8014 2409"
+                      value={phone}
+                      onChange={e => setPhone(e.target.value)}
+                      required
+                      autoFocus
+                      autoComplete="tel"
+                    />
+                  </div>
+                </label>
+
+                {error && (
+                  <p className="text-[13px] text-red-300/80 text-center">{error}</p>
+                )}
+
+                {/* Submit */}
+                <button
+                  type="submit"
+                  disabled={phone.length < 8 || loading}
+                  className="group w-full rounded-full bg-white text-black py-3.5 px-6 text-sm font-semibold inline-flex items-center justify-center gap-2 hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? (
+                    <span>Түр хүлээнэ үү...</span>
+                  ) : (
+                    <>
+                      <span>Бүртгүүлэх</span>
+                      <ArrowRight size={16} className="-mr-1 transition-transform group-hover:translate-x-0.5" />
+                    </>
+                  )}
+                </button>
+              </form>
+
+              <p className="text-[11.5px] leading-relaxed text-white/40 text-center">
+                Үргэлжлүүлснээр та манай{" "}
+                <Link href="/terms" target="_blank" className="text-white/65 hover:text-white underline underline-offset-2 transition-colors">Үйлчилгээний нөхцөл</Link>
+                {" "}болон{" "}
+                <Link href="/privacy" target="_blank" className="text-white/65 hover:text-white underline underline-offset-2 transition-colors">Нууцлалын бодлого</Link>
+                -г зөвшөөрч байна.
+              </p>
+            </div>
           ) : (
-            <>
-              <div className="liquid-glass rounded-2xl p-6 text-left space-y-4">
-                <p className="text-white/60 text-sm text-center">Доорх зааврын дагуу мессеж илгээнэ үү</p>
+            <div className="pane-in liquid-glass-card rounded-[28px] p-7 md:p-9 space-y-5">
+              <header className="space-y-2 text-center">
+                <h1
+                  className="text-4xl leading-[1.05] tracking-tight text-white"
+                  style={{ fontFamily: "'Instrument Serif', serif" }}
+                >
+                  SMS <em className="italic">илгээх</em>.
+                </h1>
+                <p className="text-white/55 text-sm leading-relaxed">
+                  Доорх зааврын дагуу мессеж илгээнэ үү
+                </p>
+              </header>
 
-                <div className="bg-white/[0.04] rounded-xl p-5 flex flex-col gap-3">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-bold text-white/50 tracking-[0.08em] uppercase">Илгээх дугаар</span>
-                    <span className="text-[22px] font-bold text-white tracking-wider">{destination}</span>
-                  </div>
-                  <div className="h-px bg-white/[0.06]" />
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-bold text-white/50 tracking-[0.08em] uppercase">Мессежийн агуулга</span>
-                    <span className="text-[22px] font-bold text-white/80 tracking-[0.15em]">{smsCode}</span>
-                  </div>
+              <div className="bg-white/[0.04] rounded-2xl p-5 flex flex-col gap-3">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] font-bold text-white/40 tracking-[0.08em] uppercase">Илгээх дугаар</span>
+                  <span className="text-[22px] font-bold text-white tracking-wider">{destination}</span>
                 </div>
-
-                <div className="flex items-center gap-2 justify-center">
-                  <div className="w-2 h-2 rounded-full bg-white/60 animate-pulse" />
-                  <p className="text-[13px] text-white/50">Баталгаажуулалт хүлээж байна...</p>
+                <div className="h-px bg-white/[0.06]" />
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] font-bold text-white/40 tracking-[0.08em] uppercase">Мессежийн агуулга</span>
+                  <span className="text-[22px] font-bold text-white/80 tracking-[0.15em]">{smsCode}</span>
                 </div>
-
-                {error && <p className="text-[13px] text-red-400 text-center">{error}</p>}
               </div>
 
-              <div className="flex flex-col items-center gap-3">
+              <div className="flex items-center gap-2 justify-center">
+                <div className="w-2 h-2 rounded-full bg-white/60 animate-pulse" />
+                <p className="text-[13px] text-white/50">Баталгаажуулалт хүлээж байна...</p>
+              </div>
+
+              {error && <p className="text-[13px] text-red-300/80 text-center">{error}</p>}
+
+              <div className="flex flex-col items-center gap-3 pt-1">
                 {smsUri && (
                   <button
                     onClick={() => { window.location.href = smsUri; }}
-                    className="liquid-glass rounded-full px-8 py-3 text-white text-sm font-medium hover:bg-white/5 transition-colors"
+                    className="group w-full rounded-full bg-white text-black py-3.5 px-6 text-sm font-semibold inline-flex items-center justify-center gap-2 hover:bg-white/90 transition-colors"
                   >
-                    SMS апп нээх
+                    <span>SMS апп нээх</span>
+                    <ArrowRight size={16} className="-mr-1 transition-transform group-hover:translate-x-0.5" />
                   </button>
                 )}
                 <button
                   type="button"
                   onClick={() => { setStep("phone"); setError(""); }}
-                  className="text-[13px] text-white/50 hover:text-white/70 transition-colors bg-transparent border-none cursor-pointer"
+                  className="liquid-glass rounded-full pl-3 pr-5 py-2 inline-flex items-center gap-2 text-white/70 hover:text-white text-sm font-medium transition-colors"
                 >
-                  ← Дугаар өөрчлөх
+                  <ArrowLeft size={16} />
+                  <span>Дугаар өөрчлөх</span>
                 </button>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>
