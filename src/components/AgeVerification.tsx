@@ -1,87 +1,136 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AlertTriangle } from "lucide-react";
+import { useRef, useCallback } from "react";
+import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 
-export default function AgeVerification() {
-  const [isVerified, setIsVerified] = useState(true);
-  const [showError, setShowError] = useState(false);
+interface Props {
+  onVerified: () => void;
+}
 
-  useEffect(() => {
-    const verified = localStorage.getItem("age_verified");
-    if (verified !== "true") {
-      setIsVerified(false);
-    }
+export default function AgeVerification({ onVerified }: Props) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const rafRef = useRef<number | null>(null);
+  const fadingOutRef = useRef(false);
+
+  const fadeVideoIn = useCallback(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    const video = videoRef.current;
+    if (!video) return;
+    const from = parseFloat(video.style.opacity || "0");
+    const start = performance.now();
+    const step = (now: number) => {
+      const t = Math.min((now - start) / 600, 1);
+      video.style.opacity = String(from + (1 - from) * t);
+      if (t < 1) rafRef.current = requestAnimationFrame(step);
+      else rafRef.current = null;
+    };
+    rafRef.current = requestAnimationFrame(step);
   }, []);
 
-  const handleVerify = (isAdult: boolean) => {
-    if (isAdult) {
-      localStorage.setItem("age_verified", "true");
-      setIsVerified(true);
-      setShowError(false);
-    } else {
-      setShowError(true);
-    }
+  const fadeVideoOut = useCallback(() => {
+    if (fadingOutRef.current) return;
+    fadingOutRef.current = true;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    const video = videoRef.current;
+    if (!video) return;
+    const from = parseFloat(video.style.opacity || "1");
+    const start = performance.now();
+    const step = (now: number) => {
+      const t = Math.min((now - start) / 500, 1);
+      video.style.opacity = String(from * (1 - t));
+      if (t < 1) rafRef.current = requestAnimationFrame(step);
+      else rafRef.current = null;
+    };
+    rafRef.current = requestAnimationFrame(step);
+  }, []);
+
+  const handleAccept = () => {
+    localStorage.setItem("age_verified", "true");
+    onVerified();
   };
 
-  if (isVerified) return null;
+  const handleDecline = () => {
+    window.location.href = "https://www.google.com";
+  };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
-      <div 
-        className="w-full max-w-md p-8 rounded-2xl relative overflow-hidden"
-        style={{
-          background: "linear-gradient(135deg, rgba(200,37,74,0.1) 0%, rgba(12,9,25,0.95) 100%)",
-          border: "1px solid rgba(232,65,90,0.3)",
-          boxShadow: "0 8px 32px rgba(232,65,90,0.2)",
-        }}
-      >
-        <div className="absolute right-0 top-0 w-32 h-32 pointer-events-none"
-            style={{ background: "radial-gradient(circle at 75% 25%, rgba(232,65,90,0.15) 0%, transparent 65%)" }} />
-        
-        <div className="relative z-10 flex flex-col items-center text-center">
-          <div className="w-16 h-16 rounded-full flex items-center justify-center mb-5"
-            style={{ background: "rgba(232,65,90,0.15)", border: "1px solid rgba(232,65,90,0.4)" }}>
-            <AlertTriangle size={32} strokeWidth={1.5} style={{ color: "#e8415a" }} />
+    <div className="fixed inset-0 z-[99998] flex flex-col items-center justify-center bg-black overflow-hidden px-6">
+      {/* Background video */}
+      <div className="absolute inset-0">
+        <video
+          ref={videoRef}
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_115001_bcdaa3b4-03de-47e7-ad63-ae3e392c32d4.mp4"
+          autoPlay
+          muted
+          playsInline
+          onTimeUpdate={() => {
+            const v = videoRef.current;
+            if (!v || fadingOutRef.current || !v.duration) return;
+            if (v.duration - v.currentTime <= 0.55) fadeVideoOut();
+          }}
+          onEnded={() => {
+            const v = videoRef.current;
+            if (!v) return;
+            v.style.opacity = "0";
+            fadingOutRef.current = false;
+            setTimeout(() => { v.currentTime = 0; v.play(); fadeVideoIn(); }, 100);
+          }}
+          onCanPlay={() => fadeVideoIn()}
+          style={{ opacity: 0 }}
+          className="absolute inset-0 w-full h-full object-cover translate-y-[17%]"
+        />
+        <div className="absolute inset-0 bg-black/55" />
+      </div>
+
+      {/* Radial glow */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: "radial-gradient(60% 50% at 50% 55%, rgba(255,255,255,0.04), transparent 60%)" }}
+      />
+
+      {/* Card */}
+      <div className="pane-in relative w-full max-w-md">
+        <div className="liquid-glass-card rounded-[28px] p-8 md:p-10 space-y-6 text-center">
+
+          {/* Logo */}
+          <div className="flex justify-center">
+            <div className="liquid-glass rounded-full p-3">
+              <Image src="/logo.png" alt="Khuslen" width={32} height={32} />
+            </div>
           </div>
-          
-          <h2 className="text-2xl font-serif font-black mb-3 text-white">
-            Насны хязгаар
-          </h2>
-          
-          {!showError ? (
-            <>
-              <p className="text-text-secondary mb-8 text-[15px] leading-relaxed">
-                Энэхүү цахим хуудас нь насанд хүрэгчдэд зориулагдсан контент агуулсан байж болзошгүй. Та 18 нас хүрсэн үү?
-              </p>
-              
-              <div className="flex gap-4 w-full">
-                <button 
-                  onClick={() => handleVerify(false)}
-                  className="flex-1 py-3 rounded-xl font-semibold text-white transition-all duration-200 hover:bg-white/5"
-                  style={{ border: "1px solid rgba(255,255,255,0.1)" }}
-                >
-                  Үгүй
-                </button>
-                <button 
-                  onClick={() => handleVerify(true)}
-                  className="flex-1 py-3 rounded-xl font-bold text-white transition-all duration-200 hover:-translate-y-0.5"
-                  style={{ 
-                    background: "linear-gradient(135deg, #e8415a, #9e1838)", 
-                    boxShadow: "0 4px 16px rgba(232,65,90,0.4)" 
-                  }}
-                >
-                  Тийм, би 18+
-                </button>
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="text-text-secondary mb-6 text-[15px] leading-relaxed">
-                Уучлаарай, та 18 нас хүрээгүй тул энэхүү сайтад нэвтрэх боломжгүй.
-              </p>
-            </>
-          )}
+
+          {/* Heading */}
+          <div className="space-y-2">
+            <h1
+              className="text-4xl text-white tracking-tight leading-[1.05]"
+              style={{ fontFamily: "'Instrument Serif', serif" }}
+            >
+              Насны <em className="italic">баталгаа</em>.
+            </h1>
+            <p className="text-white/55 text-sm leading-relaxed">
+              Энэ платформ нь зөвхөн <span className="text-white/80 font-medium">18</span> насанд хүрэгчдэд зориулагдсан. Та насны шаардлага хангаж байна уу?
+            </p>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex flex-col gap-3 pt-1">
+            <button
+              onClick={handleAccept}
+              className="group w-full rounded-full bg-white text-black py-3.5 px-6 text-sm font-semibold inline-flex items-center justify-center gap-2 hover:bg-white/90 transition-colors"
+            >
+              <span>Тийм, би 18+</span>
+              <ArrowRight size={16} className="-mr-1 transition-transform group-hover:translate-x-0.5" />
+            </button>
+            <button
+              onClick={handleDecline}
+              className="w-full rounded-full py-3.5 px-6 text-sm font-medium text-white/60 hover:text-white/80 transition-colors"
+            >
+              Үгүй, гарах
+            </button>
+          </div>
+
+          <p className="text-[11px] text-white/25 tracking-wide">18+ · Зөвхөн насанд хүрэгчдэд</p>
         </div>
       </div>
     </div>
