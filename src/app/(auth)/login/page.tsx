@@ -243,9 +243,9 @@ export default function LoginPage() {
 
               <p className="text-[11.5px] leading-relaxed text-white/40 text-center">
                 Үргэлжлүүлснээр та манай{" "}
-                <Link href="/terms" target="_blank" className="text-white/65 hover:text-white underline underline-offset-2 transition-colors">Үйлчилгээний нөхцөл</Link>
+                <Link href="/terms" className="text-white/65 hover:text-white underline underline-offset-2 transition-colors">Үйлчилгээний нөхцөл</Link>
                 {" "}болон{" "}
-                <Link href="/privacy" target="_blank" className="text-white/65 hover:text-white underline underline-offset-2 transition-colors">Нууцлалын бодлого</Link>
+                <Link href="/privacy" className="text-white/65 hover:text-white underline underline-offset-2 transition-colors">Нууцлалын бодлого</Link>
                 -г зөвшөөрч байна.
               </p>
             </div>

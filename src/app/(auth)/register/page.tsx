@@ -243,9 +243,9 @@ export default function RegisterPage() {
 
               <p className="text-[11.5px] leading-relaxed text-white/40 text-center">
                 Үргэлжлүүлснээр та манай{" "}
-                <Link href="/terms" target="_blank" className="text-white/65 hover:text-white underline underline-offset-2 transition-colors">Үйлчилгээний нөхцөл</Link>
+                <Link href="/terms" className="text-white/65 hover:text-white underline underline-offset-2 transition-colors">Үйлчилгээний нөхцөл</Link>
                 {" "}болон{" "}
-                <Link href="/privacy" target="_blank" className="text-white/65 hover:text-white underline underline-offset-2 transition-colors">Нууцлалын бодлого</Link>
+                <Link href="/privacy" className="text-white/65 hover:text-white underline underline-offset-2 transition-colors">Нууцлалын бодлого</Link>
                 -г зөвшөөрч байна.
               </p>
             </div>
@@ -295,10 +295,9 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => { setStep("phone"); setError(""); }}
-                  className="liquid-glass rounded-full pl-3 pr-5 py-2 inline-flex items-center gap-2 text-white/70 hover:text-white text-sm font-medium transition-colors"
+                  className="text-[13px] text-white/50 hover:text-white/70 transition-colors bg-transparent border-none cursor-pointer"
                 >
-                  <ArrowLeft size={16} />
-                  <span>Дугаар өөрчлөх</span>
+                  ← Дугаар өөрчлөх
                 </button>
               </div>
             </div>

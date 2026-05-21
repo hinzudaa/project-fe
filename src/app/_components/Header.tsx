@@ -26,7 +26,7 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [menuOpen]);
 
-  if (loading || pathname.startsWith("/login") || pathname.startsWith("/register")) return null;
+  if (loading || pathname.startsWith("/login") || pathname.startsWith("/register") || pathname.startsWith("/terms") || pathname.startsWith("/privacy")) return null;
 
   const isLoggedIn = !!user;
   const avatarLetter = (user?.name ?? user?.phone ?? "М").charAt(0).toUpperCase();
