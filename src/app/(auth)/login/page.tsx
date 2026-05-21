@@ -295,10 +295,9 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => { setStep("phone"); setError(""); }}
-                  className="liquid-glass rounded-full pl-3 pr-5 py-2 inline-flex items-center gap-2 text-white/70 hover:text-white text-sm font-medium transition-colors"
+                  className="text-[13px] text-white/50 hover:text-white/70 transition-colors bg-transparent border-none cursor-pointer"
                 >
-                  <ArrowLeft size={16} />
-                  <span>Дугаар өөрчлөх</span>
+                  ← Дугаар өөрчлөх
                 </button>
               </div>
             </div>

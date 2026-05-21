@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useRef, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Globe, ArrowRight, ArrowLeft, Phone } from "lucide-react";
+import { Globe, ArrowRight, Phone } from "lucide-react";
 import { authApi } from "@/apis";
 import { useAuth } from "@/store/AuthProvider";
 import { setAuthToken } from "@/utils/request";
