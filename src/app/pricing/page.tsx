@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Check, Zap, Film, Heart, Bot } from "lucide-react";
 import { membershipApi, MembershipPlan, QPayInvoice } from "@/apis";
@@ -18,27 +18,24 @@ function formatLimit(val: number, unit: string) {
   return `${unit} өдөрт ${val}`;
 }
 
-const TIER_STYLE: Record<string, { label: string; badge: string; glow: string; border: string; selBg: string }> = {
+const TIER_STYLE: Record<string, { label: string; badge: string; glow: string; selBorder: string }> = {
   basic: {
     label: "Basic",
     badge: "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30",
-    glow: "shadow-[0_0_40px_rgba(16,185,129,0.12)]",
-    border: "border-emerald-500/40",
-    selBg: "bg-[rgba(16,185,129,0.06)]",
+    glow: "shadow-[0_0_48px_rgba(16,185,129,0.18)]",
+    selBorder: "1px solid rgba(16,185,129,0.45)",
   },
   standard: {
     label: "Standard",
     badge: "bg-blue-500/20 text-blue-300 border border-blue-500/30",
-    glow: "shadow-[0_0_40px_rgba(59,130,246,0.12)]",
-    border: "border-blue-500/40",
-    selBg: "bg-[rgba(59,130,246,0.06)]",
+    glow: "shadow-[0_0_48px_rgba(59,130,246,0.18)]",
+    selBorder: "1px solid rgba(59,130,246,0.45)",
   },
   premium: {
     label: "Premium",
     badge: "bg-purple-500/20 text-purple-300 border border-purple-500/30",
-    glow: "shadow-[0_0_40px_rgba(168,85,247,0.15)]",
-    border: "border-purple-500/40",
-    selBg: "bg-[rgba(168,85,247,0.07)]",
+    glow: "shadow-[0_0_48px_rgba(168,85,247,0.22)]",
+    selBorder: "1px solid rgba(168,85,247,0.45)",
   },
 };
 
@@ -57,6 +54,70 @@ export default function PricingPage() {
   const [buyingId, setBuyingId] = useState<string | null>(null);
   const [activeInvoice, setActiveInvoice] = useState<ActiveInvoice | null>(null);
   const [error, setError] = useState("");
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const fadeRef = useRef<number | null>(null);
+  const fadingOutRef = useRef(false);
+
+  const fadeIn = useCallback(() => {
+    if (fadeRef.current) cancelAnimationFrame(fadeRef.current);
+    const video = videoRef.current;
+    if (!video) return;
+    const startOpacity = parseFloat(video.style.opacity || "0");
+    const startTime = performance.now();
+    const animate = (now: number) => {
+      const progress = Math.min((now - startTime) / 500, 1);
+      video.style.opacity = String(startOpacity + (1 - startOpacity) * progress);
+      if (progress < 1) {
+        fadeRef.current = requestAnimationFrame(animate);
+      } else {
+        fadeRef.current = null;
+      }
+    };
+    fadeRef.current = requestAnimationFrame(animate);
+  }, []);
+
+  const fadeOut = useCallback(() => {
+    if (fadingOutRef.current) return;
+    fadingOutRef.current = true;
+    if (fadeRef.current) cancelAnimationFrame(fadeRef.current);
+    const video = videoRef.current;
+    if (!video) return;
+    const startOpacity = parseFloat(video.style.opacity || "1");
+    const startTime = performance.now();
+    const animate = (now: number) => {
+      const progress = Math.min((now - startTime) / 500, 1);
+      video.style.opacity = String(startOpacity * (1 - progress));
+      if (progress < 1) {
+        fadeRef.current = requestAnimationFrame(animate);
+      } else {
+        fadeRef.current = null;
+      }
+    };
+    fadeRef.current = requestAnimationFrame(animate);
+  }, []);
+
+  const handleTimeUpdate = useCallback(() => {
+    const video = videoRef.current;
+    if (!video || fadingOutRef.current || !video.duration) return;
+    if (video.duration - video.currentTime <= 0.55) fadeOut();
+  }, [fadeOut]);
+
+  const handleEnded = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.style.opacity = "0";
+    fadingOutRef.current = false;
+    setTimeout(() => {
+      video.currentTime = 0;
+      video.play();
+      fadeIn();
+    }, 100);
+  }, [fadeIn]);
+
+  const handleCanPlay = useCallback(() => {
+    fadeIn();
+  }, [fadeIn]);
 
   useEffect(() => {
     membershipApi.getPlans()
@@ -82,7 +143,23 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="min-h-screen px-6 pt-28 pb-16 bg-[radial-gradient(ellipse_at_50%_0%,rgba(158,24,56,0.08)_0%,transparent_60%),var(--bg-primary)]">
+    <div className="min-h-screen bg-black">
+      {/* Fixed video background */}
+      <div className="fixed inset-0 z-0">
+        <video
+          ref={videoRef}
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_115001_bcdaa3b4-03de-47e7-ad63-ae3e392c32d4.mp4"
+          autoPlay
+          muted
+          playsInline
+          onTimeUpdate={handleTimeUpdate}
+          onEnded={handleEnded}
+          onCanPlay={handleCanPlay}
+          style={{ opacity: 0 }}
+          className="absolute inset-0 w-full h-full object-cover translate-y-[17%]"
+        />
+        <div className="absolute inset-0 bg-black/55" />
+      </div>
 
       {activeInvoice && (
         <QPayModal
@@ -94,22 +171,26 @@ export default function PricingPage() {
         />
       )}
 
-      <div className="w-full max-w-[1100px] mx-auto">
+      <div className="relative z-10 w-full max-w-[1100px] mx-auto px-6 pt-24 pb-16">
 
+        {/* Heading */}
         <div className="text-center mb-12">
-          <h1 className="font-serif font-black mb-2 text-[clamp(26px,4vw,48px)]">
-            Багцаа <span className="bg-[linear-gradient(135deg,#e03060,#9e1838)] bg-clip-text text-transparent">сонгоно уу</span>
+          <h1
+            className="text-4xl md:text-5xl lg:text-6xl text-white mb-3 tracking-tight"
+            style={{ fontFamily: "'Instrument Serif', serif" }}
+          >
+            Багцаа сонгоно уу
           </h1>
-          <p className="text-text-secondary text-sm mb-3">QPay-аар шууд төлөх боломжтой</p>
-          {error && <p className="text-[13px] text-[#e04878] mt-2">{error}</p>}
+          <p className="text-white/50 text-sm">QPay-аар шууд төлөх боломжтой</p>
+          {error && <p className="text-[13px] text-red-400 mt-3">{error}</p>}
         </div>
 
         {plansLoading ? (
           <div className="flex justify-center py-20">
-            <Loader2 size={32} className="animate-spin text-[#c8254a]" />
+            <Loader2 size={32} className="animate-spin text-white/40" />
           </div>
         ) : plans.length === 0 ? (
-          <p className="text-center text-text-muted">Идэвхтэй багц олдсонгүй</p>
+          <p className="text-center text-white/40">Идэвхтэй багц олдсонгүй</p>
         ) : (
           <div className="grid gap-6 grid-cols-[repeat(auto-fit,minmax(300px,1fr))]">
             {plans.map(plan => {
@@ -127,52 +208,56 @@ export default function PricingPage() {
                 <div
                   key={plan._id}
                   onClick={() => setSelected(plan._id)}
-                  className={`rounded-[28px] cursor-pointer relative transition-all duration-200 overflow-hidden flex flex-col border ${isSel
-                    ? `${tier.selBg} border-[1.5px] ${tier.border} ${tier.glow}`
-                    : "bg-bg-card border-[rgba(255,255,255,0.07)]"
-                    }`}
+                  className={`liquid-glass rounded-[28px] cursor-pointer relative transition-all duration-300 overflow-hidden flex flex-col ${isSel ? tier.glow : ''}`}
+                  style={{
+                    backdropFilter: "blur(20px)",
+                    WebkitBackdropFilter: "blur(20px)",
+                    background: isSel ? "rgba(255,255,255,0.07)" : "rgba(255,255,255,0.03)",
+                    ...(isSel && { border: tier.selBorder }),
+                  }}
                 >
                   {/* Cover image */}
                   {imgUrl && (
                     <div className="relative w-full aspect-[16/9] overflow-hidden">
-                      <img
-                        src={imgUrl}
-                        alt={plan.title}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[rgba(0,0,0,0.7)]" />
+                      <img src={imgUrl} alt={plan.title} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/70" />
                     </div>
                   )}
 
                   <div className="p-6 flex flex-col flex-1 gap-4">
-
                     {/* Tier + month badges */}
                     <div className="flex items-center justify-between">
                       <span className={`px-3 py-1 rounded-full text-[11px] font-bold ${tier.badge}`}>
                         {tier.label}
                       </span>
-                      <span className={`px-3 py-1 rounded-full text-[11px] font-bold ${isSel
-                        ? "bg-[linear-gradient(135deg,#c8254a,#780f20)] text-white"
-                        : "bg-[rgba(255,255,255,0.08)] text-text-muted"
-                        }`}>
+                      <span className={`px-3 py-1 rounded-full text-[11px] font-bold transition-colors ${
+                        isSel ? "bg-white/15 text-white" : "bg-white/[0.06] text-white/40"
+                      }`}>
                         {plan.months === 1 ? "1 сар" : `${plan.months} сар`}
                       </span>
                     </div>
 
                     {/* Title + price */}
                     <div>
-                      <div className="text-xs font-bold text-text-muted tracking-[0.06em] mb-1">{plan.title.toUpperCase()}</div>
+                      <div className="text-xs font-bold text-white/40 tracking-[0.06em] mb-1 uppercase">
+                        {plan.title}
+                      </div>
                       <div className="flex items-baseline gap-1.5">
-                        <span className={`text-[34px] font-black font-serif ${isSel ? "text-[#e03060]" : "text-text-primary"}`}>
+                        <span
+                          className="text-[34px] font-black text-white"
+                          style={{ fontFamily: "'Instrument Serif', serif" }}
+                        >
                           ₮{plan.price.toLocaleString()}
                         </span>
-                        <span className="text-[13px] text-text-muted">/{plan.months === 1 ? "сар" : `${plan.months} сар`}</span>
+                        <span className="text-[13px] text-white/40">
+                          /{plan.months === 1 ? "сар" : `${plan.months} сар`}
+                        </span>
                       </div>
                     </div>
 
                     {/* Description */}
                     {plan.description && (
-                      <p className="text-[13px] text-text-secondary leading-relaxed whitespace-pre-line">
+                      <p className="text-[13px] text-white/55 leading-relaxed whitespace-pre-line">
                         {plan.description}
                       </p>
                     )}
@@ -182,10 +267,8 @@ export default function PricingPage() {
                       <div className="flex flex-col gap-2">
                         {features.map((f, i) => (
                           <div key={i} className="flex items-center gap-2 text-[13px]">
-                            <span className={`shrink-0 ${isSel ? "text-accent-light" : "text-[rgba(255,255,255,0.3)]"}`}>
-                              {f.icon}
-                            </span>
-                            <span className="text-text-primary">{f.text}</span>
+                            <span className="shrink-0 text-white/40">{f.icon}</span>
+                            <span className="text-white/75">{f.text}</span>
                           </div>
                         ))}
                       </div>
@@ -195,13 +278,18 @@ export default function PricingPage() {
                     <button
                       disabled={isBuying}
                       onClick={e => { e.stopPropagation(); handleBuy(plan); }}
-                      className={`mt-auto w-full py-3 rounded-[14px] font-bold text-sm cursor-pointer transition-all duration-200 hover:-translate-y-0.5 border-none flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed ${isSel
-                        ? "bg-[linear-gradient(135deg,#c8254a,#780f20)] text-white shadow-[0_4px_20px_rgba(158,24,56,0.35)]"
-                        : "bg-[rgba(255,255,255,0.05)] text-text-secondary"
-                        }`}
+                      className={`mt-auto w-full py-3 rounded-[14px] font-bold text-sm cursor-pointer transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 border-none flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                        isSel
+                          ? "bg-white text-black shadow-[0_4px_24px_rgba(255,255,255,0.15)]"
+                          : "bg-white/[0.07] text-white/50 hover:bg-white/[0.12] hover:text-white/70"
+                      }`}
                     >
-                      {isBuying ? <Loader2 size={14} className="animate-spin" /> : isSel ? <Zap size={14} /> : <Check size={14} />}
-                      {isBuying ? "Нэхэмжлэл үүсгэж байна..." : isSel ? "QPay-аар төлөх" : "Сонгох"}
+                      {isBuying
+                        ? <Loader2 size={14} className="animate-spin" />
+                        : isSel ? <Zap size={14} /> : <Check size={14} />}
+                      {isBuying
+                        ? "Нэхэмжлэл үүсгэж байна..."
+                        : isSel ? "QPay-аар төлөх" : "Сонгох"}
                     </button>
                   </div>
                 </div>
