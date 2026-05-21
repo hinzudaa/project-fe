@@ -1,16 +1,17 @@
 "use client";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ChevronLeft, ChevronRight, Check, Search, Loader2,
   Upload, X, Camera, UserCheck, AlertTriangle,
 } from "lucide-react";
 import { profileApi } from "@/apis";
+import { useAuth } from "@/store/AuthProvider";
 
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 7;
 
 type UploadedPhoto = {
-  file: File;
+  file?: File;
   preview: string;
   url?: string;
   faceStatus: "pending" | "detected" | "not_found" | "unsupported" | "checking";
@@ -19,13 +20,14 @@ type UploadedPhoto = {
 type FormData = {
   username: string;
   photos: UploadedPhoto[];
+  gender: string;
   city: string;
   birthYear: string;
   bio: string;
   interests: string[];
 };
 
-const INITIAL: FormData = { username: "", photos: [], city: "", birthYear: "", bio: "", interests: [] };
+const INITIAL: FormData = { username: "", photos: [], gender: "", city: "", birthYear: "", bio: "", interests: [] };
 
 // Browser native Face Detector (Chrome Shape Detection API)
 async function detectFace(imgEl: HTMLImageElement): Promise<"detected" | "not_found" | "unsupported"> {
@@ -40,17 +42,37 @@ async function detectFace(imgEl: HTMLImageElement): Promise<"detected" | "not_fo
 }
 
 export default function OnboardingPage() {
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [data, setData] = useState<FormData>(INITIAL);
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (!user) return;
+    setData(prev => ({
+      ...prev,
+      username: prev.username || user.username || "",
+      gender: prev.gender || user.gender || "",
+      city: prev.city || user.city || "",
+      birthYear: prev.birthYear || (user.birthYear ? String(user.birthYear) : ""),
+      bio: prev.bio || user.bio || "",
+      interests: prev.interests.length > 0 ? prev.interests : (user.interests ?? []),
+      photos: prev.photos.length > 0 ? prev.photos : (user.photos ?? []).slice(0, 2).map(url => ({
+        preview: url,
+        url,
+        faceStatus: "unsupported" as const,
+      })),
+    }));
+  }, [user]);
+
   const progress = (step / TOTAL_STEPS) * 100;
 
   const canProceed = () => {
     if (step === 1) return data.photos.length > 0 && data.photos.every(p => p.faceStatus !== "checking");
     if (step === 2) return data.username.trim().length >= 2;
+    if (step === 3) return data.gender !== "";
     return true;
   };
 
@@ -67,6 +89,7 @@ export default function OnboardingPage() {
     try {
       const form = new FormData();
       if (data.username) form.append("username", data.username.trim());
+      if (data.gender) form.append("gender", data.gender);
       if (data.city) form.append("city", data.city);
       if (data.birthYear) form.append("birthYear", data.birthYear);
       if (data.bio) form.append("bio", data.bio);
@@ -74,11 +97,8 @@ export default function OnboardingPage() {
         form.append("interests", JSON.stringify(data.interests));
       }
 
-      // Add all photo files to the 'photos' field
       for (const photo of data.photos) {
-        if (photo.file) {
-          form.append("photos", photo.file);
-        }
+        if (photo.file) form.append("photos", photo.file);
       }
 
       await profileApi.updateMyProfile(form);
@@ -128,10 +148,11 @@ export default function OnboardingPage() {
           />
         )}
         {step === 2 && <StepName value={data.username} onChange={v => set("username", v)} />}
-        {step === 3 && <StepCity value={data.city} onChange={v => set("city", v)} />}
-        {step === 4 && <StepBirthYear value={data.birthYear} onChange={v => set("birthYear", v)} />}
-        {step === 5 && <StepBio value={data.bio} onChange={v => set("bio", v)} />}
-        {step === 6 && <StepInterests selected={data.interests} toggle={toggleInterest} />}
+        {step === 3 && <StepGender value={data.gender} onChange={v => set("gender", v)} />}
+        {step === 4 && <StepCity value={data.city} onChange={v => set("city", v)} />}
+        {step === 5 && <StepBirthYear value={data.birthYear} onChange={v => set("birthYear", v)} />}
+        {step === 6 && <StepBio value={data.bio} onChange={v => set("bio", v)} />}
+        {step === 7 && <StepInterests selected={data.interests} toggle={toggleInterest} />}
       </div>
 
       {/* Nav */}
@@ -200,7 +221,7 @@ function StepPhotos({
   }, [photos, onChange]);
 
   const remove = (idx: number) => {
-    URL.revokeObjectURL(photos[idx].preview);
+    if (photos[idx].file) URL.revokeObjectURL(photos[idx].preview);
     onChange(photos.filter((_, i) => i !== idx));
   };
 
@@ -363,7 +384,43 @@ function StepName({ value, onChange }: { value: string; onChange: (v: string) =>
   );
 }
 
-/* ─── Step 3: City ─── */
+/* ─── Step 3: Gender ─── */
+
+const GENDERS = [
+  { value: "male", label: "Эрэгтэй", emoji: "♂" },
+  { value: "female", label: "Эмэгтэй", emoji: "♀" },
+  { value: "other", label: "Бусад", emoji: "✦" },
+];
+
+function StepGender({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="flex-1">
+      <h2 className="text-[26px] font-black font-serif mb-2 leading-tight">Хүйс</h2>
+      <p className="text-text-secondary text-[14px] mb-8">Таны хүйсийг сонгоно уу</p>
+      <div className="flex flex-col gap-3">
+        {GENDERS.map(g => (
+          <button
+            key={g.value}
+            onClick={() => onChange(g.value)}
+            className="w-full flex items-center justify-between px-5 py-4 rounded-2xl text-left transition-all duration-200 cursor-pointer border"
+            style={{
+              background: value === g.value ? "rgba(232,65,90,0.1)" : "rgba(255,255,255,0.04)",
+              border: value === g.value ? "1px solid rgba(232,65,90,0.4)" : "1px solid rgba(255,255,255,0.07)",
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-[20px]">{g.emoji}</span>
+              <span className="text-[15px] font-medium text-text-primary">{g.label}</span>
+            </div>
+            {value === g.value && <Check size={16} strokeWidth={2.5} style={{ color: "#e8415a" }} />}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Step 4: City ─── */
 
 const ALL_LOCATIONS = [
   "Улаанбаатар",

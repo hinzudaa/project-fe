@@ -40,7 +40,8 @@ export default function SwipePage() {
       pageRef.current = res.page + 1;
       totalPagesRef.current = res.totalPages;
       setQuota(res.quota);
-      setCards(prev => reset ? res.data : [...prev, ...res.data]);
+      const withPhotos = res.data.filter(u => u.photos && u.photos.length > 0);
+      setCards(prev => reset ? withPhotos : [...prev, ...withPhotos]);
     } catch {
       setError("Хэрэглэгчдийг ачаалахад алдаа гарлаа");
     } finally {

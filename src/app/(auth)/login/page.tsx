@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [destination, setDestination] = useState("");
   const [smsCode, setSmsCode] = useState("");
   const [step, setStep] = useState<"phone" | "sms">("phone");
+  const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { loginUser } = useAuth();
@@ -111,13 +112,40 @@ export default function LoginPage() {
                     />
                   </div>
 
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <div
+                      onClick={() => setAgreed(p => !p)}
+                      className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${agreed
+                        ? "bg-[#c8254a] border-[#c8254a]"
+                        : "bg-transparent border-white/20 hover:border-white/40"
+                        }`}
+                    >
+                      {agreed && (
+                        <svg width="11" height="8" viewBox="0 0 11 8" fill="none">
+                          <path d="M1 3.5L4 6.5L10 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-[13px] text-text-muted leading-snug">
+                      Би{" "}
+                      <Link href="/privacy" target="_blank" className="text-white/80 hover:text-white underline transition-colors">
+                        Нууцлалын бодлого
+                      </Link>
+                      {" "}болон{" "}
+                      <Link href="/terms" target="_blank" className="text-white/80 hover:text-white underline transition-colors">
+                        Үйлчилгээний нөхцөл
+                      </Link>
+                      -ийг уншиж, зөвшөөрч байна
+                    </span>
+                  </label>
+
                   {error && (
                     <p className="text-[13px] text-[#e04878] text-center -mt-1">{error}</p>
                   )}
 
                   <button
                     type="submit"
-                    disabled={phone.length < 8 || loading}
+                    disabled={phone.length < 8 || !agreed || loading}
                     className="w-full text-white border-none rounded-xl font-semibold text-[15px] cursor-pointer transition-all duration-200 py-3.5 mt-1 disabled:opacity-40 disabled:cursor-not-allowed hover:-translate-y-0.5 bg-[linear-gradient(135deg,#c8254a,#780f20)] shadow-[0_4px_24px_rgba(200,48,90,0.35)]"
                   >
                     {loading ? "Түр хүлээнэ үү..." : "Үргэлжлүүлэх"}
@@ -190,6 +218,11 @@ export default function LoginPage() {
 
           <p className="text-center mt-6 text-[11px] text-text-muted/50 tracking-wide">
             18+ · Зөвхөн насанд хүрэгчдэд
+          </p>
+          <p className="text-center mt-2 text-[11px] text-white">
+            <Link href="/privacy" className="hover:text-text-muted transition-colors">Нууцлалын бодлого</Link>
+            {" · "}
+            <Link href="/terms" className="hover:text-text-muted transition-colors">Үйлчилгээний нөхцөл</Link>
           </p>
         </div>
       </div>

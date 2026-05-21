@@ -7,15 +7,8 @@ import { authApi } from "@/apis";
 import { useAuth } from "@/store/AuthProvider";
 import { setAuthToken } from "@/utils/request";
 
-const GENDERS = [
-  { value: "male", label: "Эрэгтэй" },
-  { value: "female", label: "Эмэгтэй" },
-  { value: "other", label: "Бусад" },
-];
-
 export default function RegisterPage() {
   const [phone, setPhone] = useState("");
-  const [gender, setGender] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [verificationId, setVerificationId] = useState("");
   const [smsUri, setSmsUri] = useState("");
@@ -69,7 +62,7 @@ export default function RegisterPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await authApi.register({ phone, gender });
+      const res = await authApi.register({ phone, gender: "" });
       const pv = res.phoneVerification;
       const uri = pv.smsUri ?? "";
       const code = uri.includes("?body=") ? decodeURIComponent(uri.split("?body=")[1]) : "";
@@ -120,25 +113,6 @@ export default function RegisterPage() {
                     />
                   </div>
 
-                  <div>
-                    <label className={labelCls}>Хүйс</label>
-                    <div className="flex gap-2">
-                      {GENDERS.map(g => (
-                        <button
-                          key={g.value}
-                          type="button"
-                          onClick={() => setGender(g.value)}
-                          className={`flex-1 py-2.5 rounded-xl text-[13px] font-semibold border transition-all duration-200 ${gender === g.value
-                            ? "bg-[#c8254a] border-[#c8254a] text-white"
-                            : "bg-white/[0.04] border-white/[0.08] text-text-muted hover:border-white/20"
-                            }`}
-                        >
-                          {g.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
                   <label className="flex items-start gap-3 cursor-pointer">
                     <div
                       onClick={() => setAgreed(p => !p)}
@@ -172,7 +146,7 @@ export default function RegisterPage() {
 
                   <button
                     type="submit"
-                    disabled={phone.length < 8 || !gender || !agreed || loading}
+                    disabled={phone.length < 8 || !agreed || loading}
                     className="w-full text-white border-none rounded-xl font-semibold text-[15px] cursor-pointer transition-all duration-200 py-3.5 mt-1 disabled:opacity-40 disabled:cursor-not-allowed hover:-translate-y-0.5 bg-[linear-gradient(135deg,#c8254a,#780f20)] shadow-[0_4px_24px_rgba(200,48,90,0.35)]"
                   >
                     {loading ? "Түр хүлээнэ үү..." : "Үргэлжлүүлэх"}
