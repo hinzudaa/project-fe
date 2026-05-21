@@ -96,7 +96,7 @@ export default function LoginPage() {
               <>
                 <div className="mb-7">
                   <h1 className="font-serif text-[28px] font-bold tracking-[-0.02em] mb-1">Нэвтрэх</h1>
-                  <p className="text-text-secondary text-sm">Утасны дугаараа оруулна уу</p>
+                  <p className="text-text-secondary text-sm">Утасны дугаараа оруулна уу — бүртгэл байхгүй бол шинээр үүснэ</p>
                 </div>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                   <div>
@@ -202,18 +202,6 @@ export default function LoginPage() {
               </>
             )}
 
-            <div className="flex items-center gap-3 my-6">
-              <div className="flex-1 h-px bg-white/[0.06]" />
-              <span className="text-[11px] text-text-muted tracking-wide">эсвэл</span>
-              <div className="flex-1 h-px bg-white/[0.06]" />
-            </div>
-
-            <p className="text-center text-[13px] text-text-muted">
-              Бүртгэл байхгүй юу?{" "}
-              <Link href="/register">
-                <span className="text-[#e04878] font-semibold cursor-pointer hover:text-[#c22d50] transition-colors">Бүртгүүлэх</span>
-              </Link>
-            </p>
           </div>
 
           <p className="text-center mt-6 text-[11px] text-text-muted/50 tracking-wide">

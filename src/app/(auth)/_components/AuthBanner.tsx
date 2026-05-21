@@ -56,7 +56,7 @@ export default function AuthBanner() {
             src={slide.img}
             alt=""
             fill
-            className="object-cover scale-[1.06] blur-[4px]"
+            className="object-cover scale-[1.06] blur-[20px]"
             priority={i === 0}
           />
         </div>
