@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useState } from "react";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
@@ -9,6 +9,7 @@ interface Props {
 }
 
 export default function AgeVerification({ onVerified }: Props) {
+  const [leaving, setLeaving] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const rafRef = useRef<number | null>(null);
   const fadingOutRef = useRef(false);
@@ -47,7 +48,8 @@ export default function AgeVerification({ onVerified }: Props) {
 
   const handleAccept = () => {
     localStorage.setItem("age_verified", "true");
-    onVerified();
+    setLeaving(true);
+    setTimeout(onVerified, 450);
   };
 
   const handleDecline = () => {
@@ -55,7 +57,10 @@ export default function AgeVerification({ onVerified }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-[99998] flex flex-col items-center justify-center bg-black overflow-hidden px-6">
+    <div
+      className="fixed inset-0 z-[99998] flex flex-col items-center justify-center bg-black overflow-hidden px-6"
+      style={{ transition: "opacity 450ms ease", opacity: leaving ? 0 : 1 }}
+    >
       {/* Background video */}
       <div className="absolute inset-0">
         <video

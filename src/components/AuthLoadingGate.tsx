@@ -38,7 +38,12 @@ export default function AuthLoadingGate({ children }: { children: ReactNode }) {
   }
 
   if (showAgeVerify) {
-    return <AgeVerification onVerified={() => setShowAgeVerify(false)} />;
+    return (
+      <>
+        {children}
+        <AgeVerification onVerified={() => setShowAgeVerify(false)} />
+      </>
+    );
   }
 
   return <>{children}</>;
