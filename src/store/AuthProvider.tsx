@@ -1,7 +1,7 @@
 "use client";
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
 import { authApi, AuthUser } from "@/apis";
-import { clearAuthToken } from "@/utils/request";
+import { clearAuthToken, ApiError } from "@/utils/request";
 
 function isMembershipActive(user: AuthUser | null): boolean {
   if (!user?.membershipExpiresAt) return false;
@@ -26,11 +26,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     authApi.me()
       .then(setUser)
-      .catch(() => setUser(null))
+      .catch((err) => {
+        if (err instanceof ApiError && err.status === 401) clearAuthToken();
+        setUser(null);
+      })
       .finally(() => setLoading(false));
   }, []);
 
-  async function refreshUser() {
+  const refreshUser = useCallback(async () => {
     setLoading(true);
     try {
       const u = await authApi.me();
@@ -40,17 +43,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
-  function loginUser(u: AuthUser) {
+  const loginUser = useCallback((u: AuthUser) => {
     setUser(u);
-  }
+  }, []);
 
-  async function logout() {
+  const logout = useCallback(async () => {
     await authApi.logout().catch(() => { });
     clearAuthToken();
     setUser(null);
-  }
+  }, []);
 
   const membershipActive = isMembershipActive(user);
 

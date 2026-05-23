@@ -47,7 +47,7 @@ interface ActiveInvoice {
 
 export default function PricingPage() {
   const router = useRouter();
-  const { refreshUser } = useAuth();
+  const { refreshUser, user, loading: authLoading } = useAuth();
 
   const [plans, setPlans] = useState<MembershipPlan[]>([]);
   const [plansLoading, setPlansLoading] = useState(true);
@@ -121,6 +121,12 @@ export default function PricingPage() {
   }, [fadeIn]);
 
   useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace("/login");
+    }
+  }, [authLoading, user, router]);
+
+  useEffect(() => {
     membershipApi.getPlans()
       .then(res => {
         setPlans(res.plans);
@@ -131,6 +137,10 @@ export default function PricingPage() {
   }, []);
 
   const handleBuy = async (plan: MembershipPlan) => {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
     setBuyingId(plan._id);
     setError("");
     try {
@@ -142,6 +152,14 @@ export default function PricingPage() {
       setBuyingId(null);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Loader2 size={32} className="animate-spin text-white/40" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black">

@@ -1,5 +1,12 @@
 const BASE_URL = "https://projectm.zuraach.site";
 
+export class ApiError extends Error {
+  constructor(message: string, public status: number) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 export function getAuthToken(): string | null {
   if (typeof window === "undefined") return null;
   return localStorage.getItem("auth_token");
@@ -29,7 +36,7 @@ export async function request<T>(path: string, options?: RequestInit): Promise<T
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    throw new Error(data?.message ?? "Алдаа гарлаа");
+    throw new ApiError(data?.message ?? "Алдаа гарлаа", res.status);
   }
 
   return data as T;
