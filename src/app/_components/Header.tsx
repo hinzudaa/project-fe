@@ -40,8 +40,7 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between h-16 pl-3.5 pr-5 md:pr-7 bg-[rgba(4,2,8,0.7)] backdrop-blur-[32px] backdrop-saturate-[1.4] border-b border-[rgba(255,255,255,0.04)]">
       <Link href="/" className="flex items-center gap-2.5 no-underline">
-        <div><Image src="/logo.png" alt="" width={50} height={50} /></div>
-        <span className="text-[17px] font-bold tracking-[-0.02em] text-text-primary font-serif">Khuslen</span>
+        <div><Image src="/newlogo.png" alt="" width={70} height={50} /></div>
       </Link>
 
       {isLoggedIn ? (

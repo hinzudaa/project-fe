@@ -101,7 +101,7 @@ export default function AgeVerification({ onVerified }: Props) {
           {/* Logo */}
           <div className="flex justify-center">
             <div className="liquid-glass rounded-full p-3">
-              <Image src="/logo.png" alt="Khuslen" width={32} height={32} />
+              <Image src="/newlogo.png" alt="Khuslen" width={32} height={32} />
             </div>
           </div>
 

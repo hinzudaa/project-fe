@@ -6,6 +6,7 @@ import { Globe, ArrowRight, Phone } from "lucide-react";
 import { authApi } from "@/apis";
 import { useAuth } from "@/store/AuthProvider";
 import { setAuthToken } from "@/utils/request";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [phone, setPhone] = useState("");
@@ -159,8 +160,7 @@ export default function LoginPage() {
       <nav className="relative z-20 px-6 py-6">
         <div className="flex items-center max-w-6xl mx-auto">
           <p className="flex items-center gap-2 text-white">
-            <Globe size={22} />
-            <span className="font-semibold text-lg">Khuslen</span>
+            <Image src="/newlogo.png" alt="logo" width={40} height={40}/>
           </p>
         </div>
       </nav>

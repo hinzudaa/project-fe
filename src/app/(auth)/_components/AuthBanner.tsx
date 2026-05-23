@@ -69,7 +69,7 @@ export default function AuthBanner() {
       {/* Logo — shown on both sizes */}
       <div className="absolute top-5 left-5 flex items-center gap-2.5 z-10">
         <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
-          <Image src="/logo.png" alt="" width={36} height={36} className="object-cover" />
+          <Image src="/newlogo.png" alt="" width={36} height={36} className="object-cover" />
         </div>
         <span className="text-[15px] font-bold font-serif text-white drop-shadow-md">Khuslen</span>
       </div>
