@@ -6,7 +6,7 @@ import { NotificationProvider } from "@/store/NotificationProvider";
 import AuthLoadingGate from "@/components/AuthLoadingGate";
 
 export const metadata: Metadata = {
-  title: "Khuslen | Насанд хүрэгчдийн Монголын Нийгэмлэг",
+  title: "Khuslen",
   description: "Насанд хүрэгчдийн Монголын Нийгэмлэг",
 };
 

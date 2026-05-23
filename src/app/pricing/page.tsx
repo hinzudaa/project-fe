@@ -6,7 +6,7 @@ import { membershipApi, MembershipPlan, QPayInvoice } from "@/apis";
 import QPayModal from "@/components/QPayModal";
 import { useAuth } from "@/store/AuthProvider";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "";
+const BASE_URL = "https://projectm.zuraach.site";
 
 function resolveUrl(url?: string) {
   if (!url) return null;
@@ -47,15 +47,8 @@ interface ActiveInvoice {
 
 export default function PricingPage() {
   const router = useRouter();
-  const { refreshUser, user, loading: authLoading } = useAuth();
+  const { refreshUser } = useAuth();
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.replace("/login");
-    }
-  }, [authLoading, user, router]);
-
-  if (authLoading || !user) return null;
   const [plans, setPlans] = useState<MembershipPlan[]>([]);
   const [plansLoading, setPlansLoading] = useState(true);
   const [selected, setSelected] = useState<string>("");
@@ -156,7 +149,8 @@ export default function PricingPage() {
       <div className="fixed inset-0 z-0">
         <video
           ref={videoRef}
-          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_115001_bcdaa3b4-03de-47e7-ad63-ae3e392c32d4.mp4"
+          // src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_115001_bcdaa3b4-03de-47e7-ad63-ae3e392c32d4.mp4"
+          src="https://myvideosgg.b-cdn.net/2a76c1a8-dde3-4812-9836-99231a70c19c.mp4"
           autoPlay
           muted
           playsInline
@@ -225,12 +219,12 @@ export default function PricingPage() {
                   }}
                 >
                   {/* Cover image */}
-                  {imgUrl && (
+                  {/* {imgUrl && (
                     <div className="relative w-full aspect-[16/9] overflow-hidden">
                       <img src={imgUrl} alt={plan.title} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/70" />
                     </div>
-                  )}
+                  )} */}
 
                   <div className="p-6 flex flex-col flex-1 gap-4">
                     {/* Tier + month badges */}
