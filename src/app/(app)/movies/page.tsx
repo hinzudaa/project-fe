@@ -12,13 +12,6 @@ function resolveImg(url?: string | null): string | undefined {
   return `${BASE_URL}${url}`;
 }
 
-function fmtDuration(seconds: number) {
-  if (!seconds) return "";
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  return h > 0 ? `${h} цаг ${m} мин` : `${m} минут`;
-}
-
 function fmtPrice(price: number) {
   return `₮${price.toLocaleString()}`;
 }
@@ -281,7 +274,7 @@ function MovieCard({
           <img
             src={img}
             alt={movie.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 blur-[5px]"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
@@ -323,9 +316,6 @@ function MovieCard({
       <div className="p-3 flex flex-col gap-2">
         <div onClick={() => onClick(movie)}>
           <h3 className="font-bold text-[14px] text-white leading-snug line-clamp-2">{movie.title}</h3>
-          <p className="text-[12px] text-white/50 mt-1">
-            {movie.releaseYear ?? "—"}{movie.duration ? ` · ${fmtDuration(movie.duration)}` : ""}
-          </p>
         </div>
 
         {isOwned ? (
@@ -702,7 +692,6 @@ function MovieDetailModal({
           <h2 className="text-[22px] font-black text-white leading-tight mb-2">{movie.title}</h2>
           <div className="flex items-center gap-3 text-[14px] text-white/50 mb-4">
             {movie.releaseYear && <span>{movie.releaseYear} он</span>}
-            {movie.duration > 0 && <><span>·</span><span>{fmtDuration(movie.duration)}</span></>}
             {movie.genres.length > 0 && <><span>·</span><span className="text-[#e8415a] font-medium">{movie.genres[0]}</span></>}
           </div>
 

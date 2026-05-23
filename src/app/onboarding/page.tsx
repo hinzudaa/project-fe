@@ -473,18 +473,57 @@ function StepCity({ value, onChange }: { value: string; onChange: (v: string) =>
 function StepBirthYear({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 43 }, (_, i) => currentYear - 18 - i);
+  const ITEM_H = 56;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const defaultYear = value ? parseInt(value) : 1995;
+    const idx = years.indexOf(defaultYear);
+    const i = idx >= 0 ? idx : years.indexOf(1995) >= 0 ? years.indexOf(1995) : 8;
+    containerRef.current.scrollTop = i * ITEM_H;
+    if (!value) onChange(String(years[i]));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleScroll = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      if (!containerRef.current) return;
+      const idx = Math.round(containerRef.current.scrollTop / ITEM_H);
+      const clamped = Math.max(0, Math.min(idx, years.length - 1));
+      onChange(String(years[clamped]));
+    }, 80);
+  };
+
+  const selectedYear = value ? parseInt(value) : null;
+
   return (
     <div className="flex-1">
       <h2 className="text-[26px] font-black font-serif mb-2 leading-tight">Төрсөн оноо</h2>
       <p className="text-text-secondary text-[14px] mb-8">18-аас дээш насны хэрэглэгч бүртгүүлэх боломжтой</p>
-      <div className="relative">
-        <select value={value} onChange={e => onChange(e.target.value)}
-          className="w-full px-4 py-3.5 rounded-2xl text-[15px] font-medium text-text-primary outline-none appearance-none cursor-pointer"
-          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", colorScheme: "dark" }}>
-          <option value="">Оноо сонгоно уу...</option>
-          {years.map(y => <option key={y} value={y}>{y} он — {currentYear - y} нас</option>)}
-        </select>
-        <ChevronRight size={16} strokeWidth={2} className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted rotate-90 pointer-events-none" />
+      <style>{`.byr-scroll::-webkit-scrollbar{display:none}`}</style>
+      <div className="relative rounded-2xl overflow-hidden" style={{ height: "280px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)" }}>
+        <div className="absolute top-0 left-0 right-0 z-10 pointer-events-none" style={{ height: "112px", background: "linear-gradient(to bottom, #040208 15%, transparent)" }} />
+        <div className="absolute bottom-0 left-0 right-0 z-10 pointer-events-none" style={{ height: "112px", background: "linear-gradient(to top, #040208 15%, transparent)" }} />
+        <div className="absolute left-4 right-4 z-10 pointer-events-none" style={{ top: "50%", transform: "translateY(-50%)", height: `${ITEM_H}px`, borderTop: "1px solid rgba(255,255,255,0.18)", borderBottom: "1px solid rgba(255,255,255,0.18)" }} />
+        <div
+          ref={containerRef}
+          onScroll={handleScroll}
+          className="byr-scroll h-full overflow-y-auto"
+          style={{ scrollSnapType: "y mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties}
+        >
+          <div style={{ height: "112px" }} />
+          {years.map(y => (
+            <div key={y} style={{ height: `${ITEM_H}px`, scrollSnapAlign: "center" }} className="flex items-center justify-center">
+              <span className={selectedYear === y ? "text-text-primary font-bold text-[18px]" : "text-text-muted text-[15px]"}>
+                {y} он — {currentYear - y} нас
+              </span>
+            </div>
+          ))}
+          <div style={{ height: "112px" }} />
+        </div>
       </div>
     </div>
   );

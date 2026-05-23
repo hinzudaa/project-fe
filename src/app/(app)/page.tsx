@@ -338,7 +338,7 @@ function HomeMovieCard({ movie }: { movie: Movie }) {
             <img
               src={img}
               alt={movie.title}
-              className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${!isOwned ? "blur-[10px] scale-110 opacity-70" : ""}`}
+              className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${!isOwned ? "blur-[5px] scale-110 opacity-70" : ""}`}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-bg-elevated to-bg-card">

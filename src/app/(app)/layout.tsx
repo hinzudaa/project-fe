@@ -13,7 +13,7 @@ const NAV = [
   { href: "/forum", icon: Users, label: "Forum" },
   { href: "/chat", icon: MessageCircle, label: "Чат" },
   { href: "/movies", icon: Film, label: "Бичлэг" },
-  { href: "/games", icon: Gamepad, label: "Тоглоом" },
+  // { href: "/games", icon: Gamepad, label: "Тоглоом" },
 
 ];
 
