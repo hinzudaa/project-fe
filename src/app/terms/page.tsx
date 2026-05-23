@@ -55,7 +55,7 @@ export default function TermsPage() {
             <section className="pt-6 border-t border-white/[0.07]">
               <h2 className="text-[17px] font-semibold text-white mb-3">1. Үйлчилгээний талаар</h2>
               <p>
-                Khuslen нь насанд хүрэгчдэд зориулсан нийгмийн платформ юм. Платформыг ашигласнаар
+                Huslen нь насанд хүрэгчдэд зориулсан нийгмийн платформ юм. Платформыг ашигласнаар
                 та энэхүү үйлчилгээний нөхцөлийг бүрэн хүлээн зөвшөөрч байна гэж үзнэ.
                 Нөхцөлийг зөвшөөрөхгүй бол платформыг ашиглахаас татгалзана уу.
               </p>
@@ -120,7 +120,7 @@ export default function TermsPage() {
               <h2 className="text-[17px] font-semibold text-white mb-3">5. Агуулгын эрх</h2>
               <p>
                 Та платформд байршуулсан агуулгынхаа эрхийг өөртөө хадгална. Гэсэн хэдий ч
-                байршуулснаар та Khuslen-д тухайн агуулгыг платформын хүрээнд үзүүлэх,
+                байршуулснаар та Huslen-д тухайн агуулгыг платформын хүрээнд үзүүлэх,
                 хуваалцах зөвшөөрлийг олгосон гэж үзнэ. Хориотой агуулгыг
                 урьдчилан мэдэгдэлгүйгээр устгах эрхийг бид хадгална.
               </p>
@@ -149,7 +149,7 @@ export default function TermsPage() {
             <section className="pt-6 border-t border-white/[0.07]">
               <h2 className="text-[17px] font-semibold text-white mb-3">7. Хариуцлагын хязгаарлалт</h2>
               <p>
-                Khuslen платформ нь хэрэглэгчдийн хоорондын харилцааны улмаас үүссэн
+                Huslen платформ нь хэрэглэгчдийн хоорондын харилцааны улмаас үүссэн
                 аливаа хохирол, маргааны хариуцлагыг хүлээхгүй. Платформ нь зуучлагчийн
                 үүрэг гүйцэтгэх бөгөөд хэрэглэгч бүр өөрийн үйлдлийн хариуцлагыг хувиараа хүлээнэ.
               </p>
@@ -168,8 +168,8 @@ export default function TermsPage() {
               <h2 className="text-[17px] font-semibold text-white mb-3">9. Холбоо барих</h2>
               <p>
                 Асуулт, гомдол байвал{" "}
-                <a href="mailto:support@khuslen.mn" className="text-white/80 hover:text-white underline underline-offset-2 transition-colors">
-                  support@khuslen.mn
+                <a href="mailto:support@Huslen.mn" className="text-white/80 hover:text-white underline underline-offset-2 transition-colors">
+                  support@Huslen.mn
                 </a>{" "}
                 хаягаар холбогдоно уу.
               </p>
@@ -179,7 +179,7 @@ export default function TermsPage() {
 
           {/* Footer */}
           <div className="mt-12 pt-6 border-t border-white/[0.07] flex flex-col sm:flex-row items-center justify-between gap-4 text-[13px] text-white/30">
-            <span>© 2026 Khuslen. Бүх эрх хуулиар хамгаалагдсан.</span>
+            <span>© 2026 Huslen. Бүх эрх хуулиар хамгаалагдсан.</span>
             <Link href="/privacy" className="text-white/45 hover:text-white/70 transition-colors">
               Нууцлалын бодлого →
             </Link>

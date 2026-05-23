@@ -55,7 +55,7 @@ export default function PrivacyPage() {
             <section className="pt-6 border-t border-white/[0.07]">
               <h2 className="text-[17px] font-semibold text-white mb-3">1. Ерөнхий мэдээлэл</h2>
               <p>
-                Khuslen платформ нь таны хувийн мэдээллийг хуулийн дагуу цуглуулж, хадгалж, ашигладаг.
+                Huslen платформ нь таны хувийн мэдээллийг хуулийн дагуу цуглуулж, хадгалж, ашигладаг.
                 Энэхүү нууцлалын бодлого нь бид таны мэдээллийг хэрхэн цуглуулж, ашиглаж, хамгаалдаг талаар тайлбарласан болно.
               </p>
             </section>
@@ -115,7 +115,7 @@ export default function PrivacyPage() {
             <section className="pt-6 border-t border-white/[0.07]">
               <h2 className="text-[17px] font-semibold text-white mb-3">6. Насны хязгаарлалт</h2>
               <p>
-                Khuslen платформ нь зөвхөн{" "}
+                Huslen платформ нь зөвхөн{" "}
                 <span className="text-white font-medium">18 ба түүнээс дээш насны хүмүүст</span>{" "}
                 зориулагдсан. 18 насанд хүрээгүй хүн бүртгүүлэх эрхгүй бөгөөд бид ийм хэрэглэгчийн
                 аккаунтыг илрүүлсэн тохиолдолд нэн даруй устгах эрхтэй.
@@ -136,15 +136,15 @@ export default function PrivacyPage() {
                   </li>
                 ))}
               </ul>
-              <p>Эдгээр эрхтэй холбоотой хүсэлтийг support@khuslen.mn хаягаар илгээнэ үү.</p>
+              <p>Эдгээр эрхтэй холбоотой хүсэлтийг support@Huslen.mn хаягаар илгээнэ үү.</p>
             </section>
 
             <section className="pt-6 border-t border-white/[0.07]">
               <h2 className="text-[17px] font-semibold text-white mb-3">8. Холбоо барих</h2>
               <p>
                 Нууцлалын бодлоготой холбоотой асуулт, санал гомдол байвал{" "}
-                <a href="mailto:support@khuslen.mn" className="text-white/80 hover:text-white underline underline-offset-2 transition-colors">
-                  support@khuslen.mn
+                <a href="mailto:support@Huslen.mn" className="text-white/80 hover:text-white underline underline-offset-2 transition-colors">
+                  support@Huslen.mn
                 </a>{" "}
                 хаягаар холбогдоно уу.
               </p>
@@ -154,7 +154,7 @@ export default function PrivacyPage() {
 
           {/* Footer */}
           <div className="mt-12 pt-6 border-t border-white/[0.07] flex flex-col sm:flex-row items-center justify-between gap-4 text-[13px] text-white/30">
-            <span>© 2026 Khuslen. Бүх эрх хуулиар хамгаалагдсан.</span>
+            <span>© 2026 Huslen. Бүх эрх хуулиар хамгаалагдсан.</span>
             <Link href="/terms" className="text-white/45 hover:text-white/70 transition-colors">
               Үйлчилгээний нөхцөл →
             </Link>

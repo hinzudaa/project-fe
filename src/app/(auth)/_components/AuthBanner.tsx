@@ -71,7 +71,7 @@ export default function AuthBanner() {
         <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
           <Image src="/newlogo.png" alt="" width={36} height={36} className="object-cover" />
         </div>
-        <span className="text-[15px] font-bold font-serif text-white drop-shadow-md">Khuslen</span>
+        <span className="text-[15px] font-bold font-serif text-white drop-shadow-md">Huslen</span>
       </div>
 
       {/* Slide dots — top right */}

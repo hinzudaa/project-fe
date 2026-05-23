@@ -109,13 +109,13 @@ export default function SplashScreen({ onDone }: { onDone?: () => void } = {}) {
       {/* Brand */}
       <div className="relative z-10 flex flex-col items-center gap-5">
         <div className="liquid-glass rounded-full p-4">
-          <Image src="/newlogo.png" alt="Khuslen" width={40} height={40} />
+          <Image src="/newlogo.png" alt="Huslen" width={40} height={40} />
         </div>
         <h1
           className="text-5xl text-white tracking-tight leading-none"
           style={{ fontFamily: "'Instrument Serif', serif" }}
         >
-          Khuslen
+          Huslen
         </h1>
         <div className="flex items-center gap-2 mt-1">
           <div className="w-1 h-1 rounded-full bg-white/40 animate-pulse" style={{ animationDelay: "0ms" }} />
