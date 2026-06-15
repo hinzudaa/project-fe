@@ -120,6 +120,8 @@ function LikeCard({ entry }: { entry: LikeEntry }) {
         <img
           src={avatarSrc}
           alt={displayName}
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
       ) : (

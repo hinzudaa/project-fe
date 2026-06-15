@@ -100,7 +100,7 @@ function PersonaCard({ persona, onOpen }: { persona: AIHuman; onOpen: (p: AIHuma
     >
       <div className="relative h-52 bg-bg-elevated overflow-hidden">
         {avatarUrl ? (
-          <img src={avatarUrl} alt={persona.name} className="w-full h-full object-cover" />
+          <img src={avatarUrl} alt={persona.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-5xl bg-[linear-gradient(135deg,rgba(200,37,74,0.2),rgba(155,89,255,0.2))]">
             🤖

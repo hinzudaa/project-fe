@@ -1,10 +1,7 @@
-"use client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import BackButton from "@/components/BackButton";
 
 export default function PrivacyPage() {
-  const router = useRouter();
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Fixed video background */}
@@ -24,13 +21,7 @@ export default function PrivacyPage() {
       {/* Top bar */}
       <nav className="relative z-20 px-6 py-6">
         <div className="max-w-[820px] mx-auto">
-          <button
-            onClick={() => router.back()}
-            className="liquid-glass rounded-full pl-3 pr-5 py-2 inline-flex items-center gap-2 text-white/80 hover:text-white text-sm font-medium transition-colors"
-          >
-            <ArrowLeft size={16} />
-            <span>Буцах</span>
-          </button>
+          <BackButton />
         </div>
       </nav>
 
@@ -42,7 +33,7 @@ export default function PrivacyPage() {
           <div className="mb-10">
             <h1
               className="text-4xl md:text-5xl text-white mb-2 tracking-tight leading-[1.05]"
-              style={{ fontFamily: "'Instrument Serif', serif" }}
+              style={{ fontFamily: "var(--font-instrument), serif" }}
             >
               Нууцлалын <em className="italic">бодлого</em>.
             </h1>

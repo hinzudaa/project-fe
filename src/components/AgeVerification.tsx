@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback, useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
@@ -11,40 +11,7 @@ interface Props {
 export default function AgeVerification({ onVerified }: Props) {
   const [leaving, setLeaving] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const rafRef = useRef<number | null>(null);
   const fadingOutRef = useRef(false);
-
-  const fadeVideoIn = useCallback(() => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    const video = videoRef.current;
-    if (!video) return;
-    const from = parseFloat(video.style.opacity || "0");
-    const start = performance.now();
-    const step = (now: number) => {
-      const t = Math.min((now - start) / 600, 1);
-      video.style.opacity = String(from + (1 - from) * t);
-      if (t < 1) rafRef.current = requestAnimationFrame(step);
-      else rafRef.current = null;
-    };
-    rafRef.current = requestAnimationFrame(step);
-  }, []);
-
-  const fadeVideoOut = useCallback(() => {
-    if (fadingOutRef.current) return;
-    fadingOutRef.current = true;
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    const video = videoRef.current;
-    if (!video) return;
-    const from = parseFloat(video.style.opacity || "1");
-    const start = performance.now();
-    const step = (now: number) => {
-      const t = Math.min((now - start) / 500, 1);
-      video.style.opacity = String(from * (1 - t));
-      if (t < 1) rafRef.current = requestAnimationFrame(step);
-      else rafRef.current = null;
-    };
-    rafRef.current = requestAnimationFrame(step);
-  }, []);
 
   const handleAccept = () => {
     localStorage.setItem("age_verified", "true");
@@ -61,29 +28,35 @@ export default function AgeVerification({ onVerified }: Props) {
       className="fixed inset-0 z-[99998] flex flex-col items-center justify-center bg-black overflow-hidden px-6"
       style={{ transition: "opacity 450ms ease", opacity: leaving ? 0 : 1 }}
     >
-      {/* Background video */}
+      {/* Background video — opacity fades via CSS transition (compositor), no per-frame JS */}
       <div className="absolute inset-0">
         <video
           ref={videoRef}
-          // src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_115001_bcdaa3b4-03de-47e7-ad63-ae3e392c32d4.mp4"
           src="https://myvideosgg.b-cdn.net/2a76c1a8-dde3-4812-9836-99231a70c19c.mp4"
           autoPlay
           muted
           playsInline
+          onCanPlay={() => {
+            fadingOutRef.current = false;
+            if (videoRef.current) videoRef.current.style.opacity = "1";
+          }}
           onTimeUpdate={() => {
             const v = videoRef.current;
             if (!v || fadingOutRef.current || !v.duration) return;
-            if (v.duration - v.currentTime <= 0.55) fadeVideoOut();
+            if (v.duration - v.currentTime <= 0.55) {
+              fadingOutRef.current = true;
+              v.style.opacity = "0";
+            }
           }}
           onEnded={() => {
             const v = videoRef.current;
             if (!v) return;
-            v.style.opacity = "0";
             fadingOutRef.current = false;
-            setTimeout(() => { v.currentTime = 0; v.play(); fadeVideoIn(); }, 100);
+            v.currentTime = 0;
+            v.play();
+            v.style.opacity = "1";
           }}
-          onCanPlay={() => fadeVideoIn()}
-          style={{ opacity: 0 }}
+          style={{ opacity: 0, transition: "opacity 500ms ease" }}
           className="absolute inset-0 w-full h-full object-cover translate-y-[17%]"
         />
         <div className="absolute inset-0 bg-black/55" />
@@ -110,7 +83,7 @@ export default function AgeVerification({ onVerified }: Props) {
           <div className="space-y-2">
             <h1
               className="text-4xl text-white tracking-tight leading-[1.05]"
-              style={{ fontFamily: "'Instrument Serif', serif" }}
+              style={{ fontFamily: "var(--font-instrument), serif" }}
             >
               Насны <em className="italic">баталгаа</em>.
             </h1>

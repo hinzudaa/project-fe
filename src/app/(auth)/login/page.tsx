@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Phone, User, Lock } from "lucide-react";
 import { authApi } from "@/apis";
@@ -24,68 +24,7 @@ export default function LoginPage() {
   const router = useRouter();
 
   const videoRef = useRef<HTMLVideoElement>(null);
-  const fadeRef = useRef<number | null>(null);
   const fadingOutRef = useRef(false);
-
-  const fadeIn = useCallback(() => {
-    if (fadeRef.current) cancelAnimationFrame(fadeRef.current);
-    const video = videoRef.current;
-    if (!video) return;
-    const startOpacity = parseFloat(video.style.opacity || "0");
-    const startTime = performance.now();
-    const animate = (now: number) => {
-      const progress = Math.min((now - startTime) / 500, 1);
-      video.style.opacity = String(startOpacity + (1 - startOpacity) * progress);
-      if (progress < 1) {
-        fadeRef.current = requestAnimationFrame(animate);
-      } else {
-        fadeRef.current = null;
-      }
-    };
-    fadeRef.current = requestAnimationFrame(animate);
-  }, []);
-
-  const fadeOut = useCallback(() => {
-    if (fadingOutRef.current) return;
-    fadingOutRef.current = true;
-    if (fadeRef.current) cancelAnimationFrame(fadeRef.current);
-    const video = videoRef.current;
-    if (!video) return;
-    const startOpacity = parseFloat(video.style.opacity || "1");
-    const startTime = performance.now();
-    const animate = (now: number) => {
-      const progress = Math.min((now - startTime) / 500, 1);
-      video.style.opacity = String(startOpacity * (1 - progress));
-      if (progress < 1) {
-        fadeRef.current = requestAnimationFrame(animate);
-      } else {
-        fadeRef.current = null;
-      }
-    };
-    fadeRef.current = requestAnimationFrame(animate);
-  }, []);
-
-  const handleTimeUpdate = useCallback(() => {
-    const video = videoRef.current;
-    if (!video || fadingOutRef.current || !video.duration) return;
-    if (video.duration - video.currentTime <= 0.55) fadeOut();
-  }, [fadeOut]);
-
-  const handleEnded = useCallback(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.style.opacity = "0";
-    fadingOutRef.current = false;
-    setTimeout(() => {
-      video.currentTime = 0;
-      video.play();
-      fadeIn();
-    }, 100);
-  }, [fadeIn]);
-
-  const handleCanPlay = useCallback(() => {
-    fadeIn();
-  }, [fadeIn]);
 
   useEffect(() => {
     if (step !== "sms" || !verificationId) return;
@@ -160,16 +99,31 @@ export default function LoginPage() {
       <div className="absolute inset-0 z-0">
         <video
           ref={videoRef}
-          // src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_115001_bcdaa3b4-03de-47e7-ad63-ae3e392c32d4.mp4"
-          // src="video.mp4"
           src="https://myvideosgg.b-cdn.net/2a76c1a8-dde3-4812-9836-99231a70c19c.mp4"
           autoPlay
           muted
           playsInline
-          onTimeUpdate={handleTimeUpdate}
-          onEnded={handleEnded}
-          onCanPlay={handleCanPlay}
-          style={{ opacity: 0 }}
+          onCanPlay={() => {
+            fadingOutRef.current = false;
+            if (videoRef.current) videoRef.current.style.opacity = "1";
+          }}
+          onTimeUpdate={() => {
+            const v = videoRef.current;
+            if (!v || fadingOutRef.current || !v.duration) return;
+            if (v.duration - v.currentTime <= 0.55) {
+              fadingOutRef.current = true;
+              v.style.opacity = "0";
+            }
+          }}
+          onEnded={() => {
+            const v = videoRef.current;
+            if (!v) return;
+            fadingOutRef.current = false;
+            v.currentTime = 0;
+            v.play();
+            v.style.opacity = "1";
+          }}
+          style={{ opacity: 0, transition: "opacity 500ms ease" }}
           className="absolute inset-0 w-full h-full object-cover translate-y-[17%]"
         />
         <div className="absolute inset-0 bg-black/50" />
@@ -219,7 +173,7 @@ export default function LoginPage() {
               <header className="space-y-2">
                 <h1
                   className="text-4xl md:text-5xl leading-[1.05] tracking-tight text-white"
-                  style={{ fontFamily: "'Instrument Serif', serif" }}
+                  style={{ fontFamily: "var(--font-instrument), serif" }}
                 >
                   Тавтай <em className="italic">морилно уу</em>.
                 </h1>
@@ -346,7 +300,7 @@ export default function LoginPage() {
               <header className="space-y-2 text-center">
                 <h1
                   className="text-4xl leading-[1.05] tracking-tight text-white"
-                  style={{ fontFamily: "'Instrument Serif', serif" }}
+                  style={{ fontFamily: "var(--font-instrument), serif" }}
                 >
                   SMS <em className="italic">илгээх</em>.
                 </h1>

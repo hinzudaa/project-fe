@@ -145,34 +145,6 @@ export default function MoviesPage() {
           </div>
         )}
 
-        {/* Genre filter */}
-        <div className="mb-6">
-          <p className="text-[13px] text-white/50 mb-3 font-medium">Төрлөөр шүүх:</p>
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-            <button
-              onClick={() => setGenre("")}
-              className={`px-4 py-2 rounded-xl text-[14px] font-bold whitespace-nowrap transition-all border ${!genre
-                ? "bg-[#e8415a] border-[#e8415a] text-white"
-                : "bg-white/[0.05] border-white/[0.12] text-white/70 hover:bg-white/[0.1]"
-                }`}
-            >
-              Бүгд
-            </button>
-            {genres.map(g => (
-              <button
-                key={g}
-                onClick={() => setGenre(g)}
-                className={`px-4 py-2 rounded-xl text-[14px] font-bold whitespace-nowrap transition-all border ${genre === g
-                  ? "bg-[#e8415a] border-[#e8415a] text-white"
-                  : "bg-white/[0.05] border-white/[0.12] text-white/70 hover:bg-white/[0.1]"
-                  }`}
-              >
-                {g}
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Movie grid */}
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-32 gap-4">
@@ -274,6 +246,8 @@ function MovieCard({
           <img
             src={img}
             alt={movie.title}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 blur-[5px]"
           />
         ) : (

@@ -1,9 +1,34 @@
 import type { Metadata } from "next";
+import { DM_Sans, Playfair_Display, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import Header from "./_components/Header";
 import { AuthProvider } from "@/store/AuthProvider";
 import { NotificationProvider } from "@/store/NotificationProvider";
 import AuthLoadingGate from "@/components/AuthLoadingGate";
+
+// Self-hosted via next/font — no render-blocking cross-origin request, metric-based
+// fallback to cut layout shift. (DM Sans / Instrument Serif have no Cyrillic cut, so
+// Mongolian text falls back to system fonts exactly as before.)
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-dm-sans",
+  display: "swap",
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["700", "900"],
+  variable: "--font-playfair",
+  display: "swap",
+});
+
+const instrument = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-instrument",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Huslen",
@@ -12,12 +37,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="mn" data-scroll-behavior="smooth">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
-      </head>
+    <html
+      lang="mn"
+      data-scroll-behavior="smooth"
+      className={`${dmSans.variable} ${playfair.variable} ${instrument.variable}`}
+    >
       <body>
         <AuthProvider>
           <NotificationProvider>

@@ -36,7 +36,7 @@ function AuthorAvatar({ author, size = 32 }: { author: { name?: string; username
   return (
     <div className="rounded-full overflow-hidden flex items-center justify-center font-bold text-white shrink-0"
       style={{ width: size, height: size, fontSize: size * 0.38, background: "linear-gradient(135deg,#c8254a,#780f20)" }}>
-      {src ? <img src={src} className="w-full h-full object-cover" alt="" /> : letter}
+      {src ? <img src={src} loading="lazy" decoding="async" className="w-full h-full object-cover" alt="" /> : letter}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
 export default function SplashScreen({ onDone }: { onDone?: () => void } = {}) {
@@ -8,58 +8,7 @@ export default function SplashScreen({ onDone }: { onDone?: () => void } = {}) {
   const [fadeOut, setFadeOut] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
-  const rafRef = useRef<number | null>(null);
   const fadingOutRef = useRef(false);
-
-  const fadeVideoIn = useCallback(() => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    const video = videoRef.current;
-    if (!video) return;
-    const startOpacity = parseFloat(video.style.opacity || "0");
-    const startTime = performance.now();
-    const animate = (now: number) => {
-      const progress = Math.min((now - startTime) / 600, 1);
-      video.style.opacity = String(startOpacity + (1 - startOpacity) * progress);
-      if (progress < 1) rafRef.current = requestAnimationFrame(animate);
-      else rafRef.current = null;
-    };
-    rafRef.current = requestAnimationFrame(animate);
-  }, []);
-
-  const fadeVideoOut = useCallback(() => {
-    if (fadingOutRef.current) return;
-    fadingOutRef.current = true;
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    const video = videoRef.current;
-    if (!video) return;
-    const startOpacity = parseFloat(video.style.opacity || "1");
-    const startTime = performance.now();
-    const animate = (now: number) => {
-      const progress = Math.min((now - startTime) / 500, 1);
-      video.style.opacity = String(startOpacity * (1 - progress));
-      if (progress < 1) rafRef.current = requestAnimationFrame(animate);
-      else rafRef.current = null;
-    };
-    rafRef.current = requestAnimationFrame(animate);
-  }, []);
-
-  const handleTimeUpdate = useCallback(() => {
-    const video = videoRef.current;
-    if (!video || fadingOutRef.current || !video.duration) return;
-    if (video.duration - video.currentTime <= 0.55) fadeVideoOut();
-  }, [fadeVideoOut]);
-
-  const handleEnded = useCallback(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.style.opacity = "0";
-    fadingOutRef.current = false;
-    setTimeout(() => {
-      video.currentTime = 0;
-      video.play();
-      fadeVideoIn();
-    }, 100);
-  }, [fadeVideoIn]);
 
   useEffect(() => {
     const out = setTimeout(() => setFadeOut(true), 2400);
@@ -70,7 +19,6 @@ export default function SplashScreen({ onDone }: { onDone?: () => void } = {}) {
     return () => {
       clearTimeout(out);
       clearTimeout(remove);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [onDone]);
 
@@ -81,19 +29,35 @@ export default function SplashScreen({ onDone }: { onDone?: () => void } = {}) {
       className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-black overflow-hidden"
       style={{ transition: "opacity 500ms ease", opacity: fadeOut ? 0 : 1 }}
     >
-      {/* Background video */}
+      {/* Background video — opacity fades via CSS transition (compositor), no per-frame JS */}
       <div className="absolute inset-0">
         <video
           ref={videoRef}
-          // src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_115001_bcdaa3b4-03de-47e7-ad63-ae3e392c32d4.mp4"
           src="https://myvideosgg.b-cdn.net/2a76c1a8-dde3-4812-9836-99231a70c19c.mp4"
           autoPlay
           muted
           playsInline
-          onTimeUpdate={handleTimeUpdate}
-          onEnded={handleEnded}
-          onCanPlay={() => fadeVideoIn()}
-          style={{ opacity: 0 }}
+          onCanPlay={() => {
+            fadingOutRef.current = false;
+            if (videoRef.current) videoRef.current.style.opacity = "1";
+          }}
+          onTimeUpdate={() => {
+            const v = videoRef.current;
+            if (!v || fadingOutRef.current || !v.duration) return;
+            if (v.duration - v.currentTime <= 0.55) {
+              fadingOutRef.current = true;
+              v.style.opacity = "0";
+            }
+          }}
+          onEnded={() => {
+            const v = videoRef.current;
+            if (!v) return;
+            fadingOutRef.current = false;
+            v.currentTime = 0;
+            v.play();
+            v.style.opacity = "1";
+          }}
+          style={{ opacity: 0, transition: "opacity 500ms ease" }}
           className="absolute inset-0 w-full h-full object-cover translate-y-[17%]"
         />
         <div className="absolute inset-0 bg-black/55" />
@@ -114,7 +78,7 @@ export default function SplashScreen({ onDone }: { onDone?: () => void } = {}) {
         </div>
         <h1
           className="text-5xl text-white tracking-tight leading-none"
-          style={{ fontFamily: "'Instrument Serif', serif" }}
+          style={{ fontFamily: "var(--font-instrument), serif" }}
         >
           Huslen
         </h1>

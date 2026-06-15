@@ -1,5 +1,3 @@
-"use client";
-
 const GAMES = [
   { title: "Үг Таавар", emoji: "🔤", genre: "Хэл", players: 1240, desc: "Монгол хэлний 5 үсэгтэй үгийг 6 оролдлогоор тааварла. Wordle загварт тоглоом.", color: "#e8415a", available: true },
   { title: "Дурын Асуулт", emoji: "❓", genre: "Нийгмийн", players: 867, desc: "Тандашгүй асуултуудад хариулж, бусад тоглогчидтой харьцуул. Хамтдаа инэмсэглэ.", color: "#9b59ff", available: true },
@@ -35,12 +33,13 @@ export default function GamesPage() {
         </button>
       </div>
 
-      {/* Games grid */}
+      {/* Games grid — hover border tint via CSS variable (no JS) */}
       <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
         {GAMES.map((g, i) => (
-          <div key={i} className={`bg-bg-card border border-white/[0.06] rounded-[22px] p-6 relative transition-all duration-[250ms] ${g.available ? "opacity-100" : "opacity-70"}`}
-            onMouseEnter={e => g.available && (e.currentTarget.style.borderColor = `${g.color}40`)}
-            onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)")}
+          <div
+            key={i}
+            style={{ "--game-border": `${g.color}40` } as React.CSSProperties}
+            className={`bg-bg-card border border-white/[0.06] rounded-[22px] p-6 relative transition-colors duration-[250ms] ${g.available ? "opacity-100 hover:[border-color:var(--game-border)]" : "opacity-70"}`}
           >
             {!g.available && (
               <div className="absolute inset-0 flex items-center justify-center rounded-[inherit] backdrop-blur-[2px] z-[2] bg-[rgba(10,10,15,0.5)]">

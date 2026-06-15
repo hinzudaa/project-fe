@@ -16,8 +16,8 @@
   --color-green: #1f9e60;
   --color-blue: #1d60bb;
 
-  --font-serif: "Playfair Display", serif;
-  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-serif: var(--font-playfair), serif;
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
 
   --animate-orb-drift: orb-drift 16s ease-in-out infinite;
   --animate-orb-drift-rev: orb-drift 22s ease-in-out infinite reverse;
@@ -161,7 +161,7 @@ input:-webkit-autofill {
   body {
     background: var(--bg-primary);
     color: var(--text-primary);
-    font-family: "DM Sans", system-ui, sans-serif;
+    font-family: var(--font-dm-sans), system-ui, sans-serif;
     font-size: 15px;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
@@ -171,4 +171,17 @@ input:-webkit-autofill {
   ::-webkit-scrollbar-track { background: var(--bg-primary); }
   ::-webkit-scrollbar-thumb { background: rgba(158,24,56,0.5); border-radius: 2px; }
   ::selection { background: rgba(158,24,56,0.4); color: var(--text-primary); }
+}
+
+/* Honor the OS "reduce motion" setting: silence always-on decorative
+   animations (orbs, pulses) so low-end / battery-saving devices don't burn frames. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
