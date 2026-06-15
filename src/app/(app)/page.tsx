@@ -1,6 +1,6 @@
 "use client";
 import useSWR from "swr";
-import { Film, Flame, Heart, Zap, Lock, Loader2, CheckCircle, ChevronRight, MessageSquare, Play, Users } from "lucide-react";
+import { Film, Flame, Heart, Zap, Lock, Loader2, CheckCircle, ChevronRight, MessageSquare, Play, Users, Tv2Icon } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/store/AuthProvider";
 import { swipeApi, SwipeUser, SwipeQuota, movieApi, Movie } from "@/apis";
@@ -255,8 +255,8 @@ export default function DashboardPage() {
         {[
           { label: "Roleplay", href: "/roleplay", icon: Play, emoji: "🎭", color: "#a06de0", bg: "rgba(160,109,224,0.1)" },
           { label: "Forum", href: "/forum", icon: MessageSquare, emoji: "💬", color: "#e8415a", bg: "rgba(232,65,90,0.1)" },
-          { label: "Games", href: "/games", icon: Zap, emoji: "🎮", color: "#3cc878", bg: "rgba(60,200,120,0.1)" },
           { label: "Chat", href: "/chat", icon: MessageSquare, emoji: "📨", color: "#3c9be8", bg: "rgba(60,155,232,0.1)" },
+          { label: "Бичлэг", href: "/movies", icon: Tv2Icon, emoji: "🍿", color: "#3c9be8", bg: "rgba(60,155,232,0.1)" }
         ].map((item, i) => {
           const Icon = item.icon;
           return (
