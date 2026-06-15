@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useRef, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Globe, ArrowRight, Phone } from "lucide-react";
+import { ArrowRight, Phone, User, Lock } from "lucide-react";
 import { authApi } from "@/apis";
 import { useAuth } from "@/store/AuthProvider";
 import { setAuthToken } from "@/utils/request";
@@ -15,6 +15,9 @@ export default function RegisterPage() {
   const [destination, setDestination] = useState("");
   const [smsCode, setSmsCode] = useState("");
   const [step, setStep] = useState<"phone" | "sms">("phone");
+  const [method, setMethod] = useState<"phone" | "credentials">("phone");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { loginUser } = useAuth();
@@ -135,6 +138,22 @@ export default function RegisterPage() {
     }
   };
 
+  const handleCredentialSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      const res = await authApi.registerWithCredentials({ username, password });
+      if (res.token) setAuthToken(res.token);
+      loginUser(res.user);
+      router.push("/");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Алдаа гарлаа");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black overflow-hidden relative flex flex-col">
       {/* Background video */}
@@ -177,16 +196,21 @@ export default function RegisterPage() {
         <div className="relative w-full max-w-md">
           {step === "phone" ? (
             <div className="pane-in liquid-glass-card rounded-[28px] p-7 md:p-9 space-y-6">
-              {/* Segmented toggle */}
+              {/* Method toggle */}
               <div className="liquid-glass rounded-full p-1 flex items-center">
                 <button
-                  onClick={() => router.push("/login")}
-                  className="relative z-[1] flex-1 text-sm font-medium rounded-full px-5 py-2 text-white/70 hover:text-white transition-colors"
+                  type="button"
+                  onClick={() => { setMethod("phone"); setError(""); }}
+                  className={`relative z-[1] flex-1 text-sm font-medium rounded-full px-5 py-2 transition-colors ${method === "phone" ? "bg-white text-black" : "text-white/70 hover:text-white"}`}
                 >
-                  Нэвтрэх
+                  Утсаар
                 </button>
-                <button className="relative z-[1] flex-1 text-sm font-medium rounded-full px-5 py-2 bg-white text-black transition-colors">
-                  Бүртгүүлэх
+                <button
+                  type="button"
+                  onClick={() => { setMethod("credentials"); setError(""); }}
+                  className={`relative z-[1] flex-1 text-sm font-medium rounded-full px-5 py-2 transition-colors ${method === "credentials" ? "bg-white text-black" : "text-white/70 hover:text-white"}`}
+                >
+                  Нэвтрэх нэрээр
                 </button>
               </div>
 
@@ -199,48 +223,114 @@ export default function RegisterPage() {
                   Аяллаа <em className="italic">эхлүүлье</em>.
                 </h1>
                 <p className="text-white/55 text-sm leading-relaxed">
-                  Утасны дугаараа оруулж бүртгэл үүсгэнэ үү.
+                  {method === "phone"
+                    ? "Утасны дугаараа оруулж бүртгэл үүсгэнэ үү."
+                    : "Нэвтрэх нэр, нууц үг үүсгэж бүртгүүлнэ үү."}
                 </p>
               </header>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Phone field */}
-                <label className="block">
-                  <div className="field-row flex items-center gap-3">
-                    <Phone size={18} className="text-white/45 shrink-0" />
-                    <input
-                      className="field-input"
-                      type="tel"
-                      placeholder="+976 8014 2409"
-                      value={phone}
-                      onChange={e => setPhone(e.target.value)}
-                      required
-                      autoFocus
-                      autoComplete="tel"
-                    />
-                  </div>
-                </label>
+              {method === "phone" ? (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Phone field */}
+                  <label className="block">
+                    <div className="field-row flex items-center gap-3">
+                      <Phone size={18} className="text-white/45 shrink-0" />
+                      <input
+                        className="field-input"
+                        type="tel"
+                        placeholder="+976 8014 2409"
+                        value={phone}
+                        onChange={e => setPhone(e.target.value)}
+                        required
+                        autoFocus
+                        autoComplete="tel"
+                      />
+                    </div>
+                  </label>
 
-                {error && (
-                  <p className="text-[13px] text-red-300/80 text-center">{error}</p>
-                )}
-
-                {/* Submit */}
-                <button
-                  type="submit"
-                  disabled={phone.length < 8 || loading}
-                  className="group w-full rounded-full bg-white text-black py-3.5 px-6 text-sm font-semibold inline-flex items-center justify-center gap-2 hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? (
-                    <span>Түр хүлээнэ үү...</span>
-                  ) : (
-                    <>
-                      <span>Бүртгүүлэх</span>
-                      <ArrowRight size={16} className="-mr-1 transition-transform group-hover:translate-x-0.5" />
-                    </>
+                  {error && (
+                    <p className="text-[13px] text-red-300/80 text-center">{error}</p>
                   )}
-                </button>
-              </form>
+
+                  {/* Submit */}
+                  <button
+                    type="submit"
+                    disabled={phone.length < 8 || loading}
+                    className="group w-full rounded-full bg-white text-black py-3.5 px-6 text-sm font-semibold inline-flex items-center justify-center gap-2 hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? (
+                      <span>Түр хүлээнэ үү...</span>
+                    ) : (
+                      <>
+                        <span>Бүртгүүлэх</span>
+                        <ArrowRight size={16} className="-mr-1 transition-transform group-hover:translate-x-0.5" />
+                      </>
+                    )}
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleCredentialSubmit} className="space-y-6">
+                  {/* Username field */}
+                  <label className="block">
+                    <div className="field-row flex items-center gap-3">
+                      <User size={18} className="text-white/45 shrink-0" />
+                      <input
+                        className="field-input"
+                        type="text"
+                        placeholder="Нэвтрэх нэр"
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
+                        required
+                        autoFocus
+                        autoComplete="username"
+                      />
+                    </div>
+                  </label>
+
+                  {/* Password field */}
+                  <label className="block">
+                    <div className="field-row flex items-center gap-3">
+                      <Lock size={18} className="text-white/45 shrink-0" />
+                      <input
+                        className="field-input"
+                        type="password"
+                        placeholder="Нууц үг (4+ тэмдэгт)"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        required
+                        autoComplete="new-password"
+                      />
+                    </div>
+                  </label>
+
+                  {error && (
+                    <p className="text-[13px] text-red-300/80 text-center">{error}</p>
+                  )}
+
+                  {/* Submit */}
+                  <button
+                    type="submit"
+                    disabled={username.trim().length < 3 || password.length < 4 || loading}
+                    className="group w-full rounded-full bg-white text-black py-3.5 px-6 text-sm font-semibold inline-flex items-center justify-center gap-2 hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? (
+                      <span>Түр хүлээнэ үү...</span>
+                    ) : (
+                      <>
+                        <span>Бүртгүүлэх</span>
+                        <ArrowRight size={16} className="-mr-1 transition-transform group-hover:translate-x-0.5" />
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
+
+              <p className="text-[13px] text-white/55 text-center">
+                Бүртгэлтэй юу?{" "}
+                <Link href="/login" className="text-white hover:underline underline-offset-2 transition-colors">
+                  Нэвтрэх
+                </Link>
+              </p>
 
               <p className="text-[11.5px] leading-relaxed text-white/40 text-center">
                 Үргэлжлүүлснээр та манай{" "}

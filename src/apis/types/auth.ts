@@ -37,3 +37,12 @@ export interface AuthResponse {
   user: AuthUser;
   phoneVerification?: PhoneVerification;
 }
+
+/** Returned by the credential (username/password) login & register endpoints. */
+export interface CredentialAuthResponse {
+  tokenType: string;
+  token: string;
+  refreshToken?: string;
+  sessionScope: string;
+  user: AuthUser;
+}

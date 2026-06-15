@@ -1,5 +1,5 @@
 import { request } from "@/utils/request";
-import { AuthResponse, AuthUser, PhoneInitResponse, PhoneStatusResponse } from "../types/auth";
+import { AuthResponse, AuthUser, CredentialAuthResponse, PhoneInitResponse, PhoneStatusResponse } from "../types/auth";
 
 export const authApi = {
   login: (body: { phone: string }) =>
@@ -10,6 +10,18 @@ export const authApi = {
 
   register: (body: { phone: string; gender: string }) =>
     request<PhoneInitResponse>("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  loginWithCredentials: (body: { username: string; password: string }) =>
+    request<CredentialAuthResponse>("/auth/credentials/login", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  registerWithCredentials: (body: { username: string; password: string }) =>
+    request<CredentialAuthResponse>("/auth/credentials/register", {
       method: "POST",
       body: JSON.stringify(body),
     }),
