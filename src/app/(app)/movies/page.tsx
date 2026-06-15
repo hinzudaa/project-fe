@@ -639,7 +639,7 @@ function MovieDetailModal({
         {/* Poster — always clear, never blurred */}
         <div className="relative aspect-[16/9] bg-[#1f1a25] overflow-hidden">
           {img ? (
-            <img src={img} alt={movie.title} className="w-full h-full object-cover" />
+            <img src={img} alt={movie.title} className="w-full h-full object-cover blur-[5px]" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <Film size={56} className="text-white/10" />
