@@ -39,7 +39,6 @@ export default function Header() {
 
   return (
     <header className="md:left-[264px] fixed top-0 left-0 right-0 z-30 flex items-center justify-between h-16 px-6 md:px-10 bg-[rgba(11,9,11,0.55)] backdrop-blur-[14px] border-b border-white/5">
-      {/* Left side: Search bar on desktop, Logo on mobile */}
       <div className="hidden md:flex items-center gap-2.5 px-4 py-2.5 rounded-[14px] bg-white/5 border border-white/8 w-[340px]">
         <Search size={18} className="text-[#F6F0F3]/50" />
         <input
@@ -50,9 +49,8 @@ export default function Header() {
       </div>
 
       <Link href="/" className="md:hidden flex items-center gap-2.5 no-underline shrink-0">
-        <Image src="/newlogo.png" alt="huslen" width={70} height={50} />
+        <span className="font-cursive text-[40px] leading-[0.9] bg-gradient-to-br from-[#FF5C8A] to-[#FF2D55] bg-clip-text text-transparent select-none">Huslen</span>
       </Link>
-
       {isLoggedIn ? (
         <div className="flex items-center gap-3">
           {/* Notifications Bell */}

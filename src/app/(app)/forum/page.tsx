@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Loader2, Send, Trash2 } from "lucide-react";
+import { Loader2, Send, Trash2, Heart, MessageSquare, Plus, Sparkles } from "lucide-react";
 import { networkApi, NetworkPost, NetworkComment } from "@/apis";
 import { useAuth } from "@/store/AuthProvider";
 
@@ -73,29 +73,37 @@ function CommentSection({ post, currentUserId }: { post: NetworkPost; currentUse
   }
 
   return (
-    <div className="mt-3 pt-3 border-t border-white/[0.06]">
+    <div className="mt-3 pt-3 border-t border-white/5 flex flex-col gap-3">
       {loading ? (
-        <div className="flex justify-center py-3"><Loader2 size={18} className="animate-spin text-[#c8254a]" /></div>
+        <div className="flex justify-center py-4"><Loader2 size={18} className="animate-spin text-[#FF2D55]" /></div>
       ) : (
-        <div className="flex flex-col gap-2 mb-3 max-h-[260px] overflow-y-auto pr-1" style={{ scrollbarWidth: "thin" }}>
+        <div className="flex flex-col gap-2.5 mb-2 max-h-[260px] overflow-y-auto pr-1">
           {comments.length === 0 && (
-            <p className="text-[12px] text-text-muted text-center py-2">Коммент байхгүй байна</p>
+            <p className="text-[12px] text-[#F6F0F3]/40 text-center py-3">Одоогоор сэтгэгдэл байхгүй байна</p>
           )}
           {comments.map(c => (
-            <div key={c._id} className="flex gap-2 items-start group">
-              <AuthorAvatar author={c.user} size={26} />
+            <div key={c._id} className="flex gap-3 items-start group bg-white/[0.02] border border-white/[0.04] p-3 rounded-2xl">
+              <AuthorAvatar author={c.user} size={28} />
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className="text-[12px] font-semibold text-text-primary">
-                    {c.isAiGenerated ? "🤖 AI" : (c.user.name ?? c.user.username)}
+                <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                  <span className="text-[12.5px] font-bold text-white">
+                    {c.isAiGenerated ? (
+                      <span className="px-1.5 py-0.5 rounded bg-violet-500/10 border border-violet-500/20 text-[9px] font-extrabold text-violet-400 uppercase tracking-wide">
+                        🤖 AI хариулт
+                      </span>
+                    ) : (
+                      c.user.name ?? c.user.username
+                    )}
                   </span>
-                  <span className="text-[10px] text-text-muted">{timeAgo(c.createdAt)}</span>
+                  <span className="text-[10px] text-[#F6F0F3]/40 font-medium">{timeAgo(c.createdAt)}</span>
                 </div>
-                <p className="text-[13px] text-text-secondary leading-relaxed">{c.message}</p>
+                <p className="text-[13px] text-[#F6F0F3]/75 leading-relaxed m-0">{c.message}</p>
               </div>
               {c.user._id === currentUserId && (
-                <button onClick={() => removeComment(c._id)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity text-text-muted hover:text-[#e8415a] p-0.5">
+                <button
+                  onClick={() => removeComment(c._id)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity text-white/30 hover:text-[#FF2D55] p-1 cursor-pointer border-none bg-transparent"
+                >
                   <Trash2 size={13} />
                 </button>
               )}
@@ -103,18 +111,20 @@ function CommentSection({ post, currentUserId }: { post: NetworkPost; currentUse
           ))}
         </div>
       )}
-      <div className="flex gap-2 items-center">
+      <div className="flex gap-2.5 items-center mt-1">
         <input
           value={message}
           onChange={e => setMessage(e.target.value)}
           onKeyDown={e => e.key === "Enter" && !e.shiftKey && submit()}
-          placeholder="Коммент бичих..."
-          className="flex-1 bg-[rgba(255,255,255,0.04)] border border-white/[0.08] rounded-xl px-3 py-2 text-[13px] text-text-primary placeholder:text-text-muted outline-none focus:border-[rgba(200,37,74,0.4)]"
+          placeholder="Сэтгэгдэл бичих..."
+          className="flex-1 bg-white/[0.03] border border-white/10 rounded-xl px-4 py-2.5 text-[13px] text-white placeholder-[#F6F0F3]/30 outline-none focus:border-[#FF2D55]/50 transition-all font-sans"
         />
-        <button onClick={submit} disabled={submitting || !message.trim()}
-          className="w-9 h-9 rounded-xl flex items-center justify-center disabled:opacity-40 transition-all hover:-translate-y-0.5"
-          style={{ background: "linear-gradient(135deg,#c8254a,#780f20)" }}>
-          {submitting ? <Loader2 size={14} className="animate-spin text-white" /> : <Send size={14} className="text-white" />}
+        <button
+          onClick={submit}
+          disabled={submitting || !message.trim()}
+          className="w-10 h-10 rounded-xl flex items-center justify-center disabled:opacity-40 transition-all hover:-translate-y-0.5 border-none cursor-pointer bg-gradient-to-br from-[#FF5C8A] to-[#FF2D55] shadow-md shrink-0 active:translate-y-0"
+        >
+          {submitting ? <Loader2 size={15} className="animate-spin text-white" /> : <Send size={15} className="text-white" />}
         </button>
       </div>
     </div>
@@ -148,53 +158,70 @@ function PostCard({ post: initialPost, currentUserId, onDelete }: {
   const isOwn = author._id === currentUserId;
 
   return (
-    <div className="bg-bg-card border border-white/[0.05] rounded-[14px] p-4 transition-all duration-200 hover:border-[rgba(200,48,90,0.18)]">
+    <div className="bg-gradient-to-b from-white/[0.04] to-white/[0.01] border border-white/8 hover:border-[#FF2D55]/30 rounded-[20px] p-5 transition-all duration-300 hover:shadow-[0_12px_30px_rgba(0,0,0,0.5)] flex flex-col gap-3.5">
 
       {/* Author row */}
-      <div className="flex items-center gap-2.5 mb-3">
-        <Link href={`/profile/${author._id}`}>
-          <AuthorAvatar author={author} size={32} />
-        </Link>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <Link href={`/profile/${author._id}`}
-              className="text-[13px] font-semibold text-text-primary truncate hover:text-[#e8415a] transition-colors">
-              {author.name ?? author.username ?? "Хэрэглэгч"}
-            </Link>
-            {post.isPinned && (
-              <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-[rgba(232,184,80,0.12)] text-[#e8b850] border border-[rgba(232,184,80,0.25)]">
-                📌 Тогтоосон
-              </span>
-            )}
-            {post.category && (
-              <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-white/[0.06] text-text-muted border border-white/[0.08]">
-                {CAT_LABELS[post.category] ?? post.category}
-              </span>
-            )}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Link href={`/profile/${author._id}`}>
+            <AuthorAvatar author={author} size={36} />
+          </Link>
+          <div className="flex flex-col text-left">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Link href={`/profile/${author._id}`}
+                className="text-[13.5px] font-bold text-white truncate hover:text-[#FF2D55] transition-colors no-underline">
+                {author.name ?? author.username ?? "Хэрэглэгч"}
+              </Link>
+              {post.isPinned && (
+                <span className="px-2 py-0.5 rounded bg-amber-500/10 text-[#e8b850] border border-amber-500/20 text-[9px] font-extrabold uppercase tracking-wider flex items-center gap-0.5">
+                  📌 Тогтоосон
+                </span>
+              )}
+              {post.category && (
+                <span className="px-2 py-0.5 rounded bg-[#FF2D55]/8 text-[#FF5C8A] border border-[#FF2D55]/15 text-[9px] font-extrabold uppercase tracking-wider">
+                  {CAT_LABELS[post.category] ?? post.category}
+                </span>
+              )}
+            </div>
+            <span className="text-[10.5px] text-[#F6F0F3]/40 font-medium mt-0.5">{timeAgo(post.createdAt)}</span>
           </div>
-          <div className="text-[11px] text-text-muted">{timeAgo(post.createdAt)}</div>
         </div>
         {isOwn && (
-          <button onClick={() => networkApi.deletePost(post._id).then(() => onDelete(post._id))}
-            className="text-text-muted hover:text-[#e8415a] transition-colors p-1">
-            <Trash2 size={14} />
+          <button
+            onClick={() => networkApi.deletePost(post._id).then(() => onDelete(post._id))}
+            className="text-[#F6F0F3]/40 hover:text-[#FF2D55] transition-colors p-1.5 cursor-pointer bg-transparent border-none"
+          >
+            <Trash2 size={15} />
           </button>
         )}
       </div>
 
       {/* Content */}
-      <h3 className="text-[15px] font-bold mb-1.5 font-serif leading-snug">{post.title}</h3>
-      <p className="text-[13px] text-text-secondary leading-relaxed mb-3 line-clamp-3">{post.description}</p>
+      <div className="text-left">
+        <h3 className="text-[17px] font-bold text-white mb-2 leading-snug">{post.title}</h3>
+        <p className="text-[13.5px] text-[#F6F0F3]/65 leading-relaxed m-0 line-clamp-3">{post.description}</p>
+      </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-4">
-        <button onClick={toggleLike} disabled={liking}
-          className={`flex items-center gap-1.5 text-[13px] transition-colors ${post.likedByMe ? "text-[#e8415a]" : "text-text-muted hover:text-text-primary"}`}>
-          {post.likedByMe ? "❤️" : "🤍"} {post.likeCount}
+      <div className="flex items-center gap-5 pt-3.5 mt-1 border-t border-white/5">
+        <button
+          onClick={toggleLike}
+          disabled={liking}
+          className={`flex items-center gap-1.5 text-[13px] font-bold bg-transparent border-none cursor-pointer transition-transform active:scale-90 duration-200 ${
+            post.likedByMe ? "text-[#FF2D55]" : "text-[#F6F0F3]/50 hover:text-white"
+          }`}
+        >
+          <Heart size={16} fill={post.likedByMe ? "#FF2D55" : "none"} strokeWidth={post.likedByMe ? 0 : 2} />
+          <span>{post.likeCount}</span>
         </button>
-        <button onClick={() => setShowComments(v => !v)}
-          className="flex items-center gap-1.5 text-[13px] text-text-muted hover:text-text-primary transition-colors">
-          💬 {post.commentCount}
+        <button
+          onClick={() => setShowComments(v => !v)}
+          className={`flex items-center gap-1.5 text-[13px] font-bold bg-transparent border-none cursor-pointer transition-transform active:scale-90 duration-200 ${
+            showComments ? "text-white" : "text-[#F6F0F3]/50 hover:text-white"
+          }`}
+        >
+          <MessageSquare size={16} strokeWidth={2} />
+          <span>{post.commentCount} коммент</span>
         </button>
       </div>
 
@@ -270,70 +297,102 @@ export default function ForumPage() {
   })();
 
   return (
-    <div className="max-w-[860px] mx-auto w-full">
+    <div className="max-w-[860px] mx-auto w-full px-4 pb-20 sm:px-0">
 
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 mb-6">
+      <div className="flex items-center justify-between gap-4 mb-8 text-left">
         <div>
-          <h1 className="font-serif text-[22px] font-bold">Нийгэмлэгийн Forum</h1>
-          <p className="text-text-secondary text-[13px] mt-0.5">Санаа бодлоо чөлөөтэй хуваалц</p>
+          <h1 className="font-serif text-[26px] font-black text-white tracking-tight">Нийгэмлэгийн Forum</h1>
+          <p className="text-[#F6F0F3]/60 text-[13.5px] mt-1 leading-relaxed">Санаа бодлоо чөлөөтэй хуваалцаж, нийгэмлэгтэй танилцаарай</p>
         </div>
-        <button onClick={() => setShowModal(true)}
-          className="shrink-0 text-white border-none rounded-[12px] font-semibold text-[13px] cursor-pointer transition-all hover:-translate-y-0.5 px-4 py-2.5 bg-[linear-gradient(135deg,#d4365a,#9a1c3e)] shadow-[0_4px_20px_rgba(200,48,90,0.35)]">
-          ✏️ Бичих
+        <button
+          onClick={() => setShowModal(true)}
+          className="shrink-0 text-white border-none rounded-[14px] font-bold text-[13px] cursor-pointer transition-all hover:-translate-y-0.5 active:translate-y-0 px-5 py-3 bg-gradient-to-br from-[#FF5C8A] to-[#FF2D55] shadow-[0_4px_20px_rgba(255,45,85,0.4)] flex items-center gap-1.5"
+        >
+          <Plus size={16} strokeWidth={2.5} />
+          Нийтлэх
         </button>
       </div>
 
       {/* New post modal */}
       {showModal && (
         <div
-          className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center backdrop-blur-[8px] p-4 overflow-y-auto"
+          className="fixed inset-0 z-[100] bg-black/85 flex items-center justify-center backdrop-blur-md p-4 overflow-y-auto"
           onClick={e => { if (e.target === e.currentTarget) { setShowModal(false); setError(""); } }}
         >
-          <div className="bg-[rgba(17,14,30,0.97)] border border-white/[0.06] rounded-[24px] p-6 w-full max-w-[560px] my-auto">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="font-serif text-[20px] font-bold">Шинэ бичлэг</h3>
-              <button onClick={() => { setShowModal(false); setError(""); }}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-white/[0.06] transition-colors text-[18px]">
+          <div className="bg-[#0e0714]/98 border border-white/10 rounded-[24px] p-6 sm:p-8 w-full max-w-[560px] my-auto shadow-[0_24px_80px_rgba(0,0,0,0.8),_0_0_40px_rgba(255,45,85,0.1)]">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-serif text-[22px] font-bold text-white">Шинэ нийтлэг хийх</h3>
+              <button
+                onClick={() => { setShowModal(false); setError(""); }}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-[#F6F0F3]/50 hover:text-white hover:bg-white/10 transition-colors border-none bg-transparent cursor-pointer text-[18px]"
+              >
                 ✕
               </button>
             </div>
-            <div className="flex flex-col gap-3">
-              <input value={title} onChange={e => setTitle(e.target.value)}
-                className="bg-[rgba(11,9,20,0.8)] border border-white/[0.08] text-text-primary px-4 py-3 rounded-xl text-[14px] outline-none w-full placeholder:text-text-muted focus:border-[rgba(200,37,74,0.4)]"
-                placeholder="Гарчиг..." />
-              <textarea value={body} onChange={e => setBody(e.target.value)}
-                className="bg-[rgba(11,9,20,0.8)] border border-white/[0.08] text-text-primary px-4 py-3 rounded-xl text-[14px] outline-none w-full placeholder:text-text-muted resize-none focus:border-[rgba(200,37,74,0.4)]"
-                placeholder="Бичлэгийн агуулга..." rows={4} />
-
-              {/* Category — custom buttons instead of native select to avoid mobile picker glitch */}
-              <div className="flex gap-2">
-                {[
-                  { val: "" as const, label: "Ангилалгүй" },
-                  { val: "breakup" as const, label: "💔 Харилцаа" },
-                  { val: "friends" as const, label: "👥 Найзлалт" },
-                ].map(opt => (
-                  <button key={opt.val} type="button"
-                    onClick={() => setNewCat(opt.val)}
-                    className="flex-1 py-2.5 rounded-xl text-[13px] font-medium transition-all"
-                    style={{
-                      background: newCat === opt.val ? "rgba(200,37,74,0.15)" : "rgba(255,255,255,0.04)",
-                      border: newCat === opt.val ? "1px solid rgba(200,37,74,0.45)" : "1px solid rgba(255,255,255,0.08)",
-                      color: newCat === opt.val ? "#e8415a" : "var(--text-secondary)",
-                    }}>
-                    {opt.label}
-                  </button>
-                ))}
+            <div className="flex flex-col gap-4.5">
+              <div className="flex flex-col gap-1.5 text-left">
+                <label className="text-[12px] font-bold uppercase tracking-wider text-[#F6F0F3]/40 pl-1">Гарчиг</label>
+                <input
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                  className="bg-white/[0.03] border border-white/10 text-white px-4 py-3 rounded-xl text-[14px] outline-none w-full placeholder:text-[#F6F0F3]/25 focus:border-[#FF2D55] focus:ring-1 focus:ring-[#FF2D55] transition-all"
+                  placeholder="Бичлэгийн гарчиг юу вэ?"
+                />
               </div>
 
-              {error && <p className="text-[12px] text-[#e8415a]">{error}</p>}
-              <div className="flex gap-2 justify-end mt-1">
-                <button onClick={() => { setShowModal(false); setError(""); }}
-                  className="bg-transparent text-text-primary border border-white/[0.12] rounded-xl font-medium text-[13px] cursor-pointer px-5 py-2.5">
+              <div className="flex flex-col gap-1.5 text-left">
+                <label className="text-[12px] font-bold uppercase tracking-wider text-[#F6F0F3]/40 pl-1">Агуулга</label>
+                <textarea
+                  value={body}
+                  onChange={e => setBody(e.target.value)}
+                  className="bg-white/[0.03] border border-white/10 text-white px-4 py-3 rounded-xl text-[14px] outline-none w-full placeholder:text-[#F6F0F3]/25 resize-none focus:border-[#FF2D55] focus:ring-1 focus:ring-[#FF2D55] transition-all"
+                  placeholder="Санаа бодлоо энд хуваалцаарай..."
+                  rows={4}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5 text-left">
+                <label className="text-[12px] font-bold uppercase tracking-wider text-[#F6F0F3]/40 pl-1">Ангилал сонгох</label>
+                <div className="flex gap-2.5">
+                  {[
+                    { val: "" as const, label: "Ангилалгүй" },
+                    { val: "breakup" as const, label: "💔 Харилцаа" },
+                    { val: "friends" as const, label: "👥 Найзлалт" },
+                  ].map(opt => {
+                    const isSel = newCat === opt.val;
+                    return (
+                      <button
+                        key={opt.val}
+                        type="button"
+                        onClick={() => setNewCat(opt.val)}
+                        className={`flex-1 py-2.5 rounded-xl text-[13px] font-bold transition-all border cursor-pointer ${
+                          isSel
+                            ? "bg-[#FF2D55]/15 border-[#FF2D55]/50 text-[#FF5C8A]"
+                            : "bg-white/[0.03] border-white/10 text-[#F6F0F3]/50 hover:bg-white/[0.06] hover:text-white"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {error && <p className="text-[12px] text-[#FF2D55] font-semibold mt-1 text-left">{error}</p>}
+
+              <div className="flex gap-3 justify-end mt-2 pt-4 border-t border-white/5">
+                <button
+                  onClick={() => { setShowModal(false); setError(""); }}
+                  className="bg-transparent text-white border border-white/15 rounded-xl font-bold text-[13px] cursor-pointer px-5 py-2.5 hover:bg-white/5 hover:border-white/20 transition-all"
+                >
                   Болих
                 </button>
-                <button onClick={submitPost} disabled={submitting || !title.trim() || !body.trim()}
-                  className="text-white border-none rounded-xl font-semibold text-[13px] cursor-pointer px-5 py-2.5 disabled:opacity-50 flex items-center gap-2 bg-[linear-gradient(135deg,#d4365a,#9a1c3e)]">
+                <button
+                  onClick={submitPost}
+                  disabled={submitting || !title.trim() || !body.trim()}
+                  className="text-white border-none rounded-xl font-bold text-[13px] cursor-pointer px-5 py-2.5 disabled:opacity-50 flex items-center gap-2 bg-gradient-to-br from-[#FF5C8A] to-[#FF2D55] shadow-[0_4px_20px_rgba(255,45,85,0.4)] transition-all hover:-translate-y-0.5 active:translate-y-0"
+                >
                   {submitting && <Loader2 size={14} className="animate-spin" />}
                   Нийтлэх
                 </button>
@@ -344,31 +403,43 @@ export default function ForumPage() {
       )}
 
       {/* Categories */}
-      <div className="flex gap-2 overflow-x-auto pb-1 mb-5" style={{ scrollbarWidth: "none" }}>
-        {CATEGORIES.map(c => (
-          <button key={c.id} onClick={() => setCat(c.id)}
-            className="px-3.5 py-[6px] rounded-full text-[13px] cursor-pointer transition-all shrink-0 whitespace-nowrap"
-            style={{
-              background: cat === c.id ? `${c.color}18` : "transparent",
-              border: cat === c.id ? `1px solid ${c.color}50` : "1px solid rgba(255,255,255,0.1)",
-              color: cat === c.id ? c.color : "var(--text-secondary)",
-              fontWeight: cat === c.id ? 600 : 400,
-            }}>
-            {c.label}
-          </button>
-        ))}
+      <div className="flex gap-2.5 overflow-x-auto pb-1 mb-6 scrollbar-hide">
+        {CATEGORIES.map(c => {
+          const isActive = cat === c.id;
+          return (
+            <button
+              key={c.id}
+              onClick={() => setCat(c.id)}
+              className={`px-4.5 py-[7px] rounded-full text-[13.5px] cursor-pointer transition-all duration-200 shrink-0 whitespace-nowrap border font-bold ${
+                isActive
+                  ? "text-white shadow-md"
+                  : "text-[#F6F0F3]/60 bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 hover:text-white"
+              }`}
+              style={{
+                backgroundColor: isActive ? `${c.color}20` : undefined,
+                borderColor: isActive ? c.color : undefined,
+                boxShadow: isActive ? `0 0 16px ${c.color}22` : undefined,
+              }}
+            >
+              {c.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Posts */}
       {loading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 size={36} className="animate-spin text-[#c8254a]" />
+        <div className="flex justify-center py-24">
+          <Loader2 size={38} className="animate-spin text-[#FF2D55]" />
         </div>
       ) : displayed.length === 0 ? (
-        <p className="text-center text-text-muted py-16">Пост олдсонгүй</p>
+        <div className="flex flex-col items-center justify-center py-20 text-[#F6F0F3]/30 border border-white/5 bg-white/[0.01] rounded-2xl">
+          <Sparkles size={32} className="mb-2" />
+          <p className="text-[14.5px] font-medium">Нийтлэл олдсонгүй</p>
+        </div>
       ) : (
         <>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             {displayed.map(post => (
               <PostCard key={post._id} post={post} currentUserId={user?._id}
                 onDelete={id => setPosts(prev => prev.filter(p => p._id !== id))} />
@@ -376,9 +447,9 @@ export default function ForumPage() {
           </div>
 
           {cat === "new" && page < totalPages && (
-            <div className="flex justify-center mt-5">
+            <div className="flex justify-center mt-8">
               <button onClick={loadMore} disabled={loadingMore}
-                className="px-6 py-2.5 rounded-xl text-[13px] font-medium text-text-secondary border border-white/[0.1] hover:border-[rgba(200,37,74,0.3)] hover:text-text-primary transition-all disabled:opacity-50 flex items-center gap-2">
+                className="px-6 py-3 rounded-xl text-[13.5px] font-bold text-[#F6F0F3]/70 border border-white/10 hover:border-[#FF2D55]/30 hover:text-white bg-transparent cursor-pointer transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 flex items-center gap-2">
                 {loadingMore && <Loader2 size={14} className="animate-spin" />}
                 Цааш үзэх
               </button>

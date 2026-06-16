@@ -32,6 +32,58 @@ export default function SwipePage() {
   const totalPagesRef = useRef(1);
   const fetchingMore = useRef(false);
 
+  // Pointer dragging gesture tracking
+  const [drag, setDrag] = useState({ x: 0, y: 0, active: false });
+  const dragStart = useRef({ x: 0, y: 0 });
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (swiping || cards.length === 0) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragStart.current = { x: e.clientX, y: e.clientY };
+    setDrag({ x: 0, y: 0, active: true });
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!drag.active) return;
+    const deltaX = e.clientX - dragStart.current.x;
+    const deltaY = e.clientY - dragStart.current.y;
+    setDrag({ x: deltaX, y: deltaY, active: true });
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!drag.active) return;
+    e.currentTarget.releasePointerCapture(e.pointerId);
+
+    const deltaX = e.clientX - dragStart.current.x;
+    const deltaY = e.clientY - dragStart.current.y;
+    const dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+    if (dist < 8) {
+      // Quick tap -> photo navigation
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      if (clickX < rect.width / 2) {
+        if (top?.photos && top.photos.length > 1) {
+          setPhotoIndex(prev => (prev - 1 + top.photos!.length) % top.photos!.length);
+        }
+      } else {
+        if (top?.photos && top.photos.length > 1) {
+          setPhotoIndex(prev => (prev + 1) % top.photos!.length);
+        }
+      }
+    } else {
+      // Drag swipe action threshold
+      const threshold = 110;
+      if (deltaX > threshold) {
+        swipe("right");
+      } else if (deltaX < -threshold) {
+        swipe("left");
+      }
+    }
+
+    setDrag({ x: 0, y: 0, active: false });
+  };
+
   async function loadFeed(reset = false) {
     if (fetchingMore.current) return;
     fetchingMore.current = true;
@@ -100,6 +152,7 @@ export default function SwipePage() {
 
   const top = cards[0];
   const next = cards[1];
+  const age = top?.birthYear ? new Date().getFullYear() - top.birthYear : null;
 
   return (
     <div className="max-w-[480px] mx-auto flex flex-col">
@@ -225,10 +278,13 @@ export default function SwipePage() {
           {next && (
             <div className="absolute inset-0 rounded-[28px] overflow-hidden"
               style={{
-                transform: "scale(0.93) translateY(20px)",
+                transform: drag.active
+                  ? `scale(${0.93 + Math.min(0.07, (Math.abs(drag.x) / 120) * 0.07)}) translateY(${20 - Math.min(20, (Math.abs(drag.x) / 120) * 20)}px)`
+                  : "scale(0.93) translateY(20px)",
                 transformOrigin: "bottom center",
                 background: "linear-gradient(160deg, #1a0a18 0%, #0a0408 100%)",
                 zIndex: 1,
+                transition: drag.active ? "none" : "transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94)",
               }}>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-20 h-20 rounded-full flex items-center justify-center text-[36px] font-black text-white overflow-hidden"
@@ -245,20 +301,27 @@ export default function SwipePage() {
 
           {/* Front card */}
           {top && (
-            <div className="absolute inset-0 rounded-[28px] overflow-hidden cursor-grab active:cursor-grabbing shadow-[0_24px_60px_rgba(0,0,0,0.6)]"
+            <div
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              className="absolute inset-0 rounded-[28px] overflow-hidden cursor-grab active:cursor-grabbing shadow-[0_24px_60px_rgba(0,0,0,0.6)] touch-none"
               style={{
                 zIndex: 2,
                 background: "#0d0408",
-                transform: swipeDir === "left"
-                  ? "translateX(-150%) rotate(-20deg)"
-                  : swipeDir === "right"
-                    ? "translateX(150%) rotate(20deg)"
-                    : "none",
-                transition: swipeDir ? "transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94)" : "none",
-              }}>
+                transform: drag.active
+                  ? `translate(${drag.x}px, ${drag.y}px) rotate(${drag.x * 0.04}deg)`
+                  : swipeDir === "left"
+                    ? "translateX(-150%) rotate(-20deg)"
+                    : swipeDir === "right"
+                      ? "translateX(150%) rotate(20deg)"
+                      : "none",
+                transition: drag.active ? "none" : "transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94)",
+              }}
+            >
 
               {/* Photo Display */}
-              <div className="absolute inset-0 bg-bg-card">
+              <div className="absolute inset-0 bg-bg-card select-none pointer-events-none">
                 {top.photos && top.photos.length > 0 ? (
                   <img
                     src={top.photos[photoIndex]}
@@ -279,17 +342,9 @@ export default function SwipePage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
               </div>
 
-              {/* Photo Navigation Overlays */}
-              {top.photos && top.photos.length > 1 && (
-                <div className="absolute inset-0 flex z-10">
-                  <div className="flex-1 cursor-pointer" onClick={prevPhoto} title="Өмнөх" />
-                  <div className="flex-1 cursor-pointer" onClick={nextPhoto} title="Дараах" />
-                </div>
-              )}
-
               {/* Progress Bars */}
               {top.photos && top.photos.length > 1 && (
-                <div className="absolute top-3 left-4 right-4 flex gap-1.5 z-20">
+                <div className="absolute top-3 left-4 right-4 flex gap-1.5 z-20 select-none pointer-events-none">
                   {top.photos.map((_, i) => (
                     <div key={i} className="h-1 flex-1 rounded-full overflow-hidden bg-white/20 backdrop-blur-md">
                       <div
@@ -303,43 +358,59 @@ export default function SwipePage() {
 
               {/* Online badge */}
               {top.isOnline && (
-                <div className="absolute top-4 left-4 flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-[10px]"
+                <div className="absolute top-4 left-4 flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-[10px] z-20 select-none pointer-events-none"
                   style={{ background: "rgba(0,0,0,0.55)", border: "1px solid rgba(60,200,120,0.3)" }}>
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#3cc878]" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#3cc878] animate-pulse" />
                   <span className="text-[11px] font-medium text-[#3cc878]">Онлайн</span>
                 </div>
               )}
 
-              {/* Swipe stamps */}
-              {swipeDir === "left" && (
-                <div className="absolute top-6 left-5 px-4 py-1.5 rounded-xl rotate-[-12deg]"
-                  style={{ background: "rgba(200,37,74,0.85)", border: "2px solid rgba(232,65,90,0.8)" }}>
-                  <span className="font-black text-[18px] text-white tracking-widest">ҮГҮЙ</span>
-                </div>
-              )}
-              {swipeDir === "right" && (
-                <div className="absolute top-6 right-5 px-4 py-1.5 rounded-xl rotate-[12deg]"
-                  style={{ background: "rgba(30,140,70,0.85)", border: "2px solid rgba(60,200,120,0.8)" }}>
-                  <span className="font-black text-[18px] text-white tracking-widest">ТИЙМ</span>
-                </div>
-              )}
+              {/* Swipe stamps (Dynamic Opacity when dragging) */}
+              <div
+                className="absolute top-8 right-6 px-4 py-1.5 rounded-xl border-4 border-emerald-500 bg-emerald-500/10 text-emerald-500 text-[22px] font-black uppercase tracking-[0.2em] rotate-[12deg] shadow-[0_0_20px_rgba(16,185,129,0.3)] pointer-events-none transition-opacity duration-100 z-30 select-none"
+                style={{
+                  opacity: swipeDir === "right" ? 1 : drag.active && drag.x > 15 ? Math.max(0, Math.min(1, (drag.x - 15) / 80)) : 0,
+                }}
+              >
+                ТИЙМ
+              </div>
+
+              <div
+                className="absolute top-8 left-6 px-4 py-1.5 rounded-xl border-4 border-[#FF2D55] bg-[#FF2D55]/10 text-[#FF2D55] text-[22px] font-black uppercase tracking-[0.2em] rotate-[-12deg] shadow-[0_0_20px_rgba(255,45,85,0.3)] pointer-events-none transition-opacity duration-100 z-30 select-none"
+                style={{
+                  opacity: swipeDir === "left" ? 1 : drag.active && drag.x < -15 ? Math.max(0, Math.min(1, (-drag.x - 15) / 80)) : 0,
+                }}
+              >
+                ҮГҮЙ
+              </div>
 
               {/* Bottom info */}
-              <div className="absolute bottom-0 left-0 right-0 px-6 py-6"
-                style={{ background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.7) 60%, transparent 100%)" }}>
-                <div className="flex items-baseline gap-2 mb-1">
+              <div className="absolute bottom-0 left-0 right-0 px-6 pt-16 pb-6 z-20 select-none pointer-events-none"
+                style={{ background: "linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 55%, transparent 100%)" }}>
+                <div className="flex items-baseline gap-2 mb-1.5 flex-wrap">
                   <h2 className="font-serif text-[26px] font-black text-white leading-none">
                     {top.name ?? top.username}
                   </h2>
-                  {top.birthYear && <span className="text-[18px] text-white/60 font-light">{top.birthYear}</span>}
-                  {top.gender && <span className="text-[12px] text-white/40">{GENDERS[top.gender] ?? top.gender}</span>}
+                  {age && <span className="text-[23px] text-white/90 font-medium leading-none">{age}</span>}
                 </div>
-                {top.isOnline !== undefined && (
-                  <div className="flex items-center gap-1 text-white/50 text-[12px] mb-3">
-                    <MapPin size={11} strokeWidth={2} />
-                    <span>Улаанбаатар</span>
-                  </div>
-                )}
+                
+                <div className="flex items-center gap-1.5 text-white/50 text-[12px] mb-3">
+                  <MapPin size={12} strokeWidth={2} />
+                  <span>Улаанбаатар</span>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 mt-2.5">
+                  {top.gender && (
+                    <span className="px-2.5 py-0.75 rounded-md bg-white/10 backdrop-blur-md border border-white/10 text-[11px] font-bold text-white/80 uppercase tracking-wide">
+                      {GENDERS[top.gender] || top.gender}
+                    </span>
+                  )}
+                  {top.exp && (
+                    <span className="px-2.5 py-0.75 rounded-md bg-[#e8415a]/10 backdrop-blur-md border border-[#e8415a]/20 text-[11px] font-bold text-[#FF5C8A]">
+                      XP {top.exp}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -349,30 +420,39 @@ export default function SwipePage() {
       {/* Action buttons */}
       {!loading && cards.length > 0 && (
         <div className="flex items-center justify-center gap-6 pb-4">
-          <button onClick={() => swipe("left")} disabled={swiping || quota?.remaining === 0}
-            className="w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ background: "rgba(232,65,90,0.1)", border: "1.5px solid rgba(232,65,90,0.35)", boxShadow: "0 4px 16px rgba(232,65,90,0.15)" }}>
-            <X size={22} strokeWidth={2.5} style={{ color: "#e8415a" }} />
+          <button
+            onClick={() => swipe("left")}
+            disabled={swiping || quota?.remaining === 0}
+            className="w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-115 active:scale-90 disabled:opacity-30 disabled:cursor-not-allowed bg-[#FF2D55]/10 border border-[#FF2D55]/30 hover:border-[#FF2D55] text-[#FF2D55] shadow-[0_4px_16px_rgba(255,45,85,0.1)] hover:bg-[#FF2D55]/20 cursor-pointer"
+          >
+            <X size={22} strokeWidth={2.5} />
           </button>
 
-          <button onClick={() => swipe("right")} disabled={swiping || quota?.remaining === 0}
-            className="w-[72px] h-[72px] rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ background: "linear-gradient(135deg, #e8415a, #9e1838)", boxShadow: "0 6px 30px rgba(200,37,74,0.55)" }}>
-            {swiping
-              ? <Loader2 size={26} className="animate-spin text-white" />
-              : <Heart size={30} fill="white" strokeWidth={0} />}
+          <button
+            onClick={() => swipe("right")}
+            disabled={swiping || quota?.remaining === 0}
+            className="w-[70px] h-[70px] rounded-full flex items-center justify-center transition-all duration-200 hover:scale-115 active:scale-90 disabled:opacity-30 disabled:cursor-not-allowed bg-gradient-to-br from-[#FF5C8A] to-[#FF2D55] shadow-[0_8px_24px_rgba(255,45,85,0.45)] hover:shadow-[0_12px_30px_rgba(255,45,85,0.6)] text-white cursor-pointer hover:animate-pulse"
+          >
+            {swiping ? (
+              <Loader2 size={26} className="animate-spin text-white" />
+            ) : (
+              <Heart size={30} fill="white" strokeWidth={0} />
+            )}
           </button>
 
-          <button className="w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
-            style={{ background: "rgba(232,184,80,0.1)", border: "1.5px solid rgba(232,184,80,0.35)", boxShadow: "0 4px 16px rgba(232,184,80,0.15)" }}>
-            <Star size={22} strokeWidth={2} style={{ color: "#e8b850" }} />
+          <button
+            onClick={() => swipe("right")}
+            disabled={swiping || quota?.remaining === 0}
+            className="w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-115 active:scale-90 disabled:opacity-30 disabled:cursor-not-allowed bg-[#FFCC00]/10 border border-[#FFCC00]/30 hover:border-[#FFCC00] text-[#FFCC00] shadow-[0_4px_16px_rgba(255,204,0,0.1)] hover:bg-[#FFCC00]/20 cursor-pointer"
+          >
+            <Star size={22} strokeWidth={2} />
           </button>
         </div>
       )}
 
       {/* Quota exhausted */}
       {quota?.remaining === 0 && !loading && (
-        <p className="text-center text-[13px] text-[#e8415a] pb-4">Өнөөдрийн swipe дууссан. Маргааш дахин ир!</p>
+        <p className="text-center text-[13px] text-[#e8415a] pb-4 font-bold animate-pulse">Өнөөдрийн swipe дууссан. Маргааш дахин ир!</p>
       )}
     </div>
   );

@@ -7,6 +7,7 @@ export interface SwipeUser {
   gender?: string;
   birthYear?: number;
   isOnline?: boolean;
+  exp?: number;
 }
 
 export interface SwipeQuota {
