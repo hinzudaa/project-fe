@@ -7,10 +7,11 @@ import { useAuth } from "@/store/AuthProvider";
 const BASE_URL = "https://projectm.zuraach.site";
 const GENDERS: Record<string, string> = { male: "Эрэгтэй", female: "Эмэгтэй", other: "Бусад" };
 
-function resolveAvatar(avatar?: string) {
-  if (!avatar) return null;
-  if (avatar.startsWith("http://") || avatar.startsWith("https://")) return avatar;
-  return `${BASE_URL}${avatar}`;
+function resolveAvatar(avatar?: string | null, photos?: string[]) {
+  const url = avatar || (photos && photos.length > 0 ? photos[0] : null);
+  if (!url) return null;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `${BASE_URL}${url}`;
 }
 
 function avatarLetter(u: SwipeUser) {
@@ -150,9 +151,11 @@ export default function SwipePage() {
                 {/* My avatar */}
                 <div className="w-[66px] h-[66px] rounded-full overflow-hidden flex items-center justify-center text-[26px] font-black text-white shrink-0"
                   style={{ background: "linear-gradient(135deg, #e8415a, #9e1838)", boxShadow: "0 4px 24px rgba(200,37,74,0.55)", animation: "matchAvatarPop 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.15s both" }}>
-                  {user?.avatar
-                    ? <img src={resolveAvatar(user.avatar)!} className="w-full h-full object-cover" alt="" />
-                    : (user?.name ?? "М")[0].toUpperCase()}
+                  {user?.avatar ? (
+                    <img src={resolveAvatar(user.avatar, user.photos)!} className="w-full h-full object-cover" alt="" />
+                  ) : (
+                    (user?.name ?? "М")[0].toUpperCase()
+                  )}
                 </div>
 
                 <div className="relative w-10 h-10 flex items-center justify-center">
@@ -167,9 +170,11 @@ export default function SwipePage() {
                 {/* Match avatar */}
                 <div className="w-[66px] h-[66px] rounded-full overflow-hidden flex items-center justify-center text-[26px] font-black text-white shrink-0"
                   style={{ background: "linear-gradient(135deg, #c8254a, #780f20)", boxShadow: "0 4px 24px rgba(200,37,74,0.4)", animation: "matchAvatarPop 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.3s both" }}>
-                  {matchResult.target.avatar
-                    ? <img src={resolveAvatar(matchResult.target.avatar)!} className="w-full h-full object-cover" alt="" />
-                    : avatarLetter(matchResult.target)}
+                  {matchResult.target.avatar ? (
+                    <img src={resolveAvatar(matchResult.target.avatar, matchResult.target.photos)!} className="w-full h-full object-cover" alt="" />
+                  ) : (
+                    avatarLetter(matchResult.target)
+                  )}
                 </div>
               </div>
 
@@ -228,9 +233,11 @@ export default function SwipePage() {
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-20 h-20 rounded-full flex items-center justify-center text-[36px] font-black text-white overflow-hidden"
                   style={{ background: "linear-gradient(135deg, #6b1528, #2a0814)" }}>
-                  {next.avatar
-                    ? <img src={resolveAvatar(next.avatar)!} className="w-full h-full object-cover" alt="" />
-                    : avatarLetter(next)}
+                  {next.avatar ? (
+                    <img src={resolveAvatar(next.avatar, next.photos)!} className="w-full h-full object-cover" alt="" />
+                  ) : (
+                    avatarLetter(next)
+                  )}
                 </div>
               </div>
             </div>
@@ -260,7 +267,7 @@ export default function SwipePage() {
                   />
                 ) : top.avatar ? (
                   <img
-                    src={resolveAvatar(top.avatar)!}
+                    src={resolveAvatar(top.avatar, top.photos)!}
                     className="w-full h-full object-cover select-none pointer-events-none"
                     alt=""
                   />

@@ -18,6 +18,7 @@
 
   --font-serif: var(--font-playfair), serif;
   --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+  --font-cursive: var(--font-allura), cursive;
 
   --animate-orb-drift: orb-drift 16s ease-in-out infinite;
   --animate-orb-drift-rev: orb-drift 22s ease-in-out infinite reverse;
@@ -25,6 +26,9 @@
   --animate-heartbeat: heartbeat 0.6s ease 3;
   --animate-float: float 5s ease-in-out infinite;
   --animate-fade-up: fadeUp 0.5s ease forwards;
+  --animate-his-pulse: hisPulse 2s infinite;
+  --animate-swipe-left: swipeLeft 0.45s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
+  --animate-swipe-right: swipeRight 0.45s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
 }
 
 :root {
@@ -50,6 +54,9 @@
 @keyframes shimmer { from { background-position: -200% 0; } to { background-position: 200% 0; } }
 @keyframes orb-drift { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(30px,-20px) scale(1.04); } 66% { transform: translate(-15px,25px) scale(0.97); } }
 @keyframes subtle-glow { 0%,100% { box-shadow: 0 0 40px rgba(158,24,56,0.12); } 50% { box-shadow: 0 0 70px rgba(158,24,56,0.22); } }
+@keyframes hisPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.55); } 50% { box-shadow: 0 0 0 5px rgba(74,222,128,0); } }
+@keyframes swipeLeft { to { transform: translateX(-150%) rotate(-20deg); opacity: 0; } }
+@keyframes swipeRight { to { transform: translateX(150%) rotate(20deg); opacity: 0; } }
 
 @layer components {
   .liquid-glass {

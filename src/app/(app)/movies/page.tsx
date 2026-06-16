@@ -1,7 +1,7 @@
 "use client";
 import useSWR from "swr";
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Play, Lock, CheckCircle, X, Film, Zap, Package, ShoppingCart } from "lucide-react";
+import { Loader2, Play, Lock, CheckCircle, X, Film, Zap, Package, ShoppingCart, ChevronRight } from "lucide-react";
 import { movieApi, Movie, MovieBundle, QPayInvoice, MovieBulkPurchaseResponse, MovieBundlePurchaseResponse } from "@/apis";
 
 const BASE_URL = "https://projectm.zuraach.site";
@@ -157,7 +157,7 @@ export default function MoviesPage() {
             <p className="text-[16px]">Одоогоор Бичлэг байхгүй байна</p>
           </div>
         ) : (
-          <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
             {filtered.map(m => (
               <MovieCard
                 key={m._id}
@@ -232,85 +232,126 @@ function MovieCard({
 
   return (
     <div
-      className={`group flex flex-col rounded-2xl overflow-hidden border cursor-pointer transition-all duration-200 bg-[#18141c] ${isSelected
-        ? "border-[#e8415a] shadow-[0_0_0_2px_rgba(232,65,90,0.3)]"
-        : "border-white/[0.08] hover:border-white/20"
-        }`}
+      onClick={() => onClick(movie)}
+      className={`relative w-full rounded-[24px] overflow-hidden border cursor-pointer transition-all duration-[400ms] flex flex-col h-full bg-gradient-to-b from-white/[0.04] to-white/[0.01] group ${
+        isSelected
+          ? "border-[#FF2D55] shadow-[0_0_0_2px_rgba(255,45,85,0.3)]"
+          : "border-white/10 hover:border-[#FF2D55]/50 hover:shadow-[0_20px_45px_rgba(255,45,85,0.15)] hover:-translate-y-1.5"
+      }`}
     >
-      {/* Poster — always visible, never blurred */}
-      <div
-        className="relative aspect-[2/3] overflow-hidden bg-[#1f1a25]"
-        onClick={() => onClick(movie)}
-      >
+      {/* Cinematic Backdrop Image */}
+      <div className="aspect-video relative overflow-hidden bg-gradient-to-br from-white/5 to-white/2 shrink-0">
         {img ? (
           <img
             src={img}
             alt={movie.title}
             loading="lazy"
             decoding="async"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 blur-[5px]"
+            className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${!isOwned ? "blur-[20px] opacity-75" : ""}`}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-white/5 to-white/2">
             <Film size={36} className="text-white/10" />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
-        {/* Owned badge */}
+        {/* Immersive Dark Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#040208] via-transparent to-black/20" />
+
+        {/* Interactive Play Overlay for owned movies on hover */}
         {isOwned && (
-          <div className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#3cc878] text-white text-[12px] font-bold shadow-lg">
-            <CheckCircle size={12} strokeWidth={2.5} />
-            Авсан
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="w-12 h-12 rounded-full bg-white/25 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-xl transform scale-75 group-hover:scale-100 transition-transform duration-300">
+              <Play size={20} fill="white" strokeWidth={0} className="ml-1" />
+            </div>
           </div>
         )}
 
-        {/* Genre badge */}
-        {movie.genres[0] && !isOwned && (
-          <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-black/60 text-white/90 text-[12px] font-medium">
-            {movie.genres[0]}
+        {/* Interactive Lock Overlay for unowned movies on hover */}
+        {!isOwned && !isSelected && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/90 shadow-lg transform scale-75 group-hover:scale-100 transition-transform duration-300">
+              <Lock size={16} strokeWidth={2} className="text-[#FF2D55]" />
+            </div>
+          </div>
+        )}
+
+        {/* Price badge / Lock overlay if not owned */}
+        {!isOwned && (
+          <div className="absolute top-3.5 left-3.5 px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-white text-[11px] font-bold shadow-md flex items-center gap-1.5">
+            <Lock size={10} strokeWidth={2.5} className="text-[#FF2D55]" />
+            ₮{movie.effectivePrice.toLocaleString()}
           </div>
         )}
 
         {/* Selection checkbox for unowned */}
         {!isOwned && (
           <button
-            onClick={e => { e.stopPropagation(); onSelect(movie._id); }}
-            className={`absolute top-2.5 right-2.5 w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all ${isSelected
-              ? "bg-[#e8415a] border-[#e8415a]"
-              : "bg-black/40 border-white/40 hover:border-white/80"
-              }`}
+            onClick={e => {
+              e.stopPropagation();
+              onSelect(movie._id);
+            }}
+            className={`absolute top-3.5 right-3.5 w-7 h-7 rounded-lg border flex items-center justify-center transition-all z-20 ${
+              isSelected
+                ? "bg-[#FF2D55] border-[#FF2D55] shadow-lg"
+                : "bg-black/40 border-white/30 hover:border-white/60 hover:bg-black/60"
+            }`}
           >
-            {isSelected && <CheckCircle size={15} className="text-white" strokeWidth={2.5} />}
+            {isSelected && <CheckCircle size={14} className="text-white" strokeWidth={3} />}
           </button>
+        )}
+
+        {/* Owned badge */}
+        {isOwned && (
+          <div className="absolute top-3.5 left-3.5 px-2.5 py-1 rounded-lg bg-emerald-500/90 backdrop-blur-md border border-emerald-400/20 text-white text-[11px] font-bold shadow-md flex items-center gap-1">
+            <CheckCircle size={10} strokeWidth={2.5} className="text-white" />
+            Нээлттэй
+          </div>
         )}
       </div>
 
-      {/* Card footer */}
-      <div className="p-3 flex flex-col gap-2">
-        <div onClick={() => onClick(movie)}>
-          <h3 className="font-bold text-[14px] text-white leading-snug line-clamp-2">{movie.title}</h3>
-        </div>
-
-        {isOwned ? (
-          <button
-            onClick={() => onClick(movie)}
-            className="w-full py-2 rounded-xl bg-[#3cc878] text-white font-bold text-[13px] flex items-center justify-center gap-2 border-none cursor-pointer hover:bg-[#2daa65] transition-colors"
-          >
-            <Play size={14} fill="white" /> Үзэх
-          </button>
-        ) : (
-          <button
-            onClick={() => onClick(movie)}
-            className={`w-full py-2 rounded-xl font-bold text-[13px] flex items-center justify-center gap-1.5 border-none cursor-pointer transition-all ${isSelected
-              ? "bg-[#e8415a] text-white"
-              : "bg-white/[0.07] text-white hover:bg-[#e8415a] hover:text-white"
-              }`}
-          >
-            {isSelected ? <CheckCircle size={13} strokeWidth={2.5} /> : <Lock size={13} />}
-            {fmtPrice(movie.effectivePrice)}
-          </button>
+      {/* Card Metadata & Content */}
+      <div className="p-5 text-left flex flex-col flex-1 gap-2.5">
+        {/* Genre Tags */}
+        {movie.genres && movie.genres.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {movie.genres.slice(0, 2).map(g => (
+              <span key={g} className="px-2.5 py-0.5 rounded-md bg-[#FF2D55]/8 border border-[#FF2D55]/15 text-[9px] font-extrabold text-[#FF5C8A] uppercase tracking-wider">{g}</span>
+            ))}
+          </div>
         )}
+
+        {/* Title */}
+        <h4 className="text-[17px] font-bold text-white truncate leading-tight group-hover:text-[#FF2D55] transition-colors duration-200 m-0">
+          {movie.title}
+        </h4>
+
+        {/* Short Description */}
+        {movie.description && (
+          <p className="text-[13px] text-[#F6F0F3]/50 line-clamp-2 m-0 leading-relaxed min-h-[38px]">
+            {movie.description}
+          </p>
+        )}
+
+        {/* Footer Card Info */}
+        <div className="flex items-center justify-between mt-auto pt-3.5 border-t border-white/5 text-[11.5px] text-[#F6F0F3]/45 font-medium">
+          <span>
+            {movie.duration ? `${movie.duration} мин` : ""}
+            {movie.duration && movie.releaseYear ? " • " : ""}
+            {movie.releaseYear || ""}
+          </span>
+          {isOwned ? (
+            <span className="flex items-center gap-1 font-bold text-[#3cc878] text-[12px] group-hover:underline">
+              Үзэх
+              <ChevronRight size={13} strokeWidth={3} className="group-hover:translate-x-0.5 transition-transform duration-200" />
+            </span>
+          ) : (
+            <span className={`flex items-center gap-1 font-bold text-[12px] group-hover:underline ${isSelected ? "text-white" : "text-[#FF2D55]"}`}>
+              {isSelected ? "Сонгосон" : "Нээх"}
+              <ChevronRight size={13} strokeWidth={3} className="group-hover:translate-x-0.5 transition-transform duration-200" />
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

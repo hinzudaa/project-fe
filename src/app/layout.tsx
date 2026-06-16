@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Sans, Playfair_Display, Instrument_Serif } from "next/font/google";
+import { DM_Sans, Playfair_Display, Instrument_Serif, Allura } from "next/font/google";
 import "./globals.css";
 import Header from "./_components/Header";
 import { AuthProvider } from "@/store/AuthProvider";
@@ -30,6 +30,13 @@ const instrument = Instrument_Serif({
   display: "swap",
 });
 
+const allura = Allura({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-allura",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Huslen",
   description: "Насанд хүрэгчдийн Монголын Нийгэмлэг",
@@ -40,7 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="mn"
       data-scroll-behavior="smooth"
-      className={`${dmSans.variable} ${playfair.variable} ${instrument.variable}`}
+      className={`${dmSans.variable} ${playfair.variable} ${instrument.variable} ${allura.variable}`}
     >
       <body>
         <AuthProvider>
